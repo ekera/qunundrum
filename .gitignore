@@ -1,0 +1,49 @@
+# Files and directories produced during runs
+distributions/*
+plots/*
+logs/*
+
+# Files and directories produced when generating documentation
+docs/html/*
+docs/doxygen_*
+
+# Object files
+obj/*.o
+obj/test/*.o
+
+# Executables
+/generate_distribution
+/generate_linear_distribution
+/generate_linear_distribution_rsa
+/generate_diagonal_distribution
+/filter_distribution
+/solve_distribution
+/solve_linear_distribution
+/solve_linear_distribution_shor
+/solve_diagonal_distribution_shor
+/info_distribution
+/info_linear_distribution
+/info_diagonal_distribution
+/plot_distribution
+/plot_linear_distribution
+/plot_diagonal_distribution
+/estimate_runs_distribution
+/estimate_runs_linear_distribution
+/sample_distribution
+/sample_linear_distribution
+/sample_diagonal_distribution
+/compare_distributions
+/compare_linear_distributions
+/compare_diagonal_distributions
+/rsa_simulate_tau
+/test
+
+# Hidden files
+.DS_Store
+.fuse_hidden*
+.vscode/*
+
+# Slurm and batch scripts
+/slurm-*.out
+/slurm-*.err
+/*.sh
