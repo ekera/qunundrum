@@ -238,10 +238,10 @@ static int distribution_sort_slices_cmp(
   const void * const b)
 {
   const Distribution_Slice * const slice_a = 
-    *((const Distribution_Slice * const * const)a);
+    *((const Distribution_Slice * const *)a);
 
   const Distribution_Slice * const slice_b = 
-    *((const Distribution_Slice * const * const)b);
+    *((const Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
     return -1;

@@ -37,10 +37,10 @@ static int diagonal_distribution_enumerator_sort_coordinates_cmp(
   const void * const b)
 {
   const Diagonal_Distribution_Coordinate * const coordinate_a = 
-    *((const Diagonal_Distribution_Coordinate * const * const)a);
+    *((const Diagonal_Distribution_Coordinate * const *)a);
 
   const Diagonal_Distribution_Coordinate * const coordinate_b = 
-    *((const Diagonal_Distribution_Coordinate * const * const)b);
+    *((const Diagonal_Distribution_Coordinate * const *)b);
   
   if ((coordinate_a->distance) > (coordinate_b->distance)) {
     return 1;

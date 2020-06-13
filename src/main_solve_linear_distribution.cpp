@@ -627,7 +627,7 @@ static void main_server(
 
         /* Update the success and failure counts. */
         const Lattice_Status_Recovery recovery_status =
-          (const Lattice_Status_Recovery)solution[1];
+          (Lattice_Status_Recovery)solution[1];
 
         switch (recovery_status) {
           case LATTICE_STATUS_RECOVERED_IMMEDIATE:

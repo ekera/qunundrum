@@ -198,10 +198,10 @@ static int diagonal_distribution_sort_slices_cmp(
   const void * const b)
 {
   const Diagonal_Distribution_Slice * const slice_a = 
-    *((const Diagonal_Distribution_Slice * const * const)a);
+    *((const Diagonal_Distribution_Slice * const *)a);
 
   const Diagonal_Distribution_Slice * const slice_b = 
-    *((const Diagonal_Distribution_Slice * const * const)b);
+    *((const Diagonal_Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
     return -1;

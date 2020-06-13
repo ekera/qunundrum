@@ -626,10 +626,10 @@ static void main_server(
 
         /* Update the success and failure counts. */
         const Lattice_Status_Recovery recovery_status_d =
-          (const Lattice_Status_Recovery)solution[1];
+          (Lattice_Status_Recovery)solution[1];
 
         const Lattice_Status_Recovery recovery_status_r =
-          (const Lattice_Status_Recovery)solution[2];
+          (Lattice_Status_Recovery)solution[2];
 
         bool success = TRUE;
 
