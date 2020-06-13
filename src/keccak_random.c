@@ -6,7 +6,7 @@
  *          number generator based on Keccak-f.
  *
  * \remark  This random number generator has not been formally evaluated. It is
- *          not fit for, and must not used for, any cryptographic purposes.
+ *          not fit for, and must not be used for, any cryptographic purposes.
  */
 
 #include "keccak_random.h"

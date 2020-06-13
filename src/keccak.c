@@ -2,10 +2,10 @@
  * \file    keccak.c
  * \ingroup keccak
  *
- * \brief   The definition the Keccak-f permutation.
+ * \brief   The definition of the Keccak-f permutation.
  *
  * \remark  This implementation of Keccak-f has not been formally evaluated. It
- *          is not fit for, and must not used for, any cryptographic purposes.
+ *          is not fit for, and must not be used for, cryptographic purposes.
  *
  * This implementation is inspired by the Keccak team's reference implementation
  * and by the excellent tiny SHA-3 implementation by Saarinen.
@@ -56,7 +56,7 @@ static const uint32_t KECCAK_PI_LANE_INDICES[KECCAK_ROUNDS] =
 void keccak_f(
   uint64_t * const lanes)
 {
-  /* Temporary variabls. */
+  /* Temporary variables. */
   uint64_t tmp_lanes[5];
 
   uint64_t tmp_lane;

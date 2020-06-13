@@ -2,10 +2,10 @@
  * \file    keccak.h
  * \ingroup keccak
  *
- * \brief   The declaration the Keccak-f permutation.
+ * \brief   The declaration of the Keccak-f permutation.
  *
  * \remark  This implementation of Keccak-f has not been formally evaluated. It
- *          is not fit for, and must not used for, any cryptographic purposes.
+ *          is not fit for, and must not be used for, cryptographic purposes.
  *
  * This implementation is inspired by the Keccak team's reference implementation
  * and by the excellent tiny SHA-3 implementation by Saarinen.
