@@ -45,9 +45,9 @@ void test_keccak_random() {
 
   for (uint32_t i = KECCAK_RANDOM_SEED_LENGTH; i < 8 * KECCAK_LANE_COUNT; i++) {
     EXPECTED[i - KECCAK_RANDOM_SEED_LENGTH] = 
-      (uint8_t)((KECCAK_EXPECTED_FIRST[i / 8] >> (56 - 8 * i)) & 0xff);
+      (uint8_t)((KECCAK_EXPECTED_FIRST[i / 8] >> (56 - 8 * (i % 8))) & 0xff);
     EXPECTED[i + 8 * KECCAK_LANE_COUNT - 2 * KECCAK_RANDOM_SEED_LENGTH] = 
-      (uint8_t)((KECCAK_EXPECTED_SECOND[i / 8] >> (56 - 8 * i)) & 0xff);
+      (uint8_t)((KECCAK_EXPECTED_SECOND[i / 8] >> (56 - 8 * (i % 8))) & 0xff);
   }
 
   /* Read byte by byte from the state and verify. */
