@@ -35,7 +35,7 @@ void test_keccak_random() {
   for (uint32_t i = 0; i < KECCAK_LANE_COUNT; i++) {
     if (state.lanes[i] != KECCAK_EXPECTED_FIRST[i]) {
       critical("Expected %.16llx but found %.16llx at position %u.",
-        state.lanes[i], KECCAK_EXPECTED_FIRST[i], i);
+        KECCAK_EXPECTED_FIRST[i], state.lanes[i], i);
     }
   }
 
@@ -61,7 +61,7 @@ void test_keccak_random() {
 
     if (EXPECTED[i] != byte) {
       critical("Expected %.2x but found %.2x at position %u.",
-        byte, EXPECTED[i], i);
+        EXPECTED[i], byte, i);
     }
   }
 
