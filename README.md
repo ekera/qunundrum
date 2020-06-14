@@ -61,7 +61,7 @@ To instead generate a distribution for Shor's or Seifert's order-finding algorit
 
 The <code>-max</code> flag may be substituted for other flags to select the logarithm deterministically, explicitly, at random, and so forth. For further details, see the documentation for the [<code>generate_linear_distribution</code>](docs/pages/generate-linear-distribution.md) executable.
 
-> <b>Note:</b> If you installed MPI under Ubuntu as described above, you must specify the number of processors using the <code>-np</code> flag whenever you invoke <code>mpirun</code>. At least two processor are required.
+> <b>Note:</b> If you installed MPI under Ubuntu as described above, you must specify the number of processors using the <code>-np</code> flag whenever you invoke <code>mpirun</code>. At least two processors are required.
 
 ### Estimating the number of runs required to solve
 To estimate the number of runs n required to solve with Ekerå-Håstad's lattice-based classical post-processing, execute:
@@ -103,7 +103,7 @@ Note that the resolution of the distribution is automatically temporarily reduce
 To sample the distribution, execute:
 
 ```console
-$ mpirun ./sample_linear_distribution \
+$ ./sample_linear_distribution \
      distributions/linear-distribution-max-dim-2048-d-m-256-s-1.txt 10
 ```
 
@@ -113,7 +113,7 @@ This will print 10 samples for the distribution to standard output. For each sam
 There are also executables for obtaining information on linear distributions, see the [<code>info_linear_distribution</code>](docs/pages/info-linear-distribution.md) executable, and for comparing such distribution, see the [<code>compare_linear_distributions</code>](docs/pages/compare-linear-distributions.md) executable.
 
 ### Two-dimensional probability distributions
-Analogies for the above executables are available for generating two-dimensional probability distributions induced by the algorithm of Ekerå for computing general discrete logarithms. To use these executables, you basically remove the "linear" prefix from the executable names. The procedure is then essentially the same as described above, with some differences and in the synopsis and behavior between the one- and two-dimensional executables.
+Analogies for the above executables are available for generating two-dimensional probability distributions induced by the algorithm of Ekerå for computing general discrete logarithms. To use these executables, you basically remove the "linear" prefix from the executable names. The procedure is then essentially the same as described above, with some differences in the synopsis and in the behavior between the one- and two-dimensional executables.
 
 For further details, please see the documentation for
 - the [<code>generate_distribution</code>](docs/pages/generate-distribution.md) executable
@@ -141,7 +141,7 @@ For further details, please see the documentation for
 - the [<code>compare_diagonal_distributions</code>](docs/pages/compare-diagonal-distributions.md) executable
 
 ## About and acknowledgments
-This source code was developed by Martin Ekerå, in part at [KTH, the Royal Institute of Technology](https://www.kth.se/en), in Stockholm, [Sweden](https://www.sweden.se). Valuable comments and advice were provided by Johan Håstad throughout the development process.
+This source code was developed by [Martin Ekerå](mailto:ekera@kth.se), in part at [KTH, the Royal Institute of Technology](https://www.kth.se/en), in Stockholm, [Sweden](https://www.sweden.se). Valuable comments and advice were provided by Johan Håstad throughout the development process.
 
 Funding and support for this work was provided by the Swedish NCSA that is a part of the [Swedish Armed Forces](https://www.mil.se).
 

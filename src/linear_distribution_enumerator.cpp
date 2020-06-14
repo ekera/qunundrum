@@ -32,10 +32,10 @@ static int linear_distribution_enumerator_sort_coordinates_cmp(
   const void * const b)
 {
   const Linear_Distribution_Coordinate * const coordinate_a = 
-    *((const Linear_Distribution_Coordinate * const * const)a);
+    *((const Linear_Distribution_Coordinate * const *)a);
 
   const Linear_Distribution_Coordinate * const coordinate_b = 
-    *((const Linear_Distribution_Coordinate * const * const)b);
+    *((const Linear_Distribution_Coordinate * const *)b);
   
   if ((coordinate_a->distance) > (coordinate_b->distance)) {
     return 1;

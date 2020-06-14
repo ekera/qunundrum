@@ -10,7 +10,7 @@
  * iteratively applying Keccak-f to generate output.
  *
  * \remark  This random number generator has not been formally evaluated. It is
- *          not fit for, and must not used for, any cryptographic purposes.
+ *          not fit for, and must not be used for, cryptographic purposes.
  */
 
 /*!

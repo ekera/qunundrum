@@ -46,7 +46,7 @@ void distribution_init(
   const uint32_t capacity)
 {
   /* Zeroize the distribution. */
-  memset(distribution, 0, sizeof(Distribution));
+  memset((void *)distribution, 0, sizeof(Distribution));
 
   /* Allocate memory for the list of slices. */
   distribution->slices =
@@ -150,7 +150,7 @@ void distribution_clear(
 
   lattice_alpha_clear(&(distribution->lattice_alpha));
 
-  memset(distribution, 0, sizeof(Distribution));
+  memset((void *)distribution, 0, sizeof(Distribution));
 }
 
 void distribution_insert_slice(
@@ -238,10 +238,10 @@ static int distribution_sort_slices_cmp(
   const void * const b)
 {
   const Distribution_Slice * const slice_a = 
-    *((const Distribution_Slice * const * const)a);
+    *((const Distribution_Slice * const *)a);
 
   const Distribution_Slice * const slice_b = 
-    *((const Distribution_Slice * const * const)b);
+    *((const Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
     return -1;
@@ -350,7 +350,7 @@ void distribution_export_clear_dealloc(
   parameters_clear(&(distribution->parameters));
 
   /* Zeroize the distribution. */
-  memset(distribution, 0, sizeof(Distribution));
+  memset((void *)distribution, 0, sizeof(Distribution));
 }
 
 const Distribution_Slice * distribution_sample_slice(
