@@ -25,7 +25,7 @@ void test_keccak_f() {
   for (uint32_t i = 0; i < KECCAK_LANE_COUNT; i++) {
     if (state[i] != KECCAK_EXPECTED_FIRST[i]) {
       critical("Expected %.16llx but found %.16llx at position %u.",
-        state[i], KECCAK_EXPECTED_FIRST[i], i);
+        KECCAK_EXPECTED_FIRST[i], state[i], i);
     }
   }
 
@@ -34,7 +34,7 @@ void test_keccak_f() {
   for (uint32_t i = 0; i < KECCAK_LANE_COUNT; i++) {
     if (state[i] != KECCAK_EXPECTED_SECOND[i]) {
       critical("Expected %.16llx but found %.16llx at position %u.",
-        state[i], KECCAK_EXPECTED_SECOND[i], i);
+        KECCAK_EXPECTED_SECOND[i], state[i], i);
     }
   }
 }
