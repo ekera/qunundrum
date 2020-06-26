@@ -481,6 +481,7 @@ static bool arguments_init_parse_command_line(
       safe_snprintf(arguments->entries[j].path, MAX_SIZE_PATH_BUFFER,
         "%s/linear-distribution-rnd-%s", DISTRIBUTIONS_DIRECTORY, suffix);
     } else if (SELECTION_METHOD_EXPLICIT == arguments->selection_method) {
+      /* Check that the explicitly specified value is less than 2^m. */
       mpz_setbit(arguments->entries[j].value, arguments->entries[j].m);
 
       if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value) >= 0)
@@ -489,6 +490,22 @@ static bool arguments_init_parse_command_line(
           "greater than or equal to 2^m for at least one <m>.\n");
         return FALSE;
       }
+
+      if (DISTRIBUTION_TYPE_ORDER == arguments->distribution_type) {
+        /* Check that the specified value is not less than 2^(m-1). */
+        mpz_set_ui(arguments->entries[j].value, 0);
+        mpz_setbit(arguments->entries[j].value, arguments->entries[j].m - 1);
+
+        if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value) < 0)
+        {
+          fprintf(stderr, "Error: The explicitly specified value with -exp is "
+            "less than 2^(m-1) for at least one <m>.\n");
+          return FALSE;
+        }
+      }
+
+      /* Note: It has already been checked that 0 < value when parsing the
+       *       command line arguments, so we need not do it again. */
 
       mpz_set(arguments->entries[j].value, arguments->explicit_value);
 

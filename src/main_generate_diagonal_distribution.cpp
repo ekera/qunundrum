@@ -431,6 +431,7 @@ static bool arguments_init_parse_command_line(
       safe_snprintf(arguments->entries[j].path, MAX_SIZE_PATH_BUFFER,
         "%s/diagonal-distribution-rnd-%s", DISTRIBUTIONS_DIRECTORY, suffix);
     } else if (SELECTION_METHOD_EXPLICIT == arguments->selection_method) {
+      /* Check that the explicitly specified value of r is less than 2^m. */
       mpz_setbit(arguments->entries[j].r, arguments->entries[j].m);
 
       if (mpz_cmp(arguments->explicit_r, arguments->entries[j].r) >= 0) {
@@ -439,11 +440,22 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      mpz_set(arguments->entries[j].r, arguments->explicit_r);
-      mpz_set(arguments->entries[j].d, arguments->explicit_d);
+      /* Check that the specified value of r is not less than 2^(m-1). */
+      mpz_set_ui(arguments->entries[j].r, 0);
+      mpz_setbit(arguments->entries[j].r, arguments->entries[j].m - 1);
+
+      if (mpz_cmp(arguments->explicit_r, arguments->entries[j].r) < 0)
+      {
+        fprintf(stderr, "Error: The explicitly specified <r> with -exp is "
+          "less than 2^(m-1) for at least one <m>.\n");
+        return FALSE;
+      }
 
       /* Note: It has already been checked that 0 < d < r when parsing the
        *       command line arguments so we need not do it again. */
+
+      mpz_set(arguments->entries[j].r, arguments->explicit_r);
+      mpz_set(arguments->entries[j].d, arguments->explicit_d);
 
       safe_snprintf(arguments->entries[j].path, MAX_SIZE_PATH_BUFFER,
         "%s/diagonal-distribution-exp-%s", DISTRIBUTIONS_DIRECTORY, suffix);
