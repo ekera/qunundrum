@@ -11,6 +11,8 @@
  * and by the excellent tiny SHA-3 implementation by Saarinen.
  */
 
+#include "keccak.h"
+
 #include "rotate.h"
 
 #include <stdint.h>
