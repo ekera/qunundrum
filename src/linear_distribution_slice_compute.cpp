@@ -212,7 +212,7 @@ void linear_distribution_slice_compute(
      * in a slightly different way. This is expalined in the papers. 
      * 
      * Artifically large kappa is a special case. It does not occur in practice 
-     * in cryptographic applications, as d be presumed to be random in such 
+     * in cryptographic applications, as d may be presumed to be random in such 
      * applications, and as the order r may in general be assumed to be prime.
      * Also d may be randomized if necessary. */
 
