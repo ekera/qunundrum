@@ -33,7 +33,7 @@ $ make
 Under other Linux and Unix distributions, ensure that the tools contained in the aforementioned packages are installed and available in your search paths prior to running the above command. Under other operating systems, you may need to setup build scripts yourself.
 
 ### Building the documentation
-To build documentation using [Doxygen](http://www.doxygen.nl), first execute:
+To build the documentation using [Doxygen](http://www.doxygen.nl), first execute:
 
 ```console
 $ sudo apt install doxygen graphviz
