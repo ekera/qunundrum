@@ -187,17 +187,34 @@ void linear_distribution_slice_compute(
     mpfr_mul(avg_norm, avg_norm, alpha, MPFR_RNDN);
     
     if (LINEAR_DISTRIBUTION_SLICE_COMPUTE_TARGET_D == target) {
-      /* Account for the density; 2^l pairs (j, k) give alpha for positive and
-      * negative signs, respectively, as there are 2^(m + 2l) such pairs but
-      * only 2^(m + l) arguments. Note that we do not account for kappa_d.
-      * We assume kappa_d to be sufficiently small to be negligible. */
+      /* There are 2^(l + kappa) pairs (j, k) that yield each admissible 
+       * argument alpha. Only the arguments alpha that are multiples of 2^kappa  
+       * are admissible. Hence we have a multiplicity of 2^(l+kappa), and a 
+       * density of 2^kappa, so we have to multiply by 2^l to compensate below.
+       * 
+       * Recall that in the above context, kappa = kappa_d is the largest 
+       * integer such that 2^kappa_d divides the logarithm d. */
       mpfr_mul(avg_norm, avg_norm, pow_2l, MPFR_RNDN);
     }
     
-    /* Note that for orders, there are 2^(m + l) values of j each producing 
-     * alpha_r so there is no need to account for multiplicity in the above 
-     * respect for orders. Note furthermore that we do not account for kappa_r.
-     * We assume kappa_r to be sufficiently small to be negligible. */
+    /* Note that when performing order-finding, there are 2^(m+l-kappa) integers 
+     * j that yield each admissible argument alpha. Only the arguments alpha 
+     * that are multiples of 2^kappa are admissible. Hence we have a 
+     * multiplicity of 2^kappa, and a density of 2^kappa, and these two factors
+     * cancel. Hence, we need not multiply or divide to compensate.
+     * 
+     * Recall that in the order-finding context, kappa = kappa_r is the largest 
+     * integer such that 2^kappa_r divides the order r. */
+
+    /* Note that we do not account for the case where kappa is artifically 
+     * large when constructing the histograms. If kappa is close to m in size, 
+     * some bins will become unavailable, requiring us to compute the histogram 
+     * in a slightly different way. This is expalined in the papers. 
+     * 
+     * Artifically large kappa is a special case. It does not occur in practice 
+     * in cryptographic applications, as d may be presumed to be random in such 
+     * applications, and as the order r may in general be assumed to be prime.
+     * Also d may be randomized if necessary. */
 
     const long double norm = mpfr_get_ld(avg_norm, MPFR_RNDN);
     slice->norm_vector[i / 2] = norm;

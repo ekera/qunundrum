@@ -1,7 +1,6 @@
 <a href="README.md">![Qunundrum](./docs/pages/images/qunundrum.png)</a>
 
 # Qunundrum
-
 This repository contains the source code of MPI programs for computing the probability distributions induced by:
 
 * Shor's order-finding algorithm [(Paper)](https://arxiv.org/pdf/quant-ph/9508027.pdf)
@@ -12,7 +11,7 @@ This repository contains the source code of MPI programs for computing the proba
 * Ekerå's algorithm for computing general discrete logarithms and orders with tradeoffs [(Paper)](https://eprint.iacr.org/2018/797.pdf)
 * Shor's algorithm for computing general discrete logarithms [(Paper)](https://arxiv.org/pdf/quant-ph/9508027.pdf) with modifications [(Paper)](https://arxiv.org/pdf/1905.09084.pdf)
 
-Once computed the distributions may be sampled to simulate the quantum algorithms. This is possible even for large problem instances when the solution to the problem (i.e. the group order, the discrete logarithm, or in some cases both) are known.
+Once computed the distributions may be sampled to simulate the quantum algorithms. This is possible for large cryptographically relevant problem instances. Note however that the solution to the problem (i.e. the group order, the discrete logarithm, or in some cases both) must be known.
 
 This repository furthermore contains the source code of MPI programs that estimate the number of vectors that need to be enumerated in the classical lattice-based post-processing algorithms of Ekerå and Ekerå-Håstad, and of MPI programs that execute the post-processing algorithms with respect to simulated outputs from the quantum algorithms. For completeness, implementations of Shor's original post-processing algorithms are also provided.
 
@@ -21,20 +20,19 @@ Note that this source code was developed for academic research purposes. It grew
 Note furthermore that the portions of the code that pertain to Shor's original algorithm for computing general discrete logarithms are based on a heuristic that lacks an error bound. These portions, and the heuristic, are a work in progress.
 
 ## Installing and compiling
-
-To compile and run these programs under e.g. [Ubuntu 18.04 LTS](https://releases.ubuntu.com/18.04.4), first execute:
+To compile and run these programs under e.g. [Ubuntu 18.04 LTS](https://releases.ubuntu.com/18.04.4) or [20.04 LTS](https://releases.ubuntu.com/20.04), first execute:
 
 ```console
 $ sudo apt install libgmp-dev libmpfr-dev libfplll-dev libopenmpi-dev
 $ sudo apt install gcc g++ make openmpi-bin
 ```
 
-to install libraries and header files for [GMP](https://gmplib.org), [MPFR](https://www.mpfr.org) and [fpLLL](https://github.com/fplll/fplll), as well as libraries, headers and binaries for [OpenMPI](https://www.open-mpi.org) and for compiling C and C++ sources. You may then proceed to compile the executables:
+This installs libraries and header files for [GMP](https://gmplib.org), [MPFR](https://www.mpfr.org) and [fpLLL](https://github.com/fplll/fplll), as well as libraries, headers and binaries for [OpenMPI](https://www.open-mpi.org) and for compiling C and C++ sources. You may then proceed to compile the executables:
 ```console
 $ make
 ```
 
-Under other Linux and Unix distributions, ensure that the tools contained in the aforementioned packages are installed prior to running the above command. Under other operating systems, you may need to setup build scripts yourself.
+Under other Linux and Unix distributions, ensure that the tools contained in the aforementioned packages are installed and available in your search paths prior to running the above command. Under other operating systems, you may need to setup build scripts yourself.
 
 ### Building the documentation
 To build documentation using [Doxygen](http://www.doxygen.nl), first execute:
@@ -57,9 +55,7 @@ $ mpirun ./generate_linear_distribution -max -d 256 1
 
 The resulting distribution will be written to a file in the distributions directory. It will automatically be assigned a name according to the parameters used to generate it. You may now use this distribution to estimate the number of runs required to solve with a given bound on the volume quotient, and to verify this estimate by solving simulated output.
 
-To instead generate a distribution for Shor's or Seifert's order-finding algorithms use the <code>-r</code> flag instead of the <code>-d</code> flag.
-
-The <code>-max</code> flag may be substituted for other flags to select the logarithm deterministically, explicitly, at random, and so forth. For further details, see the documentation for the [<code>generate_linear_distribution</code>](docs/pages/generate-linear-distribution.md) executable.
+To instead generate a distribution for Shor's or Seifert's order-finding algorithms use the <code>-r</code> flag instead of the <code>-d</code> flag. The <code>-max</code> flag may be substituted for other flags to select the logarithm or order deterministically, explicitly, at random, and so forth. For further details, see the documentation for the [<code>generate_linear_distribution</code>](docs/pages/generate-linear-distribution.md) executable.
 
 > <b>Note:</b> If you installed MPI under Ubuntu as described above, you must specify the number of processors using the <code>-np</code> flag whenever you invoke <code>mpirun</code>. At least two processors are required.
 
