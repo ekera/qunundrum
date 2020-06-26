@@ -217,7 +217,7 @@ void parameters_import(
   Parameters * const parameters,
   FILE * const file)
 {
-  /* Import m, l and t. */
+  /* Import m, s and l. */
   if (1 != fscanf(file, "%u\n", &(parameters->m))) {
     critical("parameters_import(): Failed to import m.");
   }
@@ -231,7 +231,7 @@ void parameters_import(
   }
 
 
-  /* Import r, d and e. */
+  /* Import r and d. */
   if (1 != gmp_fscanf(file, "%Zd\n", parameters->r)) {
     critical("parameters_import(): Failed to import r.");
   }
@@ -241,11 +241,13 @@ void parameters_import(
   }
 
 
-  /* Import minimum and maximum alpha_d and alpha_r values. */
+  /* Import t. */
   if (1 != fscanf(file, "%u\n", &(parameters->t))) {
     critical("parameters_import(): Failed to import t.");
   }
 
+
+  /* Import minimum and maximum alpha_d and alpha_r values. */
   if (1 != fscanf(file, "%u\n", &(parameters->min_alpha_d))) {
     critical("parameters_import(): Failed to import min_alpha_d.");
   }
