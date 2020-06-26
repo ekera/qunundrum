@@ -11,7 +11,7 @@ This repository contains the source code of MPI programs for computing the proba
 * Ekerå's algorithm for computing general discrete logarithms and orders with tradeoffs [(Paper)](https://eprint.iacr.org/2018/797.pdf)
 * Shor's algorithm for computing general discrete logarithms [(Paper)](https://arxiv.org/pdf/quant-ph/9508027.pdf) with modifications [(Paper)](https://arxiv.org/pdf/1905.09084.pdf)
 
-Once computed the distributions may be sampled to simulate the quantum algorithms. This is possible even for large problem instances when the solution to the problem (i.e. the group order, the discrete logarithm, or in some cases both) are known.
+Once computed the distributions may be sampled to simulate the quantum algorithms. This is possible for large cryptographically relevant problem instances. Note however that the solution to the problem (i.e. the group order, the discrete logarithm, or in some cases both) must be known.
 
 This repository furthermore contains the source code of MPI programs that estimate the number of vectors that need to be enumerated in the classical lattice-based post-processing algorithms of Ekerå and Ekerå-Håstad, and of MPI programs that execute the post-processing algorithms with respect to simulated outputs from the quantum algorithms. For completeness, implementations of Shor's original post-processing algorithms are also provided.
 
@@ -32,7 +32,7 @@ This installs libraries and header files for [GMP](https://gmplib.org), [MPFR](h
 $ make
 ```
 
-Under other Linux and Unix distributions, ensure that the tools contained in the aforementioned packages are installed prior to running the above command. Under other operating systems, you may need to setup build scripts yourself.
+Under other Linux and Unix distributions, ensure that the tools contained in the aforementioned packages are installed and available in your search paths prior to running the above command. Under other operating systems, you may need to setup build scripts yourself.
 
 ### Building the documentation
 To build documentation using [Doxygen](http://www.doxygen.nl), first execute:
