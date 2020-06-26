@@ -11,6 +11,8 @@ Synopsis: mpirun solve_distribution \
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs of n runs for d and r.
 
+In total 10^3 problem instances are consider to gather statistics.
+
 The results are written to the console and to <code>logs/solve.txt</code>.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
@@ -54,6 +56,6 @@ where we find m, s, n -- #success -- #fail -- prep-time -- solve-time, and
 - s is the tradeoff factor
 - n is the number of runs
 - #success is the number of problem instances that were successfully solved
-- #fail is the number of problem instances not solved, where the count within parenthesis is the number of problem instanced that failed due to sampling errors
-- prep-time is the average time required to setup the problem instance
-- solve-time is the average [min, max] time in ms required to solve the problem instance
+- #fail is the number of problem instances not solved, where the count within parenthesis is the number of problem instances that failed due to sampling errors
+- prep-time is the average time in ms required to setup the problem instances
+- solve-time is the average [min, max] time in ms required to solve the problem instances
