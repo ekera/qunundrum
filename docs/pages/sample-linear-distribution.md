@@ -43,4 +43,4 @@ j: 10366095817842715380235284668329444594561368081797017179617405633038810339775
 ```
 where
 - alpha_r is the admissible argument sampled
-- j is an integer sampled from the set of all integer pairs having argument alpha_r
+- j is an integer sampled from the set of all integers having argument alpha_r
