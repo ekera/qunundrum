@@ -10,7 +10,6 @@
  */
 
 #include "keccak_random.h"
-#include "keccak.h"
 
 #include "keccak.h"
 #include "errors.h"

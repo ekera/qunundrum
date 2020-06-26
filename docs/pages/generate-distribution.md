@@ -27,7 +27,7 @@ or, if the <code>-l</code> flag is specified, tuples <code>\<m\></code> <code>\<
 Flags controlling the values of d and r (defaults to <code>-det</code>):
 - <code>-det</code> selects d and r on [2^(m-1), 2^m) deterministically by reading from Catalan's constant
 - <code>-rnd</code> selects r uniformly at random from [2^(m-1), 2^m) and d uniformly at random from [r/2, r)
-- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> < 2^m
+- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) <= <code>\<r\></code> < 2^m
 
 Flags controlling the approximation method (defaults to <code>-approx-with-error-bound</code>):
 - <code>-approx-with-error-bound</code> uses the error-bounded approximation in the paper on computing general discrete logarithms and orders with tradeoffs

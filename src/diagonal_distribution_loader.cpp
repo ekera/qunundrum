@@ -7,6 +7,7 @@
  */
 
 #include "diagonal_distribution_loader.h"
+
 #include "diagonal_distribution.h"
 #include "thread_pool.h"
 #include "errors.h"

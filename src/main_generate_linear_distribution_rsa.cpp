@@ -234,7 +234,7 @@ static bool arguments_init_parse_command_line(
         }
 
         if (mpz_cmp_ui(arguments->p, 0) <= 0) {
-          fprintf(stderr, "Error: The value of <p> after -exp must be strictly "
+          fprintf(stderr, "Error: The value of <p> after -exp must be "
             "positive.\n");
           return FALSE;
         }
@@ -247,7 +247,7 @@ static bool arguments_init_parse_command_line(
         }
 
         if (mpz_cmp_ui(arguments->q, 0) <= 0) {
-          fprintf(stderr, "Error: The value of <q> after -exp must be strictly "
+          fprintf(stderr, "Error: The value of <q> after -exp must be "
             "positive.\n");
           return FALSE;
         }

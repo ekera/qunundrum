@@ -616,8 +616,7 @@ static bool arguments_init_parse_command_line(
       }
 
       if (mpfr_cmp_ui(arguments->bound, 0) <= 0) {
-        fprintf(stderr, "Error: The <bound> after -bound must be strictly "
-          "positive.\n");
+        fprintf(stderr, "Error: The <bound> after -bound must be positive.\n");
         return FALSE;
       }
 
