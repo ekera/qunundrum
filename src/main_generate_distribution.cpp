@@ -295,14 +295,14 @@ static bool arguments_init_parse_command_line(
 
         /* Check that d > 0. */
         if (mpz_cmp_ui(arguments->explicit_d, 0) <= 0) {
-          fprintf(stderr, "Error: The value <d> after -exp must be strictly "
+          fprintf(stderr, "Error: The value of <d> after -exp must be "
             "positive.\n");
           return FALSE;
         }
 
         /* Check that d < r. Then 0 < d < r by the above check. */
         if (mpz_cmp(arguments->explicit_d, arguments->explicit_r) >= 0) {
-          fprintf(stderr, "Error: The value <d> after -exp must be strictly "
+          fprintf(stderr, "Error: The value of <d> after -exp must be strictly "
             "less than <r>.\n");
           return FALSE;
         }

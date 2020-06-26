@@ -230,8 +230,7 @@ static bool arguments_init_parse_command_line(
         }
 
         if (mpz_cmp_ui(arguments->explicit_value, 0) <= 0) {
-          fprintf(stderr, "Error: The value after -exp must be strictly "
-            "positive.\n");
+          fprintf(stderr, "Error: The value after -exp must be positive.\n");
           return FALSE;
         }
 
