@@ -6,12 +6,12 @@
  *          precision integers over the message passing interface.
  */
 
- /*!
-  * \defgroup mpi Message passing
-  * \ingroup  utility
-  *
-  * \brief    A module for conveniency functions for message passing.
-  */
+/*!
+ * \defgroup mpi Message passing
+ * \ingroup  utility
+ *
+ * \brief    A module for conveniency functions for message passing.
+ */
 
 #ifndef GMP_MPI_H
 #define GMP_MPI_H

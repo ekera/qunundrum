@@ -201,16 +201,16 @@ void distribution_slice_clear(
  * \{
  */
 
- /*!
-  * \brief    Initializes a slice by reading from an already initialized source
-  *           slice.
-  *
-  * \param[in, out] dst_slice The destination slice to initialize.
-  * \param[in] src_slice      The source slice from which to read.
-  */
- void distribution_slice_init_copy(
-  Distribution_Slice * const dst_slice,
-  const Distribution_Slice * const src_slice);
+/*!
+ * \brief    Initializes a slice by reading from an already initialized source
+ *           slice.
+ *
+ * \param[in, out] dst_slice The destination slice to initialize.
+ * \param[in] src_slice      The source slice from which to read.
+ */
+void distribution_slice_init_copy(
+ Distribution_Slice * const dst_slice,
+ const Distribution_Slice * const src_slice);
 
 /*!
  * \brief   Copies a slice from a source slice to a destination slice.

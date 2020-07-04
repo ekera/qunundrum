@@ -21,7 +21,7 @@
  */
 typedef enum {
   /*!
-   * \brief   Indicates that this distribution is for a discrete logartihm.
+   * \brief   Indicates that this distribution is for a discrete logarithm.
    */
   DISTRIBUTION_TYPE_LOGARITHM = 1,
 
@@ -117,7 +117,7 @@ typedef enum {
    * This selection method is considerably slower than #SIGMA_METHOD_HEURISTIC.
    *
    * \remark  This selection method is not guaranteed to find the optimum. The
-   *          function seeks to minimumize the error bound; not the error.
+   *          function seeks to minimize the error bound; not the error.
    */
   SIGMA_METHOD_OPTIMAL = 2,
 

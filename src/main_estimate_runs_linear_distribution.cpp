@@ -767,7 +767,7 @@ int main(int argc, char ** argv) {
   };
 
   if (!result) {
-    /* Exit gracefully if an error occured. */
+    /* Exit gracefully if an error occurred. */
     MPI_Finalize();
     return 0;
   }

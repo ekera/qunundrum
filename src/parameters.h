@@ -81,7 +81,7 @@ typedef struct {
   mpz_t d;
 
   /*!
-   * \brief The minimum lagarithmic unsigned alpha_d.
+   * \brief The minimum logarithmic unsigned alpha_d.
    *
    * The region min_alpha_d <= log_alpha_d <= max_alpha_d + 1 is considered
    * on either side of the alpha_d-axis.
@@ -89,7 +89,7 @@ typedef struct {
   uint32_t min_alpha_d;
 
   /*!
-   * \brief The maximum lagarithmic unsigned alpha_d.
+   * \brief The maximum logarithmic unsigned alpha_d.
    *
    * The region min_alpha_d <= log_alpha_d <= max_alpha_d + 1 is considered
    * on either side of the alpha_d-axis.
@@ -97,7 +97,7 @@ typedef struct {
   uint32_t max_alpha_d;
 
   /*!
-   * \brief The minimum lagarithmic unsigned alpha_r.
+   * \brief The minimum logarithmic unsigned alpha_r.
    *
    * The region min_alpha_r <= log_alpha_r <= max_alpha_r + 1 is considered
    * on either side of the alpha_r-axis.
@@ -105,7 +105,7 @@ typedef struct {
   uint32_t min_alpha_r;
 
   /*!
-   * \brief The maximum lagarithmic unsigned alpha_r.
+   * \brief The maximum logarithmic unsigned alpha_r.
    *
    * The region min_alpha_r <= log_alpha_r <= max_alpha_r + 1 is considered
    * on either side of the alpha_r-axis.

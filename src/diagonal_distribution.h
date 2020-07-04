@@ -60,7 +60,7 @@
 enum {
   /*!
    * \brief   A flag indicating that the distribution was constructed by
-   *          determistically setting d or r from Catalan's constant.
+   *          deterministically setting d or r from Catalan's constant.
    *
    * For more information, see parameters_deterministic().
    */
@@ -169,20 +169,20 @@ void diagonal_distribution_dealloc(
  * \{
  */
 
- /*!
-  * \brief   Initializes a distribution with a given set of parameters.
-  *
-  * This function allocates memory for the slices in the distribution.
-  *
-  * \param[in, out] distribution   The distribution to initialize.
-  * \param[in] parameters          The parameters to use to initialize the
-  *                                distribution.
-  * \param[in] flags               The distribution flags.
-  * \param[in] capacity            The distribution capacity in slices.
-  *
-  * \remark  The parameter data structure is copied into the distribution data
-  *          structure, rather than being referenced.
-  */
+/*!
+ * \brief   Initializes a distribution with a given set of parameters.
+ *
+ * This function allocates memory for the slices in the distribution.
+ *
+ * \param[in, out] distribution   The distribution to initialize.
+ * \param[in] parameters          The parameters to use to initialize the
+ *                                distribution.
+ * \param[in] flags               The distribution flags.
+ * \param[in] capacity            The distribution capacity in slices.
+ *
+ * \remark  The parameter data structure is copied into the distribution data
+ *          structure, rather than being referenced.
+ */
 void diagonal_distribution_init(
   Diagonal_Distribution * const distribution,
   const Parameters * const parameters,

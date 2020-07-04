@@ -206,12 +206,12 @@ void linear_distribution_slice_compute(
      * Recall that in the order-finding context, kappa = kappa_r is the largest 
      * integer such that 2^kappa_r divides the order r. */
 
-    /* Note that we do not account for the case where kappa is artifically 
+    /* Note that we do not account for the case where kappa is artificially 
      * large when constructing the histograms. If kappa is close to m in size, 
      * some bins will become unavailable, requiring us to compute the histogram 
-     * in a slightly different way. This is expalined in the papers. 
+     * in a slightly different way. This is explained in the papers. 
      * 
-     * Artifically large kappa is a special case. It does not occur in practice 
+     * Artificially large kappa is a special case. It does not occur in practice 
      * in cryptographic applications, as d may be presumed to be random in such 
      * applications, and as the order r may in general be assumed to be prime.
      * Also d may be randomized if necessary. */
