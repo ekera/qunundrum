@@ -504,7 +504,7 @@ static void lattice_enumerate_inner(
   }
 
   /* Begin: Optimization for d and r on 0 <= d, r < 2^m --------------------- */
-  /* We use _d suffixes below, however then situation is analogus in d and r. */
+  /* We use _d suffixes below, however the situation is analogous in d and r. */
 
   if ((1 == k) && TRUE) {
     /* Initialize variables. */
@@ -759,7 +759,7 @@ static void lattice_enumerate_inner(
         timer,
         timeout);
       if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
-        break; /* Recovery was successful or an error occured. */
+        break; /* Recovery was successful or an error occurred. */
       }
     }
 
@@ -786,7 +786,7 @@ static void lattice_enumerate_inner(
         timer,
         timeout);
       if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
-        break; /* Recovery was successful or an error occured. */
+        break; /* Recovery was successful or an error occurred. */
       }
     }
 

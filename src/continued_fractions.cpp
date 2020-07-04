@@ -92,13 +92,13 @@ bool continued_fractions_solve(
    * Then the i:th convergent is given by the quotient h_i / k_i for i >= 0.
    * 
    * Now, since we are only interested in the denominator, not the numerator, it
-   * suffices to recursivelty compute a_0, k_0, a_1, k_1, .. keeping a_{i-1}, 
+   * suffices to recursively compute a_0, k_0, a_1, k_1, .. keeping a_{i-1}, 
    * k_{i-1} and k_{i-2} in memory when computing a_i and k_i. */
 
   bool found = FALSE;
 
   for (uint32_t depth = 1; ; depth++) {
-    mpfr_floor(integer_part, fraction); /* next cofficient */
+    mpfr_floor(integer_part, fraction); /* next coefficient */
 
     /* Construct the next denominator. */
     mpfr_get_z(denominator, integer_part, MPFR_RNDN);
@@ -117,7 +117,7 @@ bool continued_fractions_solve(
      * this holds for c within the search bound on the cofactor. */
     mpz_mod(tmp, parameters->r, denominator);
     if (mpz_cmp_ui(tmp, 0) == 0) {
-      /* The denominator devides r. Set tmp = c and test the size of c. */
+      /* The denominator divides r. Set tmp = c and test the size of c. */
       mpz_div(tmp, parameters->r, denominator);
 
       /* Check whether the cofactor is within the search bound. */

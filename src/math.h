@@ -5,11 +5,11 @@
  * \brief   The declaration of basic mathematical functions.
  */
 
- /*!
-  * \defgroup math Mathematics
-  *
-  * \brief A module for mathematical functions.
-  */
+/*!
+ * \defgroup math Mathematics
+ *
+ * \brief A module for mathematical functions.
+ */
 
 #ifndef MATH_H
 #define MATH_H

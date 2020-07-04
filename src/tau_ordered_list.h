@@ -95,12 +95,12 @@ void tau_ordered_list_insert(
  * \{
  */
 
- /*!
-  * \brief    Sends an ordered list to another node.
-  *
-  * \param[in, out] list    The ordered list to send.
-  * \param[in] rank         The rank of the node to which to send the list.
-  */
+/*!
+ * \brief    Sends an ordered list to another node.
+ *
+ * \param[in, out] list    The ordered list to send.
+ * \param[in] rank         The rank of the node to which to send the list.
+ */
 void tau_ordered_list_send_merge(
   const Tau_Ordered_List * const list,
   const int rank);

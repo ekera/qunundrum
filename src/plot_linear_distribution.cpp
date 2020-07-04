@@ -40,7 +40,7 @@ void plot_linear_distribution_horizontal(
     file,
     absolute);
 
-  /* Label the txo axes with a single label. */
+  /* Label the two axes with a single label. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 
@@ -333,7 +333,7 @@ void plot_linear_distribution_vertical(
       PLOT_DISTRIBUTION_SCALE,
     file);
 
-  /* Label the txo axes with a single label. */
+  /* Label the two axes with a single label. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 

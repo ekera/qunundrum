@@ -34,7 +34,7 @@
  * \{
  */
 
- /*!
+/*!
  * \brief   Given n integers k, and a reduced basis A for a lattice L, this
  *          function attempts to recover d as the last component of an unknown
  *          short vector u in L, by computing the shortest non-zero vector in L.

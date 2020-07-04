@@ -146,7 +146,7 @@ typedef struct {
   uint32_t issued_count;
 
   /*!
-   * \brief   The number of sucessfully completed jobs for the current n.
+   * \brief   The number of successfully completed jobs for the current n.
    */
   uint32_t success_count;
 

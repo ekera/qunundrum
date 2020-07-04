@@ -48,7 +48,8 @@ typedef struct {
    * the parameter m and Linear_Distribution_Coordinate::min_log_alpha. The 
    * entry is included to make the distance available to qsort(), as m cannot be
    * passed to qsort(), and as qsort_r() that does take an additional parameter 
-   * is non-portable in that it has different protypes on different platforms(!)
+   * is non-portable in that it has different prototypes on different 
+   * platforms(!)
    * 
    * Previously sorting was implemented natively using bubble sort, but this is 
    * inefficient. In the future, we may consider adding a native efficient 

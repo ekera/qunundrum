@@ -63,7 +63,7 @@ typedef enum {
   LATTICE_STATUS_RECOVERED_ENUMERATION = 3,
 
   /*!
-   * \brief   Indicates that a timeout has occured.
+   * \brief   Indicates that a timeout has occurred.
    */
   LATTICE_STATUS_TIMEOUT = 4
 } Lattice_Status_Recovery;
