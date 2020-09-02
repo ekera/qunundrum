@@ -15,7 +15,7 @@
  */
 
 #ifndef TEST_MATH_H
-#define TEST_MATH_
+#define TEST_MATH_H
 
 /*!
  * \brief   Executes unit tests for the mod_reduce() function.
