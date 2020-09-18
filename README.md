@@ -30,7 +30,7 @@ Note that the source code in this repository was developed for academic research
 It is possible to further optimize portions of the code. However, the current code performs sufficiently well for our purposes. Note furthermore that the portions of the code that pertain to Shor's original algorithm for computing general discrete logarithms are based on a heuristic that lacks an error bound. These portions, and the heuristic, are currently a work in progress.
 
 ## Installing and compiling
-To compile and run these programs under e.g. [Ubuntu 18.04 LTS](https://releases.ubuntu.com/18.04.4) or [20.04 LTS](https://releases.ubuntu.com/20.04), first execute:
+To compile and run these programs under e.g. [Ubuntu 18.04 LTS](https://releases.ubuntu.com/releases/18.04) or [20.04 LTS](https://releases.ubuntu.com/releases/20.04), first execute:
 
 ```console
 $ sudo apt install libgmp-dev libmpfr-dev libfplll-dev libopenmpi-dev
