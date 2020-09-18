@@ -26,9 +26,9 @@ Tuples <code>\<m\></code> <code>\<l\></code> where
 
 ### Optional command line arguments
 Flags controlling the value of d and r (defaults to <code>-det</code>):
-- <code>-det</code> selects d and r on [2^(m-1), 2^m) deterministically by reading from Catalan's constant
-- <code>-rnd</code> selects r uniformly at random from [2^(m-1), 2^m) and d uniformly at random from [r/2, r)
-- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) <= <code>\<r\></code> < 2^m
+- <code>-det</code> selects d and r on (2^(m-1), 2^m) deterministically by reading from Catalan's constant
+- <code>-rnd</code> selects r uniformly at random from (2^(m-1), 2^m) and d uniformly at random from [r/2, r)
+- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) < <code>\<r\></code> < 2^m
 
 Flags controlling the bound on |Delta| (defaults to: 20):
 - <code>-bound-delta \<bound\></code> sets the bound on |Delta| to <code>\<bound\></code>

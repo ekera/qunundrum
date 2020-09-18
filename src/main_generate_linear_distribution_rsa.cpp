@@ -932,7 +932,7 @@ static void print_synopsis(
   fprintf(file, "\n");
   fprintf(file, "Selection method for d : -- defaults to -max\n");
 
-  fprintf(file, " -max  select d to 2^m - 1\n");
+  fprintf(file, " -max  set d to 2^m - 1\n");
   fprintf(file,
     " -rnd  select d from random p and q where N = pq\n");
   fprintf(file,

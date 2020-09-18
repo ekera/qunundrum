@@ -606,14 +606,14 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      /* Check that the specified value of r is not less than 2^(m-1). */
+      /* Check that the specified value of r is greater than 2^(m-1). */
       mpz_set_ui(arguments->entries[j].r, 0);
       mpz_setbit(arguments->entries[j].r, arguments->entries[j].m - 1);
 
-      if (mpz_cmp(arguments->explicit_r, arguments->entries[j].r) < 0)
+      if (mpz_cmp(arguments->explicit_r, arguments->entries[j].r) <= 0)
       {
         fprintf(stderr, "Error: The explicitly specified <r> with -exp is "
-          "less than 2^(m-1) for at least one <m>.\n");
+          "less than or equal to 2^(m-1) for at least one <m>.\n");
         return FALSE;
       }
 
@@ -1386,7 +1386,7 @@ static void print_synopsis(
   fprintf(file,
     " -det  select d and r deterministically from Catalan's constant\n");
   fprintf(file,
-    " -rnd  select r uniformly at random from [2^(m-1), 2^m)\n");
+    " -rnd  select r uniformly at random from (2^(m-1), 2^m)\n");
   fprintf(file,
     "       and d uniformly at random from [r/2, r)\n");
   fprintf(file,

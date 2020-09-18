@@ -13,6 +13,7 @@
 #include "lattice_babai.h"
 #include "lattice_algebra.h"
 #include "lattice_reduce.h"
+#include "lattice_smoothness.h"
 #include "lattice_solve.h"
 
 #include "parameters.h"
@@ -158,7 +159,7 @@ static bool pi_projection_test(
  *          enumeration using ideas from Kannan.
  *
  * This function implements lattice enumeration. It is implemented naïvely 
- * following Kannan [1] as described in appendix C to [2].
+ * following Kannan [1] essentially as described in appendix C to [2].
  *
  * [1] Kannan, R.: Improved algorithms for integer programming and related 
  * lattice problems. In: Proceedings of the 15th Symposium on the Theory of 
@@ -176,12 +177,15 @@ static bool pi_projection_test(
  *
  * To speed up enumeration, we make some further optimizations:
  *
- * (i)  We reduce the  number of pi projection tests that we perform in each
- *      component, primarily to speed up enumeration of low-dimensional
- *      lattices. We seek for the bounds on the index in each component first
- *      and then explore the whole range in this component without testing.
+ * (i)   We reduce the  number of pi projection tests that we perform in each
+ *       component, primarily to speed up enumeration of low-dimensional
+ *       lattices. We seek for the bounds on the index in each component first
+ *       and then explore the whole range in this component without testing.
  *
- * (ii) We use that the last component is d or r and hence on 0 <= d, r < 2^m.
+ * (ii)  We use that the last component is d or r and hence on a restricted 
+ *       known interval min_d_or_r <= d, r <= max_d_or_r.
+ *
+ * (iii) We support detecting partially smooth r.
  *
  * Note that this a fairly straightforward implementation of lattice enumeration
  * that has proven sufficient for these purposes. There are more efficient
@@ -200,17 +204,26 @@ static bool pi_projection_test(
  * \param[in]  M                The M matrix.
  * \param[in]  k                The index of the component currently processed.
  *                              Specifies the depth in the enumeration tree.
- * \param[in]  m                An integer m such that 0 <= d, r < 2^m.
  * \param[in]  n                The number of runs n used to setup A so that A,
  *                              G and M are all (n+1) x (n+1) matrices.
- * \param[in]  d                The correct solution. Used only to test if the
+ * \param[in]  min_d_or_r       The minimum value of the correct solution. Used
+ *                              to prune the enumeration at the last level.
+ * \param[in]  max_d_or_r       The maximum value of the correct solution. Used
+ *                              to prune the enumeration at the last level.
+ * \param[in]  d_or_r           The correct solution. Used only to test if the
  *                              candidate solutions found are correct.
+ * \param[in]  parameters       The parameters of the distribution. These
+ *                              parameters in particular contain m.
  * \param[in]  precision        The floating point precision.
+ * \param[in]  detect_smooth    A flag that should be set to #TRUE if the 
+ *                              function should return d_or_r' for 
+ *                              d_or_r = d_or_r' * z, where z is smooth. Set to 
+ *                              #FALSE otherwise.
+ * \param[in]  timeout          The timeout after which the enumeration will be
+ *                              aborted. Set to zero to disable the timeout.
  * \param[in]  timer            A timer used to measure how much time has
  *                              elapsed since the first call this this function.
  *                              Must be initialized and started by the caller.
- * \param[in]  timeout          The timeout after which the enumeration will be
- *                              aborted. Set to zero to disable the timeout.
  */
 static void lattice_enumerate_inner(
   Lattice_Status_Recovery * const status,
@@ -221,13 +234,19 @@ static void lattice_enumerate_inner(
   const vector<FP_NR<mpfr_t>> &G_square_norms,
   const FP_mat<mpfr_t> &M,
   const uint32_t k,
-  const uint32_t m,
   const uint32_t n,
-  const mpz_t d,
+  const mpz_t min_d_or_r,
+  const mpz_t max_d_or_r,
+  const mpz_t d_or_r,
+  const Parameters * const parameters,
   const uint32_t precision,
-  Timer * const timer,
-  const uint64_t timeout)
+  const bool detect_smooth,
+  const uint64_t timeout,
+  Timer * const timer)
 {
+  /* Initially set the status to not recovered. */
+  (*status) = LATTICE_STATUS_NOT_RECOVERED;
+
   /* Check the timeout. */
   if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
     (*status) = LATTICE_STATUS_TIMEOUT;
@@ -235,47 +254,33 @@ static void lattice_enumerate_inner(
     return;
   }
 
-  /* Initially set the status to not recovered. */
-  (*status) = LATTICE_STATUS_NOT_RECOVERED;
-
-  /* If k is equal to zero we have found a potential solution. */
-  if (0 == k) {
-    /* Note: This code may in principle be removed. It is no longer needed. */
-
-    /* Initialize variables. */
-    mpz_t tmp_z;
-    mpz_init(tmp_z);
-
-    mpz_t last_component_u;
-    mpz_init(last_component_u);
-
-    /* Test the last component. */
-    for (uint32_t i = 0; i <= n; i++) {
-      mpz_mul(tmp_z, A[i][n].get_data(), cu_coordinates[i].get_data());
-      mpz_add(last_component_u, last_component_u, tmp_z);
-    }
-
-    mpz_abs(last_component_u, last_component_u);
-
-    const bool result = (mpz_cmp(last_component_u, d) == 0);
-
-    /* Clean up memory. */
-    mpz_clear(tmp_z);
-    mpz_clear(last_component_u);
-
-    if (result) {
-      /* Set the status to recovered. */
-      (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
-    }
-
-    /* Stop. */
-    return;
-  }
-
-  /* Initialize variables. */
+  /* Declare variables and constants. */
   mpz_t uhat;
   mpz_init(uhat);
 
+  mpz_t uhat_max;
+  mpz_init(uhat_max);
+
+  mpz_t uhat_min;
+  mpz_init(uhat_min);
+
+  vector<Z_NR<mpz_t>> new_cu_coordinates(n + 1);
+
+  mpz_t candidate_d_or_r;
+  mpz_init(candidate_d_or_r);
+
+  const int sign_d_or_r = (mpz_sgn(A[0][n].get_data()) < 0) ? -1 : 1;
+
+  mpz_t increment_d_or_r;
+  mpz_init(increment_d_or_r);
+  mpz_abs(increment_d_or_r, A[0][n].get_data());
+
+  mpz_t z;
+  mpz_init(z);
+
+  /* Note: The above variables are cleared at the end of this function. */
+
+  /* Setup uhat. */
   {
     mpfr_t tmp;
     mpfr_init2(tmp, precision);
@@ -305,8 +310,6 @@ static void lattice_enumerate_inner(
   }
 
   /* Setup the new coordinate vector. */
-  vector<Z_NR<mpz_t>> new_cu_coordinates(n + 1);
-
   for (uint32_t j = 0; j <= n; j++) {
     mpz_set(new_cu_coordinates[j].get_data(), cu_coordinates[j].get_data());
   }
@@ -314,12 +317,6 @@ static void lattice_enumerate_inner(
   mpz_set(new_cu_coordinates[k - 1].get_data(), uhat);
 
   /* Find the maximum and minimum value in the k:th position. */
-  mpz_t uhat_max;
-  mpz_init(uhat_max);
-
-  mpz_t uhat_min;
-  mpz_init(uhat_min);
-
   {
     /* The maximum in the k:th component is = uhat + max_cu. Set max_cu to
      * zero initially, then to one, and then double max_cu in every iteration
@@ -353,16 +350,7 @@ static void lattice_enumerate_inner(
 
     if (mpz_cmp_ui(max_cu, 0) == 0) {
       /* Abort the run. */
-
-      /* Clean up memory. */
-      new_cu_coordinates.clear();
-
-      mpz_clear(uhat);
-      mpz_clear(uhat_min);
-      mpz_clear(uhat_max);
-      mpz_clear(max_cu);
-
-      return;
+      goto lattice_enumerate_inner_clear;
     } else if (mpz_cmp_ui(max_cu, 2) <= 0) {
       /* We need not do anything; as we explicitly test max_cu in {0, 1, 2} we
        * are guaranteed that max_cu is a tight bound. */
@@ -503,64 +491,42 @@ static void lattice_enumerate_inner(
     mpz_clear(min_cu);
   }
 
-  /* Begin: Optimization for d and r on 0 <= d, r < 2^m --------------------- */
-  /* We use _d suffixes below, however the situation is analogous in d and r. */
+  /* Begin: Optimization for d and r on min_d_or_r <= d, r <= max_d_or_r ---- */
 
-  if ((1 == k) && TRUE) {
-    /* Initialize variables. */
-    mpz_t last_component_u;
-    mpz_init(last_component_u);
-
+  if (1 == k) {
     /* The interval is now (uhat_min, uhat_max) around uhat. */
     mpz_set(new_cu_coordinates[0].get_data(), uhat);
+
+    /* Compute the last component. */
+    mpz_t last_component_u;
+    mpz_init(last_component_u);
 
     {
       mpz_t tmp;
       mpz_init(tmp);
 
       for (uint32_t i = 0; i <= n; i++) {
-        mpz_mul(
-          tmp,
-          A[i][n].get_data(),
-          new_cu_coordinates[i].get_data());
-        mpz_add(
-          last_component_u,
-          last_component_u,
-          tmp);
+        mpz_mul(tmp, A[i][n].get_data(), new_cu_coordinates[i].get_data());
+        mpz_add(last_component_u, last_component_u, tmp);
       }
 
       /* Clear memory. */
       mpz_clear(tmp);
     }
 
-    mpz_t min_d;
-    mpz_init(min_d);
-    mpz_set_ui(min_d, 0);
-
-    mpz_t max_d;
-    mpz_init(max_d);
-    mpz_setbit(max_d, m);
-
-    const int sign = (mpz_sgn(A[0][n].get_data()) < 0) ? -1 : 1;
-
-    mpz_t candidate_d;
-    mpz_init_set(candidate_d, last_component_u);
-
-    mpz_t increment_d;
-    mpz_init(increment_d);
-    mpz_abs(increment_d, A[0][n].get_data());
+    mpz_set(candidate_d_or_r, last_component_u);
 
     /* Move ahead if necessary. */
-    if (mpz_cmp(candidate_d, min_d) < 0) {
+    if (mpz_cmp(candidate_d_or_r, min_d_or_r) < 0) {
       mpz_t tmp;
       mpz_init(tmp);
 
-      mpz_sub(tmp, min_d, candidate_d);
-      mpz_add(tmp, tmp, increment_d);
+      mpz_sub(tmp, min_d_or_r, candidate_d_or_r);
+      mpz_add(tmp, tmp, increment_d_or_r);
       mpz_sub_ui(tmp, tmp, 1);
-      mpz_div(tmp, tmp, increment_d);
+      mpz_div(tmp, tmp, increment_d_or_r);
 
-      if (sign < 1) {
+      if (sign_d_or_r < 1) {
         mpz_sub(
           new_cu_coordinates[k - 1].get_data(),
           new_cu_coordinates[k - 1].get_data(),
@@ -572,46 +538,68 @@ static void lattice_enumerate_inner(
           tmp);
       }
 
-      mpz_mul(tmp, tmp, increment_d);
-      mpz_add(candidate_d, candidate_d, tmp);
+      mpz_mul(tmp, tmp, increment_d_or_r);
+      mpz_add(candidate_d_or_r, candidate_d_or_r, tmp);
 
       /* Clear memory. */
       mpz_clear(tmp);
     }
 
+    uint32_t timeout_counter = 0;
+
     /* Iterate. */
     while (TRUE) {
-      const int result_min_d = mpz_cmp(candidate_d, min_d);
-      const int result_max_d = mpz_cmp(candidate_d, max_d);
+      const int result_min_d_or_r = mpz_cmp(candidate_d_or_r, min_d_or_r);
+      const int result_max_d_or_r = mpz_cmp(candidate_d_or_r, max_d_or_r);
 
-      if (result_max_d > 0) {
+      if (result_max_d_or_r > 0) {
         break;
       }
 
-      if ((result_min_d >= 0) && (result_max_d <= 0)) {
-        if (mpz_cmp(candidate_d, d) == 0) {
+      if ((result_min_d_or_r >= 0) && (result_max_d_or_r <= 0)) {
+        if (mpz_cmp(candidate_d_or_r, d_or_r) == 0) {
           /* Set the status to recovered. */
           (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
 
-          /* Clean up memory. */
-          mpz_clear(max_d);
-          mpz_clear(min_d);
-          mpz_clear(candidate_d);
-          mpz_clear(increment_d);
+          /* Stop. */
+          goto lattice_enumerate_inner_clear;
+        } else if (detect_smooth && (0 != mpz_cmp_ui(candidate_d_or_r, 0))) {
+          mpz_mod(z, d_or_r, candidate_d_or_r);
 
-          new_cu_coordinates.clear();
+          if (mpz_cmp_ui(z, 0) == 0) { /* candidate_d_or_r divides d_or_r */
+            mpz_div(z, d_or_r, candidate_d_or_r);
 
-          mpz_clear(uhat);
-          mpz_clear(uhat_min);
-          mpz_clear(uhat_max);
+            const bool smooth = lattice_smoothness_is_smooth(
+                                  z,
+                                  LATTICE_SMOOTHNESS_CONSTANT_C,
+                                  parameters->m);
+
+            if (smooth) {
+              /* Set the status to recovered. */
+              (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
+
+              /* Stop. */
+              goto lattice_enumerate_inner_clear;
+            }
+          }
+        }
+      }
+
+      /* Check the timeout. */
+      timeout_counter = (timeout_counter + 1) & 0xff;
+      
+      if (0 == timeout_counter) {
+        if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
+          /* Set the status to timeout. */
+          (*status) = LATTICE_STATUS_TIMEOUT;
 
           /* Stop. */
-          return;
+          goto lattice_enumerate_inner_clear;
         }
       }
 
       /* Increment the coordinate. */
-      if (sign < 0) {
+      if (sign_d_or_r < 1) {
         mpz_sub_ui(
           new_cu_coordinates[k - 1].get_data(),
           new_cu_coordinates[k - 1].get_data(),
@@ -627,25 +615,25 @@ static void lattice_enumerate_inner(
         break;
       }
 
-      /* Increment the candidate d. */
-      mpz_add(candidate_d, candidate_d, increment_d);
+      /* Increment the candidate d or r. */
+      mpz_add(candidate_d_or_r, candidate_d_or_r, increment_d_or_r);
     }
 
     /* Reset the counters. */
-    mpz_set(candidate_d, last_component_u);
+    mpz_set(candidate_d_or_r, last_component_u);
     mpz_set(new_cu_coordinates[k - 1].get_data(), uhat);
 
     /* Move ahead if necessary. */
-    if (mpz_cmp(candidate_d, max_d) > 0) {
+    if (mpz_cmp(candidate_d_or_r, max_d_or_r) > 0) {
       mpz_t tmp;
       mpz_init(tmp);
 
-      mpz_sub(tmp, candidate_d, max_d);
-      mpz_sub(tmp, tmp, increment_d);
+      mpz_sub(tmp, candidate_d_or_r, max_d_or_r);
+      mpz_sub(tmp, tmp, increment_d_or_r);
       mpz_add_ui(tmp, tmp, 1);
-      mpz_div(tmp, tmp, increment_d);
+      mpz_div(tmp, tmp, increment_d_or_r);
 
-      if (sign < 1) {
+      if (sign_d_or_r < 1) {
         mpz_add(
           new_cu_coordinates[k - 1].get_data(),
           new_cu_coordinates[k - 1].get_data(),
@@ -657,19 +645,19 @@ static void lattice_enumerate_inner(
           tmp);
       }
 
-      mpz_mul(tmp, tmp, increment_d);
-      mpz_sub(candidate_d, candidate_d, tmp);
+      mpz_mul(tmp, tmp, increment_d_or_r);
+      mpz_sub(candidate_d_or_r, candidate_d_or_r, tmp);
 
       mpz_clear(tmp);
     }
 
     /* Iterate. */
     while (TRUE) {
-      /* Decrement the candidate d. */
-      mpz_sub(candidate_d, candidate_d, increment_d);
+      /* Decrement the candidate d or r. */
+      mpz_sub(candidate_d_or_r, candidate_d_or_r, increment_d_or_r);
 
       /* Decrement the coordinate. */
-      if (sign < 0) {
+      if (sign_d_or_r < 1) {
         mpz_add_ui(
           new_cu_coordinates[k - 1].get_data(),
           new_cu_coordinates[k - 1].get_data(),
@@ -685,49 +673,58 @@ static void lattice_enumerate_inner(
         break;
       }
 
-      const int result_min_d = mpz_cmp(candidate_d, min_d);
-      const int result_max_d = mpz_cmp(candidate_d, max_d);
+      const int result_min_d_or_r = mpz_cmp(candidate_d_or_r, min_d_or_r);
+      const int result_max_d_or_r = mpz_cmp(candidate_d_or_r, max_d_or_r);
 
-      if (result_min_d < 0) {
+      if (result_min_d_or_r < 0) {
         break;
       }
 
-      if ((result_min_d >= 0) && (result_max_d <= 0)) {
-        if (mpz_cmp(candidate_d, d) == 0) {
+      if ((result_min_d_or_r >= 0) && (result_max_d_or_r <= 0)) {
+        if (mpz_cmp(candidate_d_or_r, d_or_r) == 0) {
           /* Set the status to recovered. */
           (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
 
-          /* Clean up memory. */
-          mpz_clear(max_d);
-          mpz_clear(min_d);
-          mpz_clear(candidate_d);
-          mpz_clear(increment_d);
+          /* Stop. */
+          goto lattice_enumerate_inner_clear;
+        } else if (detect_smooth && (0 != mpz_cmp_ui(candidate_d_or_r, 0))) {
+          mpz_mod(z, d_or_r, candidate_d_or_r);
 
-          new_cu_coordinates.clear();
+          if (mpz_cmp_ui(z, 0) == 0) { /* candidate_d_or_r divides d_or_r */
+            mpz_div(z, d_or_r, candidate_d_or_r);
 
-          mpz_clear(uhat);
-          mpz_clear(uhat_min);
-          mpz_clear(uhat_max);
+            const bool smooth = lattice_smoothness_is_smooth(
+                                  z,
+                                  LATTICE_SMOOTHNESS_CONSTANT_C,
+                                  parameters->m);
+
+            if (smooth) {
+              /* Set the status to recovered. */
+              (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
+
+              /* Stop. */
+              goto lattice_enumerate_inner_clear;
+            }
+          }
+        }
+      }
+
+      /* Check the timeout. */
+      timeout_counter = (timeout_counter + 1) & 0xff;
+      
+      if (0 == timeout_counter) {
+        if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
+          /* Set the status to timeout. */
+          (*status) = LATTICE_STATUS_TIMEOUT;
 
           /* Stop. */
-          return;
+          goto lattice_enumerate_inner_clear;
         }
       }
     }
 
-    /* Clean up memory. */
-    mpz_clear(max_d);
-    mpz_clear(min_d);
-    mpz_clear(candidate_d);
-    mpz_clear(increment_d);
-
-    new_cu_coordinates.clear();
-
-    mpz_clear(uhat);
-    mpz_clear(uhat_min);
-    mpz_clear(uhat_max);
-
-    return; /* No solution found. */
+    /* No solution found. Stop. */
+    goto lattice_enumerate_inner_clear;
   }
 
   /* End: Optimization for d and r. ----------------------------------------- */
@@ -753,12 +750,15 @@ static void lattice_enumerate_inner(
         G_square_norms,
         M,
         k - 1,
-        m,
         n,
-        d,
+        min_d_or_r,
+        max_d_or_r,
+        d_or_r,
+        parameters,
         precision,
-        timer,
-        timeout);
+        detect_smooth,
+        timeout,
+        timer);
       if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
         break; /* Recovery was successful or an error occurred. */
       }
@@ -780,12 +780,15 @@ static void lattice_enumerate_inner(
         G_square_norms,
         M,
         k - 1,
-        m,
         n,
-        d,
+        min_d_or_r,
+        max_d_or_r,
+        d_or_r,
+        parameters,
         precision,
-        timer,
-        timeout);
+        detect_smooth,
+        timeout,
+        timer);
       if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
         break; /* Recovery was successful or an error occurred. */
       }
@@ -801,11 +804,18 @@ static void lattice_enumerate_inner(
   /* Clear memory. */
   mpz_clear(counter);
 
+lattice_enumerate_inner_clear:
+
+  /* Clear memory initially allocated. */
   new_cu_coordinates.clear();
 
   mpz_clear(uhat);
   mpz_clear(uhat_min);
   mpz_clear(uhat_max);
+
+  mpz_clear(candidate_d_or_r);
+  mpz_clear(increment_d_or_r);
+  mpz_clear(z);
 }
 
 void lattice_enumerate_reduced_basis_for_d(
@@ -817,6 +827,7 @@ void lattice_enumerate_reduced_basis_for_d(
   const uint32_t n,
   const Parameters * const parameters,
   const uint32_t precision,
+  const bool detect_smooth_r,
   const uint64_t timeout)
 {
   /* Check dimensions. */
@@ -967,7 +978,47 @@ void lattice_enumerate_reduced_basis_for_d(
     /* Execute the enumeration. */
     (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
 
-    for (uint32_t t = 0; t < 128; t++) {
+    mpz_t min_d;
+    mpz_init(min_d);
+    mpz_set_ui(min_d, 0); /* min_d = 0 */
+
+    mpz_t max_d;
+    mpz_init(max_d);
+    mpz_set_ui(max_d, 0);
+    mpz_setbit(max_d, parameters->m); /* max_d = 2^m */
+
+    mpz_t d;
+    mpz_init(d);
+    mpz_set(d, parameters->d);
+
+    if (detect_smooth_r) {
+      /* Check if there is a small multiple of r in the lattice. This may occur
+       * when solving for a general discrete logarithm if r is smooth. */
+      mpz_t tmp_r;
+      mpz_init(tmp_r);
+
+      mpz_abs(tmp_r, A[0][n].get_data());
+      mpz_mod(tmp_r, parameters->r, tmp_r);
+
+      if (0 == mpz_cmp_ui(tmp_r, 0)) {
+        mpz_abs(tmp_r, A[0][n].get_data());
+        mpz_div(tmp_r, parameters->r, tmp_r); /* tmp_r = r / r' */
+
+        if (mpz_cmp_ui(tmp_r, 1) > 0) {
+          const bool smooth = lattice_smoothness_is_smooth(
+                                tmp_r,
+                                LATTICE_SMOOTHNESS_CONSTANT_C,
+                                parameters->m);
+          if (smooth) {
+            mpz_div(max_d, max_d, tmp_r); /* max_d = 2^m / (r / r') */
+          }
+        }
+      }
+
+      mpz_clear(tmp_r);
+    }
+
+    for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
       lattice_enumerate_inner(
         status_d,
         square_radius,
@@ -977,14 +1028,33 @@ void lattice_enumerate_reduced_basis_for_d(
         G_square_norms,
         M,
         n + 1, /* = k */
-        parameters->m,
         n,
-        parameters->d,
+        min_d,
+        max_d,
+        d,
+        parameters,
         precision,
-        &timer,
-        timeout);
+        FALSE, /* = detect_smooth */
+        timeout,
+        &timer);
+
+      /* Note that we set detect_smooth to FALSE above. If r is partially very
+       * smooth, there may be an artifically short vector in the lattice, 
+       * leading us to enumerate very many vectors. To handle this, however, 
+       * we reduce the upper interval for d, see the above code. The 
+       * detect_smooth flag is only relevant when enumerating for r. */
 
       if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
+        /* If the fact that r has smooth factors was used, report it. */
+        if (detect_smooth_r) {
+          if (LATTICE_STATUS_RECOVERED_ENUMERATION == (*status_d)) {
+            if (mpz_cmp(d, parameters->d) < 0) {
+              (*status_d) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
+            }
+          }
+        }
+
+        /* A solution was found or there was a timeout. */
         break;
       }
 
@@ -993,6 +1063,11 @@ void lattice_enumerate_reduced_basis_for_d(
     }
 
     /* Clear memory. */
+    mpz_clear(d);
+
+    mpz_clear(min_d);
+    mpz_clear(max_d);
+
     cu_coordinates.clear();
 
     mpfr_clear(square_radius);
@@ -1019,6 +1094,7 @@ void lattice_enumerate_reduced_basis_for_r(
   const uint32_t n,
   const Parameters * const parameters,
   const uint32_t precision,
+  const bool detect_smooth_r,
   const uint64_t timeout)
 {
   /* Check dimensions. */
@@ -1096,6 +1172,16 @@ void lattice_enumerate_reduced_basis_for_r(
   /* Execute the enumeration. */
   (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
 
+  mpz_t min_r;
+  mpz_init(min_r);
+  mpz_set_ui(min_r, 0); /* min_r = 0 */
+
+  mpz_t max_r;
+  mpz_init(max_r);
+  mpz_set_ui(max_r, 0);
+  mpz_setbit(max_r, parameters->m); /* max_r = 2^m */
+
+
   for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
     lattice_enumerate_inner(
       status_r,
@@ -1106,12 +1192,15 @@ void lattice_enumerate_reduced_basis_for_r(
       G_square_norms,
       M,
       n + 1, /* = k */
-      parameters->m,
       n,
-      parameters->r,
+      min_r,
+      max_r,
+      parameters->r, /* = r */
+      parameters,
       precision,
-      &timer,
-      timeout);
+      detect_smooth_r,
+      timeout,
+      &timer);
 
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_r)) {
       break;
@@ -1122,6 +1211,9 @@ void lattice_enumerate_reduced_basis_for_r(
   }
 
   /* Clear memory. */
+  mpz_clear(min_r);
+  mpz_clear(max_r);
+
   cv_coordinates.clear();
   cu_coordinates.clear();
 
@@ -1139,6 +1231,7 @@ void lattice_enumerate_for_d(
   const Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
   const uint32_t precision,
+  const bool detect_smooth_r,
   const uint64_t timeout)
 {
   /* Setup the A matrix. */
@@ -1170,7 +1263,8 @@ void lattice_enumerate_for_d(
       ks,
       n,
       parameters,
-      precision);
+      precision,
+      detect_smooth_r);
 
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
       A.clear();
@@ -1197,6 +1291,7 @@ void lattice_enumerate_for_d(
     n,
     parameters,
     precision,
+    detect_smooth_r,
     timeout);
 
   /* Clear memory. */
@@ -1212,6 +1307,7 @@ void lattice_enumerate_for_r(
   const Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
   const uint32_t precision,
+  const bool detect_smooth_r,
   const uint64_t timeout)
 {
   /* Setup the A matrix. */
@@ -1233,7 +1329,8 @@ void lattice_enumerate_for_r(
       status_r,
       A,
       n,
-      parameters);
+      parameters,
+      detect_smooth_r);
 
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_r)) {
       A.clear();
@@ -1263,6 +1360,7 @@ void lattice_enumerate_for_r(
     n,
     parameters,
     precision,
+    detect_smooth_r,
     timeout);
 
   /* Clear memory. */
@@ -1280,6 +1378,7 @@ void lattice_enumerate_for_d_r(
   const Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
   const uint32_t precision,
+  const bool detect_smooth_r,
   const uint64_t timeout)
 {
   /* Setup the A matrix. */
@@ -1314,7 +1413,8 @@ void lattice_enumerate_for_d_r(
         status_r,
         A,
         n,
-        parameters);
+        parameters,
+        detect_smooth_r);
     }
 
     if (LATTICE_STATUS_NOT_RECOVERED == (*status_d)) {
@@ -1331,7 +1431,8 @@ void lattice_enumerate_for_d_r(
         ks,
         n,
         parameters,
-        precision);
+        precision,
+        detect_smooth_r);
     }
 
     if ((LATTICE_STATUS_NOT_RECOVERED != (*status_d)) &&
@@ -1369,6 +1470,7 @@ void lattice_enumerate_for_d_r(
       n,
       parameters,
       precision,
+      detect_smooth_r,
       timeout);
   }
 
@@ -1382,6 +1484,7 @@ void lattice_enumerate_for_d_r(
       n,
       parameters,
       precision,
+      detect_smooth_r,
       timeout);
   }
 

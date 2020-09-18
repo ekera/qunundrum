@@ -80,6 +80,11 @@ typedef struct {
   Solution_Method solution_method;
 
   /*!
+   * \brief   The option for detecting smooth orders.
+   */
+  Detect_Smooth_Order_Option detect_smooth_order;
+
+  /*!
    * \brief   The reduction algorithm.
    */
   Lattice_Reduction_Algorithm reduction_algorithm;
@@ -133,6 +138,7 @@ static bool arguments_init_parse_command_line(
   /* Initialize the arguments data structure. */
   arguments->search_strategy = SEARCH_STRATEGY_DEFAULT;
   arguments->solution_method = SOLUTION_METHOD_DEFAULT;
+  arguments->detect_smooth_order = DETECT_SMOOTH_ORDER_DEFAULT;
   arguments->reduction_algorithm = REDUCTION_ALGORITHM_DEFAULT;
   arguments->timeout = 0;
   arguments->entries = NULL;
@@ -188,6 +194,21 @@ static bool arguments_init_parse_command_line(
 
       /* Store the solution method. */
       arguments->solution_method = solution_method;
+
+      continue;
+    }
+
+    /* Parse the option for detecting smooth orders. */
+    if (0 == strcmp(argv[i], "-detect-smooth-order")) {
+      /* Check that a detection option has not already been specified. */
+      if (DETECT_SMOOTH_ORDER_DEFAULT != (arguments->detect_smooth_order)) {
+        fprintf(stderr, "Error: The flag for detecting smooth orders cannot be "
+          "twice specified.\n");
+        return FALSE;
+      }
+
+      /* Store the solution method. */
+      arguments->detect_smooth_order = DETECT_SMOOTH_ORDER_TRUE;
 
       continue;
     }
@@ -255,6 +276,10 @@ static bool arguments_init_parse_command_line(
   /* Set default parameters if arguments where not explicitly specified. */
   if (SOLUTION_METHOD_DEFAULT == arguments->solution_method) {
     arguments->solution_method = SOLUTION_METHOD_CLOSEST;
+  }
+
+  if (DETECT_SMOOTH_ORDER_DEFAULT == arguments->detect_smooth_order) {
+    arguments->detect_smooth_order = DETECT_SMOOTH_ORDER_FALSE;
   }
 
   if (REDUCTION_ALGORITHM_DEFAULT == arguments->reduction_algorithm) {
@@ -336,14 +361,15 @@ static void arguments_bcast_send(
 {
   int result;
 
-  uint32_t data[5];
+  uint32_t data[6];
   data[0] = (uint32_t)(arguments->search_strategy);
   data[1] = (uint32_t)(arguments->solution_method);
-  data[2] = (uint32_t)(arguments->reduction_algorithm);
-  data[3] = (uint32_t)(arguments->timeout);
-  data[4] = (uint32_t)(arguments->count);
+  data[2] = (uint32_t)(arguments->detect_smooth_order);
+  data[3] = (uint32_t)(arguments->reduction_algorithm);
+  data[4] = (uint32_t)(arguments->timeout);
+  data[5] = (uint32_t)(arguments->count);
 
-  result = MPI_Bcast(data, 5, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 6, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_bcast_send(): "
       "Failed to send broadcast of collected metadata.");
@@ -393,18 +419,19 @@ static void arguments_init_bcast_recv(
   arguments->count = 0;
 
   int result;
-  uint32_t data[5];
+  uint32_t data[6];
 
-  result = MPI_Bcast(data, 5, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 6, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_init_bcast_recv(): Failed to receive broadcast.");
   };
 
   arguments->search_strategy = (Search_Strategy)(data[0]);
   arguments->solution_method = (Solution_Method)(data[1]);
-  arguments->reduction_algorithm = (Lattice_Reduction_Algorithm)(data[2]);
-  arguments->timeout = data[3];
-  arguments->count = data[4];
+  arguments->detect_smooth_order = (Detect_Smooth_Order_Option)(data[2]);
+  arguments->reduction_algorithm = (Lattice_Reduction_Algorithm)(data[3]);
+  arguments->timeout = data[4];
+  arguments->count = data[5];
 
   arguments->entries =
     (Solve_Distribution_Arguments_Entry *)malloc(
@@ -635,8 +662,10 @@ static void main_server(
 
         switch (recovery_status_d) {
           case LATTICE_STATUS_RECOVERED_IMMEDIATE:
+          case LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH:
           case LATTICE_STATUS_RECOVERED_SEARCH:
           case LATTICE_STATUS_RECOVERED_ENUMERATION:
+          case LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH:
             break;
 
           default:
@@ -648,6 +677,8 @@ static void main_server(
           case LATTICE_STATUS_RECOVERED_IMMEDIATE:
           case LATTICE_STATUS_RECOVERED_SEARCH:
           case LATTICE_STATUS_RECOVERED_ENUMERATION:
+          case LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH:
+          case LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH:
             break;
 
           default:
@@ -1057,6 +1088,12 @@ static void main_client(
     Lattice_Status_Recovery recovery_status_d;
     Lattice_Status_Recovery recovery_status_r;
 
+    /* If the flag for detecting smooth orders has been set, pass TRUE for 
+     * the detect_smooth_r argument, otherwise pass FALSE. */
+    const bool detect_smooth_r = 
+      (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) ? 
+        TRUE : FALSE;
+
     if (SOLUTION_METHOD_CLOSEST == arguments->solution_method) {
       lattice_solve_for_d_r(
         &recovery_status_d,
@@ -1066,7 +1103,8 @@ static void main_client(
         n,
         &(distribution.parameters),
         arguments->reduction_algorithm,
-        distribution.parameters.m);
+        distribution.parameters.m, /* = precision */
+        detect_smooth_r);
     } else if (SOLUTION_METHOD_ENUMERATE == arguments->solution_method) {
       lattice_enumerate_for_d_r(
         &recovery_status_d,
@@ -1076,7 +1114,8 @@ static void main_client(
         n,
         &(distribution.parameters),
         arguments->reduction_algorithm,
-        distribution.parameters.m,
+        distribution.parameters.m, /* precision */
+        detect_smooth_r,
         arguments->timeout);
     } else {
       critical("main_client(): Unknown solution method.");
@@ -1157,8 +1196,9 @@ static void print_synopsis(
   fprintf(file, "Synopsis: mpirun solve_distribution \\\n"
           "   [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
           "      [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
-          "         [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
-          "            <distribution> <n> { <distribution> <n> }\n");
+          "         [ -detect-smooth-order ] \\\n"
+          "            [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
+          "               <distribution> <n> { <distribution> <n> }\n");
 
   fprintf(file, "\n");
   fprintf(file, "Search strategy: -- defaults to adaptive\n");
@@ -1172,6 +1212,12 @@ static void print_synopsis(
   fprintf(file,
     " -closest       use the closest vector to a given vector\n"
     " -enumerate     enumerate vectors around a given vector\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Options for orders: -- defaults to no detection\n");
+  fprintf(file,
+    " -detect-smooth-order  detect if the order is smooth, and if so\n"
+    "                       leverage its smoothness when solving\n");
 
   fprintf(file, "\n");
   fprintf(file, "Reduction algorithm: -- defaults to LLL then BKZ\n");

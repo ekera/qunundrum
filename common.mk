@@ -41,6 +41,7 @@ OBJECTS += $(OBJ_DIR)/lattice_babai.o
 OBJECTS += $(OBJ_DIR)/lattice_algebra.o
 OBJECTS += $(OBJ_DIR)/lattice_reduce.o
 OBJECTS += $(OBJ_DIR)/lattice_sample.o
+OBJECTS += $(OBJ_DIR)/lattice_smoothness.o
 OBJECTS += $(OBJ_DIR)/tau_volume_quotient.o
 OBJECTS += $(OBJ_DIR)/tau_estimate.o
 OBJECTS += $(OBJ_DIR)/mpfr_mpi.o

@@ -80,23 +80,32 @@ void parameters_selection_random_d_or_r(
   mpz_t value,
   const uint32_t m)
 {
-  mpz_t half_modulus;
-  mpz_init(half_modulus);
-  mpz_set_ui(half_modulus, 0);
-  mpz_setbit(half_modulus, m - 1);
+  /* Setup constants. */
+  mpz_t half_modulus_minus_one;
+  mpz_init(half_modulus_minus_one);
+  mpz_set_ui(half_modulus_minus_one, 0);
+  mpz_setbit(half_modulus_minus_one, m - 1);
+  mpz_sub_ui(half_modulus_minus_one, half_modulus_minus_one, 1);
 
   /* Setup a random state. */
   Random_State random_state;
   random_init(&random_state);
 
-  /* Randomize the value. */
-  random_generate_mpz(value, half_modulus, &random_state);
-  mpz_add(value, value, half_modulus);
+  /* Select value uniformly at random from [0, 2^(m-1) - 2]. */
+  random_generate_mpz(value, half_modulus_minus_one, &random_state);
+
+  /* Add 2^(m-1) + 1 to value, so that it is on
+   * 
+   *    [2^(m-1) + 1, 2^(m-1) - 2 + 2^(m-1) + 1] =
+   *      [2^(m-1) + 1, 2^m - 1] = (2^(m-1), 2^m).
+   */
+  mpz_add(value, value, half_modulus_minus_one);
+  mpz_add_ui(value, value, 2);
 
   /* Clear memory. */
   random_close(&random_state);
 
-  mpz_clear(half_modulus);
+  mpz_clear(half_modulus_minus_one);
 }
 
 void parameters_selection_random_d_and_r(
@@ -104,7 +113,7 @@ void parameters_selection_random_d_and_r(
   mpz_t r,
   const uint32_t m)
 {
-  /* Select r uniformly at random from the interval [2^(m-1), 2^m). */
+  /* Select r uniformly at random from the interval (2^(m-1), 2^m). */
   parameters_selection_random_d_or_r(r, m);
 
   /* Select d uniformly at random from the interval [r / 2, r). */

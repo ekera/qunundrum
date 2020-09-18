@@ -80,7 +80,7 @@ enum {
 
   /*!
    * \brief   A flag indicating that the distribution was constructed by
-   *          randomly selecting d or r on [2^(m-1), 2^m).
+   *          randomly selecting d or r on (2^(m-1), 2^m).
    *
    * For more information, see parameters_selection_random_d_or_r().
    */
