@@ -173,11 +173,11 @@ static void main_client()
       }
     }
 
-    /* Clean up. */
+    /* Clear memory. */
     tau_ordered_list_clear(&tau_ordered_list);
   }
 
-  /* Clean up. */
+  /* Close the random state. */
   random_close(&random_state);
 }
 
@@ -397,7 +397,7 @@ static bool main_server_estimate_volume_quotient(
   fclose(logfile);
   logfile = NULL;
 
-  /* Clean up. */
+  /* Clear memory. */
   tau_ordered_list_clear(&tau_ordered_list);
 
   /* Signal success. */
@@ -555,7 +555,7 @@ static void main_server(
 
 main_server_clear:
 
-  /* Clean up. */
+  /* Clear memory. */
   mpfr_clear(v_0);
   mpfr_clear(v_1);
   mpfr_clear(v_n);

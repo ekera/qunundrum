@@ -40,7 +40,6 @@ void keccak_random_init(
       "Failed to read seed from \"%s\".", KECCAK_RANDOM_DEVICE);
   }
 
-  /* Clean up. */
   fclose(file);
   file = NULL;
 

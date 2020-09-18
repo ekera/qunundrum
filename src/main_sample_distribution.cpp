@@ -162,7 +162,7 @@ int main(int argc, char ** argv) {
     fflush(stdout);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(alpha_d);
   mpz_clear(alpha_r);
   mpz_clear(j);

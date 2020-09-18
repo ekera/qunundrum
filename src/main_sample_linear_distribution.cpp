@@ -168,7 +168,7 @@ int main(int argc, char ** argv) {
     fflush(stdout);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(alpha);
   mpz_clear(j);
   mpz_clear(k);

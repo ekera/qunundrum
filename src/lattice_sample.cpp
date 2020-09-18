@@ -81,7 +81,7 @@ void lattice_alpha_init(
 
   gram_schmidt_orthogonalization(M, lattice->G, lattice->A, 1, parameters->m);
 
-  /* Clean up. */
+  /* Clear memory. */
   M.clear();
 
   mpz_clear(pow_m_gamma);
@@ -125,7 +125,7 @@ void lattice_alpha_map(
   mpz_set(alpha_d, solution[0].get_data());
   mpz_set(alpha_r, solution[1].get_data());
 
-  /* Clean up. */
+  /* Clear memory. */
   target.clear();
   solution.clear();
 }

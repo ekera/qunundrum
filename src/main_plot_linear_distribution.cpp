@@ -173,7 +173,7 @@ static void plot_linear_distribution(
   fclose(file);
   file = NULL;
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&scaled_distribution);
 }
 
@@ -244,7 +244,7 @@ int main(int argc, char ** argv) {
     /* Process the distribution. */
     plot_linear_distribution(&distribution, absolute);
 
-    /* Clean up. */
+    /* Clear memory. */
     linear_distribution_clear(&distribution);
   }
 

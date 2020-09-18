@@ -103,7 +103,7 @@ bool tau_volume_quotient(
   mpfr_div(v, v, tmp, MPFR_RNDN);
     /* v = pi^(D / 2) radius^D / Gamma(D / 2 + 1) / 2^((l + m) n) */
 
-  /* Clean up. */
+  /* Clear memory. */
   mpfr_clear(tmp);
   mpfr_clear(radius);
   mpfr_clear(gamma);

@@ -200,6 +200,7 @@ void tau_ordered_list_recv_merge(
     tau_ordered_list_insert(list, tau[i]);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   free(tau);
+  tau = NULL;
 }

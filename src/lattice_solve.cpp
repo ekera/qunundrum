@@ -112,7 +112,7 @@ void lattice_solve_reduced_basis_for_d(
 
     vector_matrix_product(solution, solution_coordinates, A);
 
-    /* Clean up memory. */
+    /* Clear memory. */
     solution_coordinates.clear();
   #else
     /* Compute the closest vector. */
@@ -153,11 +153,12 @@ void lattice_solve_reduced_basis_for_d(
       }
     }
 
+    /* Clear memory. */
     mpz_clear(multiple);
     mpz_clear(tmp_d);
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   target.clear();
   solution.clear();
 

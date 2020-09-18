@@ -141,7 +141,7 @@ static bool pi_projection_test(
     }
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpfr_clear(grown_square_radius);
   mpfr_clear(square_norm);
   mpfr_clear(tmp);
@@ -159,11 +159,11 @@ static bool pi_projection_test(
  *
  * This function implements lattice enumeration. It is implemented naïvely 
  * following Kannan [1] as described in appendix C to [2].
- * 
+ *
  * [1] Kannan, R.: Improved algorithms for integer programming and related 
  * lattice problems. In: Proceedings of the 15th Symposium on the Theory of 
  * Computing. STOC 1983. ACM Press, pp. 99—108 (1983).
- * 
+ *
  * [2] Ekerå, M.: On post-processing in the quantum algorithm for computing 
  * short discrete logarithms. In: IACR ePrint Archive, 2017/1122, 1st revision.
  *
@@ -299,7 +299,7 @@ static void lattice_enumerate_inner(
     mpfr_round(tmp, tmp);
     mpfr_get_z(uhat, tmp, MPFR_RNDN);
 
-    /* Clean up memory. */
+    /* Clear memory. */
     mpfr_clear(tmp);
     mpfr_clear(tmp2);
   }
@@ -407,7 +407,7 @@ static void lattice_enumerate_inner(
         }
       }
 
-      /* Clean up memory. */
+      /* Clear memory. */
       mpz_clear(pivot_cu);
       mpz_clear(min_cu);
     }
@@ -415,7 +415,7 @@ static void lattice_enumerate_inner(
     /* Export the result. */
     mpz_add(uhat_max, uhat, max_cu);
 
-    /* Clean up memory. */
+    /* Clear memory. */
     mpz_clear(max_cu);
   }
 
@@ -491,7 +491,7 @@ static void lattice_enumerate_inner(
         }
       }
 
-      /* Clean up memory. */
+      /* Clear memory. */
       mpz_clear(pivot_cu);
       mpz_clear(max_cu);
     }
@@ -499,7 +499,7 @@ static void lattice_enumerate_inner(
     /* Export the result. */
     mpz_add(uhat_min, uhat, min_cu);
 
-    /* Clean up memory. */
+    /* Clear memory. */
     mpz_clear(min_cu);
   }
 
@@ -529,7 +529,7 @@ static void lattice_enumerate_inner(
           tmp);
       }
 
-      /* Clean memory. */
+      /* Clear memory. */
       mpz_clear(tmp);
     }
 
@@ -575,6 +575,7 @@ static void lattice_enumerate_inner(
       mpz_mul(tmp, tmp, increment_d);
       mpz_add(candidate_d, candidate_d, tmp);
 
+      /* Clear memory. */
       mpz_clear(tmp);
     }
 
@@ -797,9 +798,9 @@ static void lattice_enumerate_inner(
     mpz_add_ui(counter, counter, 1);
   }
 
+  /* Clear memory. */
   mpz_clear(counter);
 
-  /* Clean up memory. */
   new_cu_coordinates.clear();
 
   mpz_clear(uhat);

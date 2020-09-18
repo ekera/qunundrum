@@ -136,7 +136,7 @@ void solve_left_coordinates(
     }
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpfr_clear(x);
   mpfr_clear(c);
 

@@ -269,7 +269,7 @@ static void main_client()
     }
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   random_close(&random_state);
 
   mpz_clear(p);
@@ -499,7 +499,7 @@ static void main_server(
       status.MPI_SOURCE, clients);
   }
 
-  /* Clean up. */
+  /* Close the file. */
   fclose(log_file);
   log_file = NULL;
 }

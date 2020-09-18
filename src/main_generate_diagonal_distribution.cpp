@@ -754,7 +754,7 @@ static void main_server(
     }
   }
 
-  /* Clean up the distribution enumerator. */
+  /* Clear memory. */
   diagonal_distribution_enumerator_clear(&enumerator);
 
   /* Setup an export job. */
@@ -896,11 +896,11 @@ static void main_client()
     /* Send back the slice. */
     diagonal_distribution_slice_send(&slice, MPI_RANK_ROOT);
 
-    /* Clean up the slice. */
+    /* Clear memory. */
     diagonal_distribution_slice_clear(&slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 

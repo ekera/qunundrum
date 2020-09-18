@@ -185,6 +185,6 @@ void parameters_selection_explicit_rsa(
       "Unexpected result. Incorrect p and/or q or internal error.");
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(pow);
 }

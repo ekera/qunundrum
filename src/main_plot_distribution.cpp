@@ -193,7 +193,7 @@ static void plot_distribution(
   fclose(file);
   file = NULL;
 
-  /* Clean up. */
+  /* Clear memory. */
   distribution_clear(&scaled_distribution);
 
   linear_distribution_clear(&linear_distribution_d);
@@ -248,10 +248,11 @@ int main(int argc, char ** argv) {
     /* Plot the distribution. */
     plot_distribution(&distribution);
 
-    /* Clean up. */
+    /* Close the file. */
     fclose(file);
     file = NULL;
 
+    /* Clear memory. */
     distribution_clear(&distribution);
   }
 

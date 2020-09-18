@@ -142,7 +142,7 @@ void diagonal_distribution_init_import(
     diagonal_distribution_insert_slice(distribution, slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 
@@ -494,7 +494,7 @@ bool diagonal_distribution_sample_pair_j_k(
       "   j: %Zd\n   k: %Zd\n", j, k);
   #endif
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpz_clear(alpha_d);
   mpz_clear(alpha_r);
 

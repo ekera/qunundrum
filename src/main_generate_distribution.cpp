@@ -760,7 +760,7 @@ static void main_server_export_collapsed_distributions(
   fclose(file);
   file = NULL;
 
-  /* Clean up memory. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution_d);
   linear_distribution_clear(&linear_distribution_r);
 }
@@ -1053,7 +1053,7 @@ static void main_server(
     }
   }
 
-  /* Clean up the distribution enumerator. */
+  /* Clear memory. */
   distribution_enumerator_clear(&enumerator);
 
   /* Setup an export job. */
@@ -1336,7 +1336,7 @@ static void main_client(
         /* Send back the slice. */
         distribution_slice_send(&scaled_slice, MPI_RANK_ROOT);
 
-        /* Clean up the scaled slice. */
+        /* Clear memory. */
         distribution_slice_clear(&scaled_slice);
       } else {
         /* Send back the slice. */
@@ -1358,11 +1358,11 @@ static void main_client(
       }
     }
 
-    /* Clean up the slice. */
+    /* Clear memory. */
     distribution_slice_clear(&slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 

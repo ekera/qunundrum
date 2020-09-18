@@ -46,7 +46,7 @@ void plot_diagonal_distribution_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -68,7 +68,7 @@ void plot_diagonal_distribution_detailed_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -90,7 +90,7 @@ void plot_diagonal_distribution_histogram_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -110,7 +110,7 @@ void plot_diagonal_distribution_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -130,7 +130,7 @@ void plot_diagonal_distribution_detailed_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -150,7 +150,7 @@ void plot_diagonal_distribution_histogram_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -180,7 +180,7 @@ void plot_collapsed_diagonal_distribution_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -201,7 +201,7 @@ void plot_collapsed_diagonal_distribution_detailed_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -222,7 +222,7 @@ void plot_collapsed_diagonal_distribution_histogram_horizontal(
     file,
     absolute);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -241,7 +241,7 @@ void plot_collapsed_diagonal_distribution_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -260,7 +260,7 @@ void plot_collapsed_diagonal_distribution_detailed_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 
@@ -279,7 +279,7 @@ void plot_collapsed_diagonal_distribution_histogram_vertical(
     offset_y,
     file);
 
-  /* Clean up. */
+  /* Clear memory. */
   linear_distribution_clear(&linear_distribution);
 }
 

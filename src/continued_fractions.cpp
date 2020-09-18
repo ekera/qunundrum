@@ -71,7 +71,7 @@ bool continued_fractions_solve(
    * approximate the fraction. The first quotient is a_0, the second a_0 + 1/a_1
    * and so forth, recursively, as we have that
    * 
-   *                            
+   * 
    *                                         1
    *           fraction = a_0 + ---------------------------
    *                                            1
@@ -139,7 +139,7 @@ bool continued_fractions_solve(
     mpfr_div(fraction, one, fraction, MPFR_RNDN);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   mpfr_clear(one);
   mpz_clear(pow2m);
   mpz_clear(pow2ml);
