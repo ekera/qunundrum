@@ -1039,7 +1039,7 @@ void lattice_enumerate_reduced_basis_for_d(
         &timer);
 
       /* Note that we set detect_smooth to FALSE above. If r is partially very
-       * smooth, there may be an artifically short vector in the lattice, 
+       * smooth, there may be an artificially short vector in the lattice, 
        * leading us to enumerate very many vectors. To handle this, however, 
        * we reduce the upper interval for d, see the above code. The 
        * detect_smooth flag is only relevant when enumerating for r. */
