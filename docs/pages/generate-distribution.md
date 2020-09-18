@@ -41,4 +41,4 @@ Flags controlling the dimension (defaults to <code>-dim-heuristic</code>):
 - <code>-dim-heuristic</code> adaptively sets the dimension according to a heuristic
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>
 
-The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in paper on computing general discrete logarithms with tradeoffs. See this reference for a description of how the histogram is constructed.
+The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in the paper on computing general discrete logarithms with tradeoffs. See this reference for a description of how the histogram is constructed.

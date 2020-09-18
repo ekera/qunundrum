@@ -24,7 +24,7 @@ Flags specifying the search bound (defaults to zero):
 - <code>-search-bound \<bound\></code> sets the search bound on |t| to <code>\<bound\></code>
 
 Note that alpha_d = round(alpha_r d/r) + Delta for some small Delta.
-The bound on t is related to Delta, as is explained in detail in Section 3 in the paper on revisiting Shor's algorithm for computing general discrete logarithms [(Paper)](https://arxiv.org/pdf/1905.09084.pdf).
+The bound on t is related to Delta, as is explained in detail in Section 3 in the paper on revisiting Shor's algorithm for computing general discrete logarithms [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
 Searching over t as proposed in the aforementioned paper increases the success probability.
 
 ## Interpreting the output

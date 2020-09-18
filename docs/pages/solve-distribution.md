@@ -29,7 +29,7 @@ Flags specifying the search strategy (defaults to <code>-adaptive</code>):
 - <code>-non-adaptive-early-abort</code> abort immediately if there are too many failures
 
 Flags specifying whether an enumeration is performed (defaults to <code>-closest</code>):
-- <code>-closest</code> solves by finding the closest vectors to two given lattice vectors
+- <code>-closest</code> solves by finding the closest vector to a given lattice vector
 - <code>-enumerate</code> solves by enumerating the lattice
 
 Flags specifying the enumeration timeout (defaults to 300s):

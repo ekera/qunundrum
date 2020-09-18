@@ -7,7 +7,7 @@ Synopsis: mpirun generate_diagonal_distribution \
       [ -det | -rnd | -exp <d> <r> ] <m> <l> { <m> <l> }
 ```
 
-Computes the distribution induced by Shor's algorithm for computing general discrete logarithms when tweaked as described by Ekerå in for example (Paper).
+Computes the distribution induced by Shor's algorithm for computing general discrete logarithms when tweaked as in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
 
 The aforementioned distribution is a distribution in two arguments (alpha_d, alpha_r), or equivalently, in two angle pairs (theta_d, theta_r).
 The argument pairs are related in that alpha_d = round(alpha_r d/r) + Delta for some small Delta.
@@ -37,4 +37,4 @@ Flags controlling the dimension (defaults to <code>-dim-heuristic</code>):
 - <code>-dim-heuristic</code> adaptively sets the dimension according to a heuristic
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>
 
-The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in paper on revisiting Shor's algorithm. See this reference for a description of how the histogram is constructed.
+The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in the paper on revisiting Shor's algorithm. See this reference for a description of how the histogram is constructed.
