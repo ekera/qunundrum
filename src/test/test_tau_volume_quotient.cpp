@@ -88,10 +88,11 @@ void test_tau_volume_quotient_kat() {
     }
   }
 
-  /* Clean up */
+  /* Close the file. */
   fclose(file);
   file = NULL;
 
+  /* Clear memory. */
   mpz_clear(d);
   mpz_clear(r);
   

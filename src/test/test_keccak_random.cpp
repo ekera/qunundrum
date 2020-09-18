@@ -114,7 +114,7 @@ void test_keccak_random() {
     critical("The generated and expected sequences differ.");
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   keccak_random_close(&state);
   keccak_random_close(&read_state);
   

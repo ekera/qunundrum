@@ -110,9 +110,11 @@ void test_linear_probability_d_kat() {
         }
       }
 
+      /* Close the file. */
       fclose(file);
       file = NULL;
 
+      /* Clear memory. */
       mpfr_clear(norm);
       mpfr_clear(theta_d);
       mpfr_clear(exp_norm);
@@ -208,9 +210,11 @@ void test_linear_probability_r_kat() {
         }
       }
 
+      /* Close the file. */
       fclose(file);
       file = NULL;
 
+      /* Clear memory. */
       mpfr_clear(norm);
       mpfr_clear(theta_r);
       mpfr_clear(exp_norm);

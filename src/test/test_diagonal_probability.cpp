@@ -151,9 +151,11 @@ void test_diagonal_probability_approx_kat() {
         }
       }
 
+      /* Close the file. */
       fclose(file);
       file = NULL;
 
+      /* Clear memory. */
       mpz_clear(d);
       mpz_clear(r);
 

@@ -171,9 +171,11 @@ void test_probability_approx_heuristic_sigma_kat() {
         }
       }
 
+      /* Close the file. */
       fclose(file);
       file = NULL;
 
+      /* Clear memory. */
       mpfr_clear(norm);
       mpfr_clear(error);
       mpfr_clear(theta_d);
