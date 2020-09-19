@@ -71,7 +71,7 @@ using namespace fplll;
  * \param[in] cv_coordinates    The coordinates of the v vector.
  * \param[in] M                 The M matrix.
  * \param[in] G_square_norms    The square norms of the rows of the G matrix.
- * \param[in]  k                The index of the component currently processed.
+ * \param[in] k                 The index of the component currently processed.
  *                              Specifies the depth in the enumeration tree.
  * \param[in] n                 The number of runs used to setup the A matrix
  *                              from which the G and M matrices are computed.
@@ -1180,7 +1180,6 @@ void lattice_enumerate_reduced_basis_for_r(
   mpz_init(max_r);
   mpz_set_ui(max_r, 0);
   mpz_setbit(max_r, parameters->m); /* max_r = 2^m */
-
 
   for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
     lattice_enumerate_inner(
