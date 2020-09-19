@@ -207,7 +207,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      /* Store the solution method. */
+      /* Store the option for detecting smooth orders. */
       arguments->detect_smooth_order = DETECT_SMOOTH_ORDER_TRUE;
 
       continue;
