@@ -675,9 +675,9 @@ static void main_server(
 
         switch (recovery_status_r) {
           case LATTICE_STATUS_RECOVERED_IMMEDIATE:
+          case LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH:
           case LATTICE_STATUS_RECOVERED_SEARCH:
           case LATTICE_STATUS_RECOVERED_ENUMERATION:
-          case LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH:
           case LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH:
             break;
 
