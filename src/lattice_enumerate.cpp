@@ -278,6 +278,9 @@ static void lattice_enumerate_inner(
   mpz_t z;
   mpz_init(z);
 
+  mpz_t last_component_u;
+  mpz_init(last_component_u);
+
   /* Note: The above variables are cleared at the end of this function. */
 
   /* Setup uhat. */
@@ -349,6 +352,9 @@ static void lattice_enumerate_inner(
     }
 
     if (mpz_cmp_ui(max_cu, 0) == 0) {
+      /* Clear memory. */
+      mpz_clear(max_cu);
+
       /* Abort the run. */
       goto lattice_enumerate_inner_clear;
     } else if (mpz_cmp_ui(max_cu, 2) <= 0) {
@@ -498,9 +504,8 @@ static void lattice_enumerate_inner(
     mpz_set(new_cu_coordinates[0].get_data(), uhat);
 
     /* Compute the last component. */
-    mpz_t last_component_u;
-    mpz_init(last_component_u);
-
+    mpz_set_ui(last_component_u, 0);
+  
     {
       mpz_t tmp;
       mpz_init(tmp);
@@ -648,6 +653,7 @@ static void lattice_enumerate_inner(
       mpz_mul(tmp, tmp, increment_d_or_r);
       mpz_sub(candidate_d_or_r, candidate_d_or_r, tmp);
 
+      /* Clear memory. */
       mpz_clear(tmp);
     }
 
@@ -812,10 +818,10 @@ lattice_enumerate_inner_clear:
   mpz_clear(uhat);
   mpz_clear(uhat_min);
   mpz_clear(uhat_max);
-
   mpz_clear(candidate_d_or_r);
   mpz_clear(increment_d_or_r);
   mpz_clear(z);
+  mpz_clear(last_component_u);
 }
 
 void lattice_enumerate_reduced_basis_for_d(
