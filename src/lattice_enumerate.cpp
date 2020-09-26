@@ -415,7 +415,7 @@ static void lattice_enumerate_inner(
 
   {
    /* The minimum in the k:th component is min = uhat + min_cu. Set min_cu to
-    * -1 initially, and then double max_cu in every iteration thereafter until
+    * -1 initially, and then double min_cu in every iteration thereafter until
     * we no longer find ourselves inside the radius of the hypersphere. This
     * yields a coarse estimate that we then refine below. */
 
