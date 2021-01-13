@@ -65,14 +65,20 @@ void lattice_alpha_init(
   mpz_set(lattice->A[1][0].get_data(), pow_m_gamma);
   mpz_set_ui(lattice->A[1][1].get_data(), 0);
 
-  /* Reduce the basis matrix. */
-  int status = hkz_reduction(lattice->A, HKZ_DEFAULT, FT_MPFR, parameters->m);
+  /* Reduce the basis matrix using LLL. We previously used HKZ for this purpose
+   * but the fpLLL implementation of HKZ sometimes seemingly hangs. Since the 
+   * lattice is two-dimensional, the choice is not very significant. */
+  int status = lll_reduction(
+                lattice->A,
+                LLL_DEF_DELTA, /* delta */
+                LLL_DEF_ETA, /* eta */
+                LM_WRAPPER, /* method */
+                FT_DEFAULT, /* floating point */
+                0, /* precision */
+                0); /* flags */
   if (RED_SUCCESS != status) {
-    critical("lattice_alpha_init(): Failed to reduce matrix A using HKZ.");
+    critical("lattice_alpha_init(): Failed to reduce matrix A using LLL.");
   }
-
-  /* Ideally, we would use Gauss-Lagrange for this two-dimensional matrix, but
-   * HKZ should be equivalent for such matrices, so this does not matter. */
 
   /* Compute a Gram-Schmidt orthogonalized basis. */
   FP_mat<mpfr_t> M(2, 2);
