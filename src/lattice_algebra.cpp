@@ -82,6 +82,30 @@ void solve_left_coordinates(
   for (uint32_t i = 0; i <= n; i++) {
     /* Let tmp = 1/x for x the element at index (i, i) in the matrix A_tmp. */
     mpfr_set_ui(c, 1, MPFR_RNDN);
+
+    /* Test if x is zero. */
+    if (0 == mpfr_cmp_ui(A_tmp[i][i].get_data(), 0)) {
+      /* Add a later row to this row to make x non-zero. */
+      for (uint32_t j = i + 1; j <= n; j++) {
+        if (0 != mpfr_cmp_ui(A_tmp[j][i].get_data(), 0)) {
+          /* Add row j to row i to make the coefficient non-zero.. */
+          for (uint32_t k = i; k <= n; k++) {
+            mpfr_add(A_tmp[i][k].get_data(), A_tmp[i][k].get_data(), 
+              A_tmp[j][k].get_data(), MPFR_RNDN);
+            mpfr_add(A_inv[i][k].get_data(), A_inv[i][k].get_data(), 
+              A_inv[j][k].get_data(), MPFR_RNDN);
+          }
+
+          break;
+        }
+      }
+
+      /* Not full rank. */
+      if (0 == mpfr_cmp_ui(A_tmp[i][i].get_data(), 0)) {
+        critical("solve_left_coordinates(): Division by zero.");
+      }
+    }
+
     mpfr_div(c, c, A_tmp[i][i].get_data(), MPFR_RNDN);
 
     /* Multiply row i of the matrix A_tmp with c. */
