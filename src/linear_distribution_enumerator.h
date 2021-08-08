@@ -70,7 +70,7 @@ typedef struct {
   Linear_Distribution_Coordinate ** coordinates;
 
   /*!
-   * \brief   The total number of entries in the
+   * \brief   The offset within the
    *          Linear_Distribution_Enumerator::coordinates vector.
    */
   uint32_t offset;

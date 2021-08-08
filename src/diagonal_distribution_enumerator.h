@@ -79,7 +79,7 @@ typedef struct {
   Diagonal_Distribution_Coordinate ** coordinates;
 
   /*!
-   * \brief   The total number of entries in the
+   * \brief   The offset within the
    *          Diagonal_Distribution_Enumerator::coordinates vector.
    */
   uint32_t offset;
