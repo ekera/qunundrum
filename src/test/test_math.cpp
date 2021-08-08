@@ -25,7 +25,7 @@ void test_math_mod_reduce() {
   mpz_init(n);
 
   /* Tests for n = 7. */
-  static const int32_t expected_7[7] = {0, 1, 2, 3, -3, -2, -1};
+  const int32_t expected_7[7] = {0, 1, 2, 3, -3, -2, -1};
 
   mpz_set_ui(n, 7);
   
@@ -45,7 +45,7 @@ void test_math_mod_reduce() {
   }
 
   /* Tests for n = 8. */
-  static const int32_t expected_8[8] = {0, 1, 2, 3, -4, -3, -2, -1};
+  const int32_t expected_8[8] = {0, 1, 2, 3, -4, -3, -2, -1};
   
   mpz_set_ui(n, 8);
 

@@ -38,12 +38,12 @@ void test_probability_approx_heuristic_sigma_kat() {
   mpfr_set_default_prec(PRECISION);
 
   /* As set in main() in main_generate_distribution.cpp. */
-  const static uint32_t m_s_entries[8][2] = {
+  const uint32_t m_s_entries[8][2] = {
     { 128,  2}, { 256,  4}, { 384,  6}, { 512,  8},
     {1024, 10}, {2048, 30}, {4096, 50}, {8192, 80}
   };
   
-  const static uint32_t s_entries[14] = {
+  const uint32_t s_entries[14] = {
     1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 80
   };
 

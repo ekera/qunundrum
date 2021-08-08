@@ -35,12 +35,12 @@ void test_linear_probability_d_kat() {
   mpfr_set_default_prec(PRECISION);
 
   /* As set in main() in main_generate_distribution.cpp. */
-  const static uint32_t m_s_entries[7][2] = {
+  const uint32_t m_s_entries[7][2] = {
     { 128, 10}, { 256, 20}, { 512, 30},
     {1024, 40}, {2048, 50}, {4096, 80}, {8192, 80}
   };
   
-  const static uint32_t s_entries[16] = {
+  const uint32_t s_entries[16] = {
     1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 60, 70, 80
   };
 
@@ -134,12 +134,12 @@ void test_linear_probability_r_kat() {
   mpfr_set_default_prec(PRECISION);
 
   /* As set in main() in main_generate_distribution.cpp. */
-  const static uint32_t m_s_entries[7][2] = {
+  const uint32_t m_s_entries[7][2] = {
     { 128, 10}, { 256, 20}, { 512, 30},
     {1024, 40}, {2048, 50}, {4096, 80}, {8192, 80}
   };
   
-  const static uint32_t s_entries[16] = {
+  const uint32_t s_entries[16] = {
     1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 60, 70, 80
   };
 

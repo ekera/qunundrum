@@ -47,7 +47,7 @@ void test_tau_volume_quotient_kat() {
   mpz_t r;
   mpz_init(r);
 
-  const static char * const path = "res/test-vectors/tau-volume-quotients.txt";
+  const char * const path = "res/test-vectors/tau-volume-quotients.txt";
 
   FILE * file = fopen(path, "rb");
   if (NULL == file) {

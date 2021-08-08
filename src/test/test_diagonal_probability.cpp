@@ -36,11 +36,11 @@ void test_diagonal_probability_approx_kat() {
   mpfr_set_default_prec(PRECISION);
 
   /* As set in main() in main_generate_distribution.cpp. */
-  const static uint32_t m_entries[7] = {
+  const uint32_t m_entries[7] = {
     128, 256, 512, 1024, 2048, 4096, 8192
   };
   
-  const static uint32_t l_entries[6] = {
+  const uint32_t l_entries[6] = {
     0, 1, 2, 3, 4, 5
   };
 

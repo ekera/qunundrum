@@ -20,12 +20,12 @@
 /*!
  * \brief   The path to a temporary file used to hold random data.
  */
-const static char * TEMPORARY_RANDOM_FILE = "/tmp/tmp-random.bin";
+static const char * TEMPORARY_RANDOM_FILE = "/tmp/tmp-random.bin";
 
 /*!
  * \brief   The path to a random device.
  */
-const static char * RANDOM_DEVICE = "/dev/urandom";
+static const char * RANDOM_DEVICE = "/dev/urandom";
 
 /*!
  * \brief   The random buffer size in byte.
