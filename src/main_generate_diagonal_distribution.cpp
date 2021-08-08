@@ -757,6 +757,8 @@ static void main_server(
   /* Clear memory. */
   diagonal_distribution_enumerator_clear(&enumerator);
 
+  parameters_clear(&parameters);
+
   /* Setup an export job. */
   Diagonal_Distribution_Export_Job * export_job =
     (Diagonal_Distribution_Export_Job *)

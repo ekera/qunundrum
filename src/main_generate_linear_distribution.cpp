@@ -827,6 +827,8 @@ static void main_server(
   /* Clear memory. */
   linear_distribution_enumerator_clear(&enumerator);
 
+  parameters_clear(&parameters);
+
   /* Setup an export job. */
   Linear_Distribution_Export_Job * export_job =
     (Linear_Distribution_Export_Job *)

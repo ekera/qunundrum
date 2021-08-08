@@ -1056,6 +1056,8 @@ static void main_server(
   /* Clear memory. */
   distribution_enumerator_clear(&enumerator);
 
+  parameters_clear(&parameters);
+
   /* Setup an export job. */
   Distribution_Export_Job * export_job =
     (Distribution_Export_Job *)malloc(sizeof(Distribution_Export_Job));
