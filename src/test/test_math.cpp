@@ -27,7 +27,7 @@ void test_math_mod_reduce() {
   /* Tests for n = 7. */
   static const int32_t expected_7[7] = {0, 1, 2, 3, -3, -2, -1};
 
-  mpz_init_set_ui(n, 7);
+  mpz_set_ui(n, 7);
   
   for (int32_t i = -3 * 7; i <= 3 * 7; i++) {
     mpz_set_si(x, i);
@@ -47,7 +47,7 @@ void test_math_mod_reduce() {
   /* Tests for n = 8. */
   static const int32_t expected_8[8] = {0, 1, 2, 3, -4, -3, -2, -1};
   
-  mpz_init_set_ui(n, 8);
+  mpz_set_ui(n, 8);
 
   for (int32_t i = -3 * 8; i <= 3 * 8; i++) {
     mpz_set_si(x, i);
@@ -63,6 +63,10 @@ void test_math_mod_reduce() {
         "Found %d but expected %d.", mpz_get_si(x), expected_8[j]);
     }
   }
+
+  /* Clear memory. */
+  mpz_clear(x);
+  mpz_clear(n);
 }
 
 void test_math() {
