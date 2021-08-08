@@ -27,6 +27,7 @@ static void diagonal_distribution_slice_recv_common(
 {
   MPI_Status status;
 
+  /* Receive min_log_alpha_r. */
   if (MPI_SUCCESS != MPI_Recv(
       &(slice->min_log_alpha_r),
       1, /* count */
@@ -53,6 +54,7 @@ static void diagonal_distribution_slice_recv_common(
       "Failed to receive offset_alpha_d.");
   }
 
+  /* Receive the flags. */
   if (MPI_SUCCESS != MPI_Recv(
       &(slice->flags),
       1, /* count */
@@ -63,9 +65,10 @@ static void diagonal_distribution_slice_recv_common(
       &status))
   {
     critical("diagonal_distribution_slice_recv_common(): "
-      "Failed to receive flags.");
+      "Failed to receive the flags.");
   }
 
+  /* Receive the norm vector. */
   if (MPI_SUCCESS != MPI_Recv(
       slice->norm_vector,
       slice->dimension, /* count */
@@ -79,6 +82,7 @@ static void diagonal_distribution_slice_recv_common(
       "Failed to receive the norm vector.");
   }
 
+  /* Receive the total error. */
   if (MPI_SUCCESS != MPI_Recv(
       &(slice->total_error),
       1, /* count */
@@ -103,9 +107,10 @@ void diagonal_distribution_slice_recv(
   Diagonal_Distribution_Slice * const slice,
   const int rank)
 {
-  uint32_t dimension;
-
   MPI_Status status;
+
+  /* Receive the dimension */
+  uint32_t dimension;
 
   if (MPI_SUCCESS != MPI_Recv(
       &dimension,
@@ -120,11 +125,13 @@ void diagonal_distribution_slice_recv(
       "Failed to receive the dimension.");
   }
 
+  /* Re-initialize the slice if the dimension differs. */
   if (dimension != slice->dimension) {
     diagonal_distribution_slice_clear(slice);
     diagonal_distribution_slice_init(slice, dimension);
   }
 
+  /* Call diagonal_distribution_slice_recv_common(). */
   diagonal_distribution_slice_recv_common(slice, rank);
 }
 
@@ -132,9 +139,10 @@ void diagonal_distribution_slice_init_recv(
   Diagonal_Distribution_Slice * const slice,
   const int rank)
 {
-  uint32_t dimension;
-
   MPI_Status status;
+
+  /* Receive the dimension. */
+  uint32_t dimension;
 
   if (MPI_SUCCESS != MPI_Recv(
       &dimension,
@@ -149,8 +157,10 @@ void diagonal_distribution_slice_init_recv(
       "Failed to receive the dimension.");
   }
 
+  /* Initialize the slice. */
   diagonal_distribution_slice_init(slice, dimension);
 
+  /* Call diagonal_distribution_slice_recv_common(). */
   diagonal_distribution_slice_recv_common(slice, rank);
 }
 
@@ -158,6 +168,7 @@ void diagonal_distribution_slice_send(
   const Diagonal_Distribution_Slice * const slice,
   const int rank)
 {
+  /* Send the dimension. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->dimension),
       1, /* count */
@@ -170,6 +181,7 @@ void diagonal_distribution_slice_send(
       "Failed to send the dimension.");
   }
 
+  /* Send min_log_alpha_r. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->min_log_alpha_r),
       1, /* count */
@@ -194,6 +206,7 @@ void diagonal_distribution_slice_send(
       "Failed to send offset_alpha_d.");
   }
 
+  /* Send the flags. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->flags),
       1, /* count */
@@ -203,9 +216,10 @@ void diagonal_distribution_slice_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_slice_send(): "
-      "Failed to send flags.");
+      "Failed to send the flags.");
   }
 
+  /* Send the norm vector. */
   if (MPI_SUCCESS != MPI_Send(
       slice->norm_vector,
       slice->dimension, /* count */
@@ -218,6 +232,7 @@ void diagonal_distribution_slice_send(
       "Failed to send the norm vector.");
   }
 
+  /* Send the total error. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->total_error),
       1, /* count */
@@ -235,7 +250,7 @@ void diagonal_distribution_slice_init_bcast_recv(
   Diagonal_Distribution_Slice * const slice,
   const int root)
 {
-  /* Broadcast dimension. */
+  /* Broadcast the dimension. */
   uint32_t dimension;
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -249,7 +264,7 @@ void diagonal_distribution_slice_init_bcast_recv(
       "Failed to broadcast the dimension.");
   }
 
-  /* Store dimension. */
+  /* Store the dimension. */
   slice->dimension = dimension;
 
   /* Allocate memory for the norm vector. */
@@ -274,7 +289,7 @@ void diagonal_distribution_slice_init_bcast_recv(
       "Failed to broadcast min_log_alpha_r.");
   }
 
-  /* Store alpha. */
+  /* Store min_log_alpha_r. */
   slice->min_log_alpha_r = min_log_alpha_r;
 
   /* Broadcast offset_alpha_d. */
@@ -294,7 +309,7 @@ void diagonal_distribution_slice_init_bcast_recv(
   /* Store alpha. */
   slice->offset_alpha_d = offset_alpha_d;
 
-  /* Broadcast flags. */
+  /* Broadcast the flags. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->flags),
       1, /* count */
@@ -303,10 +318,10 @@ void diagonal_distribution_slice_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_slice_init_bcast_recv(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
-  /* Broadcast norm vector. */
+  /* Broadcast the norm vector. */
   if (MPI_SUCCESS != MPI_Bcast(
       slice->norm_vector,
       slice->dimension, /* count */
@@ -318,7 +333,7 @@ void diagonal_distribution_slice_init_bcast_recv(
       "Failed to broadcast the norm vector.");
   }
 
-  /* Broadcast total probability. */
+  /* Broadcast the total probability. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->total_probability),
       1, /* count */
@@ -330,7 +345,7 @@ void diagonal_distribution_slice_init_bcast_recv(
       "Failed to broadcast the total probability.");
   }
 
-  /* Broadcast total error. */
+  /* Broadcast the total error. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->total_error),
       1, /* count */
@@ -347,7 +362,7 @@ void diagonal_distribution_slice_bcast_send(
   Diagonal_Distribution_Slice * const slice,
   const int root)
 {
-  /* Broadcast dimension. */
+  /* Broadcast the dimension. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->dimension),
       1, /* count */
@@ -387,7 +402,7 @@ void diagonal_distribution_slice_bcast_send(
       "Failed to broadcast offset_alpha_d.");
   }
 
-  /* Broadcast flags. */
+  /* Broadcast the flags. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->flags),
       1, /* count */
@@ -396,10 +411,10 @@ void diagonal_distribution_slice_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_slice_bcast_send(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
-  /* Broadcast norm vector. */
+  /* Broadcast the norm vector. */
   if (MPI_SUCCESS != MPI_Bcast(
       slice->norm_vector,
       slice->dimension, /* count */
@@ -411,7 +426,7 @@ void diagonal_distribution_slice_bcast_send(
       "Failed to broadcast the norm vector.");
   }
 
-  /* Broadcast total probability. */
+  /* Broadcast the total probability. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->total_probability),
       1, /* count */
@@ -423,7 +438,7 @@ void diagonal_distribution_slice_bcast_send(
       "Failed to broadcast the total probability.");
   }
 
-  /* Broadcast total error. */
+  /* Broadcast the total error. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->total_error),
       1, /* count */
@@ -432,6 +447,6 @@ void diagonal_distribution_slice_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_slice_bcast_send(): "
-      "Failed to broadcast total error.");
+      "Failed to broadcast the total error.");
   }
 }

@@ -38,19 +38,21 @@ void test_random_device() {
   /* Read from the random device. */
   FILE * random_device = fopen(RANDOM_DEVICE, "rb");
   if (NULL == random_device) {
-    critical("Failed to open \"%s\" for reading.", RANDOM_DEVICE);
+    critical("test_random_device(): "
+      "Failed to open \"%s\" for reading.", RANDOM_DEVICE);
   }
 
   /* Read data into the buffer. */
   uint8_t * buffer = (uint8_t *)malloc(RANDOM_BUFFER_SIZE);
   if (NULL == buffer) {
-    critical("Failed to allocate memory.");
+    critical("test_random_device(): Failed to allocate memory.");
   }
 
   memset(buffer, 0, RANDOM_BUFFER_SIZE);
 
   if (1 != fread(buffer, RANDOM_BUFFER_SIZE, 1, random_device)) {
-    critical("Failed to read from \"%s\".", RANDOM_DEVICE);
+    critical("test_random_device(): "
+      "Failed to read from \"%s\".", RANDOM_DEVICE);
   }
 
   fclose(random_device);
@@ -59,11 +61,13 @@ void test_random_device() {
   /* Setup a random temporary file. */
   FILE * file = fopen(TEMPORARY_RANDOM_FILE, "wb");
   if (NULL == file) {
-    critical("Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
+    critical("test_random_device(): "
+      "Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
   }
 
   if (1 != fwrite(buffer, RANDOM_BUFFER_SIZE, 1, file)) {
-    critical("Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
+    critical("test_random_device(): "
+      "Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
   }
 
   fclose(file);
@@ -73,12 +77,13 @@ void test_random_device() {
   Random_State random_state;
   random_init_device(&random_state, TEMPORARY_RANDOM_FILE);
   if (NULL == random_state.random_device) {
-    critical("Failed to initialize the random state for reading a device.");
+    critical("test_random_device(): "
+      "Failed to initialize the random state for reading a device.");
   }
 
   uint8_t * buffer2 = (uint8_t *)malloc(RANDOM_BUFFER_SIZE);
   if (NULL == buffer2) {
-    critical("Failed to allocate memory.");
+    critical("test_random_device(): Failed to allocate memory.");
   }
   
   memset(buffer2, 0, RANDOM_BUFFER_SIZE);
@@ -86,7 +91,8 @@ void test_random_device() {
   random_generate(buffer2, RANDOM_BUFFER_SIZE, &random_state);
 
   if (0 != memcmp(buffer, buffer2, RANDOM_BUFFER_SIZE)) {
-    critical("Failed to correctly generate random output.");
+    critical("test_random_device(): "
+      "Failed to correctly generate random output.");
   }
   
   random_close(&random_state);
@@ -94,7 +100,8 @@ void test_random_device() {
   /* Setup a random state for reading back the file in increments. */
   random_init_device(&random_state, TEMPORARY_RANDOM_FILE);
   if (NULL == random_state.random_device) {
-    critical("Failed to initialize the random state for reading a device.");
+    critical("test_random_device(): "
+      "Failed to initialize the random state for reading a device.");
   }
   
   uint32_t offset = 0;
@@ -116,7 +123,8 @@ void test_random_device() {
   }
 
   if (0 != memcmp(buffer, buffer2, RANDOM_BUFFER_SIZE)) {
-    critical("Failed to correctly generate random output.");
+    critical("test_random_device(): "
+      "Failed to correctly generate random output.");
   }
   
   keccak_random_close(&chunk_length_state);
@@ -138,7 +146,8 @@ void test_random_keccak() {
   Random_State random_state;
   random_init(&random_state);
   if (NULL != random_state.random_device) {
-    critical("Failed to initialize the random state for using Keccak.");
+    critical("test_random_keccak(): "
+      "Failed to initialize the random state for using Keccak.");
   }
 
   /* Setup a Keccak state with the same seed. */
@@ -148,23 +157,26 @@ void test_random_keccak() {
   if (0 != memcmp(&(random_state.keccak_state.lanes), &(keccak_state.lanes), 
     sizeof(KECCAK_LANE_COUNT * sizeof(uint64_t))))
   {
-    critical("Failed to initialize the random state for using Keccak.");
+    critical("test_random_keccak(): "
+      "Failed to initialize the random state for using Keccak.");
   }
 
   if (0 != memcmp(&(random_state.keccak_state.seed), &(keccak_state.seed), 
     KECCAK_RANDOM_SEED_LENGTH))
   {
-    critical("Failed to initialize the random state for using Keccak.");
+    critical("test_random_keccak(): "
+      "Failed to initialize the random state for using Keccak.");
   }
 
   if (random_state.keccak_state.offset != keccak_state.offset) {
-    critical("Failed to initialize the random state for using Keccak.");
+    critical("test_random_keccak(): "
+      "Failed to initialize the random state for using Keccak.");
   }
 
   /* Check that reading through the wrapper produces the expected result. */
   uint8_t * buffer = (uint8_t *)malloc(RANDOM_BUFFER_SIZE);
   if (NULL == buffer) {
-    critical("Failed to allocate memory.");
+    critical("test_random_keccak(): Failed to allocate memory.");
   }
 
   memset(buffer, 0, RANDOM_BUFFER_SIZE);
@@ -173,7 +185,7 @@ void test_random_keccak() {
 
   uint8_t * buffer2 = (uint8_t *)malloc(RANDOM_BUFFER_SIZE);
   if (NULL == buffer2) {
-    critical("Failed to allocate memory.");
+    critical("test_random_keccak(): Failed to allocate memory.");
   }
 
   memset(buffer2, 0, RANDOM_BUFFER_SIZE);
@@ -181,7 +193,8 @@ void test_random_keccak() {
   random_generate(buffer2, RANDOM_BUFFER_SIZE, &random_state);
 
   if (0 != memcmp(buffer, buffer2, RANDOM_BUFFER_SIZE)) {
-    critical("Failed to correctly generate random output.");
+    critical("test_random_keccak(): "
+      "Failed to correctly generate random output.");
   }
 
   memset(buffer2, 0, RANDOM_BUFFER_SIZE);
@@ -207,7 +220,8 @@ void test_random_keccak() {
   keccak_random_generate(buffer, RANDOM_BUFFER_SIZE, &keccak_state);
 
   if (0 != memcmp(buffer, buffer2, RANDOM_BUFFER_SIZE)) {
-    critical("Failed to correctly generate random output.");
+    critical("test_random_keccak(): "
+      "Failed to correctly generate random output.");
   }
   
   /* Clear memory. */
@@ -227,7 +241,8 @@ void test_random_generate_pivot() {
   /* Setup a random temporary file. */
   FILE * file = fopen(TEMPORARY_RANDOM_FILE, "wb");
   if (NULL == file) {
-    critical("Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
+    critical("test_random_generate_pivot(): "
+      "Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
   }
 
   uint8_t buffer[32] = {
@@ -238,7 +253,8 @@ void test_random_generate_pivot() {
   };
 
   if (1 != fwrite(buffer, 32, 1, file)) {
-    critical("Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
+    critical("test_random_generate_pivot(): "
+      "Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
   }
 
   fclose(file);
@@ -255,28 +271,28 @@ void test_random_generate_pivot() {
   expected = 
     (long double)0x438f79c8ac2db0a8ULL / (long double)0x8000000000000000ULL;
   if (tmp != expected) {
-    critical("Failed to sample exclusive (1).");
+    critical("test_random_generate_pivot(): Failed to sample exclusive (1).");
   }
 
   tmp = random_generate_pivot_exclusive(&random_state);
   expected = 
     (long double)0x1d271f1e5d0b0b05ULL / (long double)0x8000000000000000ULL;
   if (tmp != expected) {
-    critical("Failed to sample exclusive (2).");
+    critical("test_random_generate_pivot(): Failed to sample exclusive (2).");
   }
 
   tmp = random_generate_pivot_inclusive(&random_state);
   expected = 
     (long double)0xc946e9e15a27c7beULL / (long double)0xffffffffffffffffULL;
   if (tmp != expected) {
-    critical("Failed to sample inclusive (1).");
+    critical("test_random_generate_pivot(): Failed to sample inclusive (1).");
   }
 
   tmp = random_generate_pivot_inclusive(&random_state);
   expected = 
     (long double)0xc0e47bbdf19f8a57ULL / (long double)0xffffffffffffffffULL;
   if (tmp != expected) {
-    critical("Failed to sample inclusive (2).");
+    critical("test_random_generate_pivot(): Failed to sample inclusive (2).");
   }
 
   random_close(&random_state);
@@ -288,7 +304,8 @@ void test_random_generate_mpz() {
   /* Setup a random temporary file. */
   FILE * file = fopen(TEMPORARY_RANDOM_FILE, "wb");
   if (NULL == file) {
-    critical("Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
+    critical("test_random_generate_mpz(): "
+      "Failed to open \"%s\" for writing.", TEMPORARY_RANDOM_FILE);
   }
 
   uint8_t buffer[33] = {
@@ -300,7 +317,8 @@ void test_random_generate_mpz() {
   };
 
   if (1 != fwrite(buffer, 33, 1, file)) {
-    critical("Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
+    critical("test_random_generate_mpz(): "
+      "Failed to write to \"%s\".", TEMPORARY_RANDOM_FILE);
   }
 
   fclose(file);
@@ -324,7 +342,7 @@ void test_random_generate_mpz() {
     "37c26eca1428c2c0234ab97064c9f631325e56856510c764", 16);
   
   if (0 != mpz_cmp(value, expected)) {
-    critical("Failed to generate mpz.");
+    critical("test_random_generate_mpz(): Failed to generate mpz.");
   }
 
   /* Close the random state. */

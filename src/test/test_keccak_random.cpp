@@ -27,15 +27,16 @@ void test_keccak_random() {
   keccak_random_init_seed(&state, seed);
 
   if (0 != memcmp(seed, state.seed, KECCAK_RANDOM_SEED_LENGTH)) {
-    critical("Incorrect seed stored in the state.");
+    critical("test_keccak_random(): Incorrect seed stored in the state.");
   }
 
   /* When initialized with the zero seed, the state after initialization should
    * be equal to that resulting when keccak_f() is applied to the zero block. */
   for (uint32_t i = 0; i < KECCAK_LANE_COUNT; i++) {
     if (state.lanes[i] != KECCAK_EXPECTED_FIRST[i]) {
-      critical("Expected %.16llx but found %.16llx at position %u.",
-        KECCAK_EXPECTED_FIRST[i], state.lanes[i], i);
+      critical("test_keccak_random(): "
+        "Expected %.16llx but found %.16llx at position %u.",
+          KECCAK_EXPECTED_FIRST[i], state.lanes[i], i);
     }
   }
 
@@ -60,8 +61,9 @@ void test_keccak_random() {
     keccak_random_generate(&byte, 1, &state);
 
     if (EXPECTED[i] != byte) {
-      critical("Expected %.2x but found %.2x at position %u.",
-        EXPECTED[i], byte, i);
+      critical("test_keccak_random(): "
+        "Expected %.2x but found %.2x at position %u.",
+          EXPECTED[i], byte, i);
     }
   }
 
@@ -70,18 +72,19 @@ void test_keccak_random() {
   keccak_random_init_seed(&state, seed);
 
   if (0 != memcmp(seed, state.seed, KECCAK_RANDOM_SEED_LENGTH)) {
-    critical("Incorrect seed stored in the state.");
+    critical("test_keccak_random(): Incorrect seed stored in the state.");
   }
 
   uint8_t * buffer = (uint8_t *)malloc(length * sizeof(uint8_t));
   if (NULL == buffer) {
-    critical("Failed to allocate memory.");
+    critical("test_keccak_random(): Failed to allocate memory.");
   }
 
   memset(buffer, 0, length);
   keccak_random_generate(buffer, length, &state);
   if (0 != memcmp(buffer, EXPECTED, length)) {
-    critical("The generated and expected sequences differ.");
+    critical("test_keccak_random(): "
+      "The generated and expected sequences differ.");
   }
 
   /* Read in chunks of varying lengths on [0, 32) and compare. */
@@ -89,7 +92,7 @@ void test_keccak_random() {
   keccak_random_init_seed(&state, seed);
 
   if (0 != memcmp(seed, state.seed, KECCAK_RANDOM_SEED_LENGTH)) {
-    critical("Incorrect seed stored in the state.");
+    critical("test_keccak_random(): Incorrect seed stored in the state.");
   }
   
   Keccak_Random_State read_state;
@@ -111,7 +114,8 @@ void test_keccak_random() {
   }
 
   if (0 != memcmp(buffer, EXPECTED, length)) {
-    critical("The generated and expected sequences differ.");
+    critical("test_keccak_random(): "
+      "The generated and expected sequences differ.");
   }
 
   /* Clear memory. */

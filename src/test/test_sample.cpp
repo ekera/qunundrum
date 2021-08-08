@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 void test_sample_approximate_alpha_from_region() {
-  printf("Testing test_sample_approximate_alpha_from_region()...\n");
+  printf("Testing sample_approximate_alpha_from_region()...\n");
 
   mpfr_t alpha;
   mpfr_init2(alpha, PRECISION);
@@ -45,7 +45,8 @@ void test_sample_approximate_alpha_from_region() {
         alpha, min_log_alpha, max_log_alpha, &random_state);
 
       if (1 != mpfr_sgn(alpha)) {
-        critical("Failed to sample. Incorrect sign.");
+        critical("test_sample_approximate_alpha_from_region(): "
+          "Failed to sample. Incorrect sign.");
       }
 
       mpfr_abs(alpha, alpha, MPFR_RNDN);
@@ -54,7 +55,8 @@ void test_sample_approximate_alpha_from_region() {
       double log_alpha = mpfr_get_d(alpha, MPFR_RNDN);
 
       if ((log_alpha < min_log_alpha) || (log_alpha > max_log_alpha)) {
-        critical("Failed to sample. Incorrect magnitude.");
+        critical("test_sample_approximate_alpha_from_region(): "
+          "Failed to sample. Incorrect magnitude.");
       }
   
       /* Negative. */
@@ -62,7 +64,8 @@ void test_sample_approximate_alpha_from_region() {
         alpha, -min_log_alpha, -max_log_alpha, &random_state);
 
       if (-1 != mpfr_sgn(alpha)) {
-        critical("Failed to sample. Incorrect sign.");
+        critical("test_sample_approximate_alpha_from_region(): "
+          "Failed to sample. Incorrect sign.");
       }
 
       mpfr_abs(alpha, alpha, MPFR_RNDN);
@@ -71,7 +74,8 @@ void test_sample_approximate_alpha_from_region() {
       log_alpha = mpfr_get_d(alpha, MPFR_RNDN);
 
       if ((log_alpha < min_log_alpha) || (log_alpha > max_log_alpha)) {
-        critical("Failed to sample. Incorrect magnitude.");
+        critical("test_sample_approximate_alpha_from_region(): "
+          "Failed to sample. Incorrect magnitude.");
       }
 
       /* Note: Calling with incorrect order would trigger a critical error. */
@@ -85,7 +89,7 @@ void test_sample_approximate_alpha_from_region() {
 }
 
 void test_sample_alpha_from_region() {
-  printf("Testing test_sample_alpha_from_region()...\n");
+  printf("Testing sample_alpha_from_region()...\n");
 
   mpz_t alpha;
   mpz_init(alpha);
@@ -107,7 +111,8 @@ void test_sample_alpha_from_region() {
           alpha, min_log_alpha, max_log_alpha, kappa, &random_state);
 
         if (mpz_sgn(alpha) < 1) {
-          critical("Failed to sample. Incorrect sign.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Incorrect sign.");
         }
 
         mpfr_set_z(alpha_f, alpha, MPFR_RNDN);
@@ -118,12 +123,14 @@ void test_sample_alpha_from_region() {
         double log_alpha = mpfr_get_d(alpha_f, MPFR_RNDN);
 
         if ((log_alpha < min_log_alpha) || (log_alpha > max_log_alpha)) {
-          critical("Failed to sample. Incorrect magnitude.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Incorrect magnitude.");
         }
 
         mpz_mod_ui(alpha, alpha, 1UL << kappa);
         if (0 != mpz_cmp_ui(alpha, 0)) {
-          critical("Failed to sample. Not divisible by 2^kappa.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Not divisible by 2^kappa.");
         }
 
         /* Negative. */
@@ -131,7 +138,8 @@ void test_sample_alpha_from_region() {
           alpha, -min_log_alpha, -max_log_alpha, kappa, &random_state);
 
         if (mpz_sgn(alpha) >= 0) {
-          critical("Failed to sample. Incorrect sign.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Incorrect sign.");
         }
 
         mpfr_set_z(alpha_f, alpha, MPFR_RNDN);
@@ -142,12 +150,14 @@ void test_sample_alpha_from_region() {
         log_alpha = mpfr_get_d(alpha_f, MPFR_RNDN);
 
         if ((log_alpha < min_log_alpha) || (log_alpha > max_log_alpha)) {
-          critical("Failed to sample. Incorrect magnitude.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Incorrect magnitude.");
         }
 
         mpz_mod_ui(alpha, alpha, 1UL << kappa);
         if (0 != mpz_cmp_ui(alpha, 0)) {
-          critical("Failed to sample. Not divisible by 2^kappa.");
+          critical("test_sample_alpha_from_region(): "
+            "Failed to sample. Not divisible by 2^kappa.");
         }
 
         /* Note: Calling with incorrect order would trigger a critical error. */
@@ -163,7 +173,7 @@ void test_sample_alpha_from_region() {
 }
 
 void test_sample_j_from_alpha_r() {
-  printf("Testing test_sample_j_from_alpha_r()...\n");
+  printf("Testing sample_j_from_alpha_r()...\n");
 
   const uint32_t m = 2048;
   const uint32_t l = m / 8;
@@ -219,7 +229,8 @@ void test_sample_j_from_alpha_r() {
       }
 
       if (0 != mpz_cmp(tmp, alpha)) {
-        critical("Failed to correctly sample j.");
+        critical("test_sample_j_from_alpha_r(): "
+          "Failed to correctly sample j.");
       }
 
       /* Standard order. Negative. */
@@ -234,7 +245,8 @@ void test_sample_j_from_alpha_r() {
       }
 
       if (0 != mpz_cmp(tmp, alpha)) {
-        critical("Failed to correctly sample j.");
+        critical("test_sample_j_from_alpha_r(): "
+          "Failed to correctly sample j.");
       }
 
       /* Note: Calling with incorrect order would trigger a critical error. */
@@ -257,7 +269,7 @@ void test_sample_j_from_alpha_r() {
 }
 
 void test_sample_j_k_from_alpha_d() {
-  printf("Testing test_sample_j_k_from_alpha_d()...\n");
+  printf("Testing sample_j_k_from_alpha_d()...\n");
 
   const uint32_t m = 2048;
   const uint32_t l = m / 8;
@@ -325,7 +337,8 @@ void test_sample_j_k_from_alpha_d() {
       }
 
       if (0 != mpz_cmp(tmp, alpha)) {
-        critical("Failed to correctly sample (j, k).");
+        critical("test_sample_j_k_from_alpha_d(): "
+          "Failed to correctly sample (j, k).");
       }
 
       /* Standard order. Negative. */
@@ -342,7 +355,8 @@ void test_sample_j_k_from_alpha_d() {
       }
 
       if (0 != mpz_cmp(tmp, alpha)) {
-        critical("Failed to correctly sample (j, k).");
+        critical("test_sample_j_k_from_alpha_d(): "
+          "Failed to correctly sample (j, k).");
       }
 
       /* Note: Calling with incorrect order would trigger a critical error. */
@@ -368,7 +382,7 @@ void test_sample_j_k_from_alpha_d() {
 }
 
 void test_sample_j_k_from_alpha_d_r() {
-  printf("Testing test_sample_j_k_from_alpha_d_r()...\n");
+  printf("Testing sample_j_k_from_alpha_d_r()...\n");
 
   const uint32_t m = 2048;
   const uint32_t l = m / 8;
@@ -474,13 +488,15 @@ void test_sample_j_k_from_alpha_d_r() {
       mpz_sub(tmp, original_alpha_d, alpha_d);
       mpz_abs(tmp, tmp);
       if (mpz_cmp(tmp, bound_diff_alpha) > 0) {
-        critical("The mapped alpha_d is too far from the original alpha_d.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "The mapped alpha_d is too far from the original alpha_d.");
       }
 
       mpz_sub(tmp, original_alpha_r, alpha_r);
       mpz_abs(tmp, tmp);
       if (mpz_cmp(tmp, bound_diff_alpha) > 0) {
-        critical("The mapped alpha_r is too far from the original alpha_r.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "The mapped alpha_r is too far from the original alpha_r.");
       }
 
       sample_j_k_from_alpha_d_r(
@@ -496,7 +512,7 @@ void test_sample_j_k_from_alpha_d_r() {
       }
       
       if (0 != mpz_cmp(tmp, alpha_d)) {
-        critical("Failed to sample (j, k).");
+        critical("test_sample_j_k_from_alpha_d_r(): Failed to sample (j, k).");
       }
 
       /* Recompute alpha_r from j. */
@@ -507,7 +523,7 @@ void test_sample_j_k_from_alpha_d_r() {
       }
 
       if (0 != mpz_cmp(tmp, alpha_r)) {
-        critical("Failed to sample j.");
+        critical("test_sample_j_k_from_alpha_d_r(): Failed to sample j.");
       }
 
 
@@ -521,12 +537,14 @@ void test_sample_j_k_from_alpha_d_r() {
       if ((log_alpha < abs_d(min_log_alpha_d)) ||
           (log_alpha > abs_d(max_log_alpha_d)))
       {
-        critical("Failed to sample alpha_d. Incorrect magnitude.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "Failed to sample alpha_d. Incorrect magnitude.");
       }
 
       mpz_mod_ui(tmp, alpha_d, 1UL << kappa(d));
       if (0 != mpz_cmp_ui(tmp, 0)) {
-        critical("Failed to sample alpha_d. Not divisible by 2^kappa_d.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "Failed to sample alpha_d. Not divisible by 2^kappa_d.");
       }
 
 
@@ -540,12 +558,14 @@ void test_sample_j_k_from_alpha_d_r() {
       if ((log_alpha < abs_d(min_log_alpha_r)) ||
           (log_alpha > abs_d(max_log_alpha_r)))
       {
-        critical("Failed to sample alpha_r. Incorrect magnitude.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "Failed to sample alpha_r. Incorrect magnitude.");
       }
 
       mpz_mod_ui(tmp, alpha_r, 1UL << kappa(r));
       if (0 != mpz_cmp_ui(tmp, 0)) {
-        critical("Failed to sample alpha_r. Not divisible by 2^kappa_r.");
+        critical("test_sample_j_k_from_alpha_d_r(): "
+          "Failed to sample alpha_r. Not divisible by 2^kappa_r.");
       }
     }
     }

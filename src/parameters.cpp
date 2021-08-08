@@ -2,8 +2,8 @@
  * \file    parameters.cpp
  * \ingroup parameters
  *
- * \brief   The definition of functions for manipulating parameters for
- *          probability distributions.
+ * \brief   The definition of functions for manipulating data structures
+ *          representing parameters for probability distributions.
  */
 
 #include "parameters.h"
@@ -75,16 +75,19 @@ void parameters_explicit_m_s(
   const uint32_t s,
   const uint32_t t)
 {
-  /* Store m and l in the parameters. */
+  /* Store m and s, and compute l. */
   parameters->m = m;
   parameters->s = s;
   parameters->l = (uint32_t)ceil((double)m / (double)s);
 
+  /* Store t. */
   parameters->t = t;
 
+  /* Store d and r. */
   mpz_set(parameters->d, d);
   mpz_set(parameters->r, r);
 
+  /* Setup regions. */
   parameters_setup_regions(parameters);
 }
 
@@ -96,16 +99,19 @@ void parameters_explicit_m_l(
   const uint32_t l,
   const uint32_t t)
 {
-  /* Store m and l in the parameters. */
+  /* Store m, s and l. */
   parameters->m = m;
   parameters->s = 0;
   parameters->l = l;
 
+  /* Store t. */
   parameters->t = t;
 
+  /* Store d and r. */
   mpz_set(parameters->d, d);
   mpz_set(parameters->r, r);
 
+  /* Setup regions. */
   parameters_setup_regions(parameters);
 }
 
@@ -113,17 +119,21 @@ void parameters_copy(
   Parameters * const dst,
   const Parameters * const src)
 {
+  /* Copy m, s and l. */
   dst->m = src->m;
   dst->s = src->s;
   dst->l = src->l;
 
+  /* Copy t. */
   dst->t = src->t;
 
+  /* Copy the region. */
   dst->min_alpha_d = src->min_alpha_d;
   dst->max_alpha_d = src->max_alpha_d;
   dst->min_alpha_r = src->min_alpha_r;
   dst->max_alpha_r = src->max_alpha_r;
 
+  /* Copy r and d. */
   mpz_set(dst->r, src->r);
   mpz_set(dst->d, src->d);
 }
@@ -132,14 +142,18 @@ void parameters_bcast_send(
   const Parameters * const parameters,
   const int root)
 {
+  /* Send broadcast of all integer parameters. */
   uint32_t data[8];
 
+  /* Get m, s and l. */
   data[0] = parameters->m;
   data[1] = parameters->s;
   data[2] = parameters->l;
 
+  /* Get t. */
   data[3] = parameters->t;
 
+  /* Get the region. */
   data[4] = parameters->min_alpha_d;
   data[5] = parameters->max_alpha_d;
   data[6] = parameters->min_alpha_r;
@@ -165,6 +179,7 @@ void parameters_bcast_recv(
   Parameters * const parameters,
   const int root)
 {
+  /* Receive broadcast of all integer parameters. */
   uint32_t data[8];
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -178,12 +193,15 @@ void parameters_bcast_recv(
       "Failed to receive broadcast of parameters.");
   }
 
+  /* Store m, s and l. */
   parameters->m = data[0];
   parameters->s = data[1];
   parameters->l = data[2];
 
+  /* Store t. */
   parameters->t = data[3];
 
+  /* Store the region. */
   parameters->min_alpha_d = data[4];
   parameters->max_alpha_d = data[5];
   parameters->min_alpha_r = data[6];
@@ -198,15 +216,19 @@ void parameters_export(
   const Parameters * const parameters,
   FILE * const file)
 {
+  /* Export m, s and l. */
   fprintf(file, "%u\n", parameters->m);
   fprintf(file, "%u\n", parameters->s);
   fprintf(file, "%u\n", parameters->l);
 
+  /* Export r and d. */
   gmp_fprintf(file, "%Zd\n", parameters->r);
   gmp_fprintf(file, "%Zd\n", parameters->d);
 
+  /* Export t. */
   fprintf(file, "%u\n", parameters->t);
 
+  /* Export the region. */
   fprintf(file, "%u\n", parameters->min_alpha_d);
   fprintf(file, "%u\n", parameters->max_alpha_d);
   fprintf(file, "%u\n", parameters->min_alpha_r);
@@ -247,7 +269,7 @@ void parameters_import(
   }
 
 
-  /* Import minimum and maximum alpha_d and alpha_r values. */
+  /* Import the region. */
   if (1 != fscanf(file, "%u\n", &(parameters->min_alpha_d))) {
     critical("parameters_import(): Failed to import min_alpha_d.");
   }

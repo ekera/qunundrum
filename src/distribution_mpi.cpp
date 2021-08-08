@@ -67,7 +67,7 @@ void distribution_init_bcast_recv(
     distribution->slices[i] = NULL;
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count;
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -135,7 +135,7 @@ void distribution_bcast_send(
       "Failed to broadcast the capacity.");
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count = distribution->count;
 
   if (MPI_SUCCESS != MPI_Bcast(
