@@ -66,7 +66,7 @@ static void plot_distribution(
     }
   }
 
-  /* Extract m and s. */
+  /* Extract m, s and l. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t s = distribution->parameters.s;
   const uint32_t l = distribution->parameters.l;

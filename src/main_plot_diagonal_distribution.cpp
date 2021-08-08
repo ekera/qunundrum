@@ -61,7 +61,7 @@ static void plot_diagonal_distribution(
     }
   }
 
-  /* Extract m and s. */
+  /* Extract m and l. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t l = distribution->parameters.l;
 
