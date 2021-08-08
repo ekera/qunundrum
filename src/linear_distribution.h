@@ -488,7 +488,7 @@ void linear_distribution_sort_slices(
  * \brief   Samples a slice from the distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -549,7 +549,7 @@ bool linear_distribution_sample_approximate_alpha(
  * sample_j_from_alpha_r() and sample_j_k_from_alpha_d(), respectively.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample the pivot.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] alpha          The argument alpha.
  *
  * \return  Returns #TRUE if the argument alpha was successfully sampled, #FALSE

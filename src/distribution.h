@@ -353,7 +353,7 @@ bool distribution_is_filtered(
  * \brief   Samples a slice from the probability distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -370,7 +370,7 @@ const Distribution_Slice * distribution_sample_slice(
  *          log_alpha such that alpha = sgn(log_alpha) 2^(abs(log_alpha)).
  *
  * \param[in] distribution          The distribution to sample.
- * \param[in, out] random_state     The random state to use to sample pivots.
+ * \param[in, out] random_state     The random state to use when sampling.
  *
  * \param[out] min_log_alpha_d      The minimum signed logarithmic alpha_d.
  * \param[out] max_log_alpha_d      The maximum signed logarithmic alpha_d.
@@ -395,7 +395,7 @@ bool distribution_sample_region(
  * The pair is coarsely sampled, and is not guaranteed to be admissible.
  *
  * \param[in] distribution          The distribution to sample.
- * \param[in, out] random_state     The random state to use to sample pivots.
+ * \param[in, out] random_state     The random state to use when sampling.
  * \param[in, out] alpha_d          The approximate argument alpha_d.
  * \param[in, out] alpha_r          The approximate argument alpha_r.
  *
@@ -419,7 +419,7 @@ bool distribution_sample_approximate_alpha_d_r(
  * distribution_sample_pair_j_k() in this module.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] alpha_d        The argument alpha_d.
  * \param[in, out] alpha_r        The argument alpha_r.
  *
@@ -441,7 +441,7 @@ bool distribution_sample_alpha_d_r(
  * sample_j_k_from_alpha_d_r().
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.
  */

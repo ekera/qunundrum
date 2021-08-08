@@ -39,7 +39,7 @@
  * this function into volume quotients using tau_volume_quotient().
  *
  * \param[in] distribution      The distribution from which to sample pairs.
- * \param[in, out] random_state The random state to use to sample pairs.
+ * \param[in, out] random_state The random state to use when sampling.
  * \param[in] n                 The integer n.
  * \param[out] tau_d            The computed value of tau_d.
  * \param[out] tau_r            The computed value of tau_r.
@@ -67,7 +67,7 @@ bool tau_estimate(
  * function into a volume quotient using tau_volume_quotient().
  *
  * \param[in] distribution      The distribution from which to sample alpha.
- * \param[in, out] random_state The random state to use to sample alpha.
+ * \param[in, out] random_state The random state to use when sampling.
  * \param[in] n                 The integer n.
  * \param[out] tau              The computed value of tau.
  *

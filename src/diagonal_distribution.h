@@ -342,7 +342,7 @@ void diagonal_distribution_sort_slices(
  * \brief   Samples a slice from the distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -383,7 +383,7 @@ bool diagonal_distribution_sample_region(
  * guaranteed to be admissible.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample the pivot.
+ * \param[in, out] random_state   The random state to use when sampling.
  * 
  * \param[in, out] alpha_d        The argument alpha_d.
  * \param[in, out] alpha_r        The argument alpha_r.
@@ -402,7 +402,7 @@ bool diagonal_distribution_sample_alpha_d_r(
  *          returns the components of the pair.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
+ * \param[in, out] random_state   The random state to use when sampling.
  * 
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.

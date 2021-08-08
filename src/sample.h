@@ -36,7 +36,7 @@
  * \param[in, out] alpha          The argument alpha sampled.
  * \param[in] min_log_alpha       The minimum signed logarithmic alpha.
  * \param[in] max_log_alpha       The maximum signed logarithmic alpha.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_approximate_alpha_from_region(
   mpfr_t alpha,
@@ -59,7 +59,7 @@ void sample_approximate_alpha_from_region(
  * \param[in] min_log_alpha       The minimum signed logarithmic alpha.
  * \param[in] max_log_alpha       The maximum signed logarithmic alpha.
  * \param[in] kappa               The integer kappa.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_alpha_from_region(
   mpz_t alpha,
@@ -88,7 +88,7 @@ void sample_alpha_from_region(
  * \param[in, out] j              The integer j.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_from_alpha_r(
   mpz_t j,
@@ -108,7 +108,7 @@ void sample_j_from_alpha_r(
  * \param[in, out] k              The integer k.
  * \param[in] alpha_d             The argument alpha_d.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_k_from_alpha_d(
   mpz_t j,
@@ -134,7 +134,7 @@ void sample_j_k_from_alpha_d(
  * \param[in] alpha_d             The argument alpha_d.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_k_from_alpha_d_r(
   mpz_t j,
@@ -156,7 +156,7 @@ void sample_j_k_from_alpha_d_r(
  * \param[in] alpha_d             The argument alpha_d.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_k_from_diagonal_alpha_d_r(
   mpz_t j,
