@@ -512,7 +512,7 @@ static bool arguments_init_parse_command_line(
       }
 
       arguments->entries[j].s = (uint32_t)s;
-      arguments->entries[j].l = ceil((uint32_t)m / (uint32_t)s);
+      arguments->entries[j].l = (uint32_t)ceil((double)m / (double)s);
     } else {
       int l = atoi(argv[i + 1]);
       if (l <= 0) {
