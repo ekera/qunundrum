@@ -52,8 +52,8 @@ void mod_reduce(mpz_t x, const mpz_t n) {
   mpz_init(tmp);
   mpz_mul_ui(tmp, x, 2); /* tmp = 2 * x */
 
-  if (mpz_cmp(tmp, n) >= 0) { /* if 2 * x >= n  <=> x >= n/2 */
-    mpz_sub(x, x, n); /* subtract n from x */
+  if (mpz_cmp(tmp, n) >= 0) { /* 2 * x >= n  <=>  x >= n/2 */
+    mpz_sub(x, x, n); /* Subtract n from x. */
   }
 
   /* Clear memory. */
