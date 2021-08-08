@@ -273,7 +273,7 @@ static bool arguments_init_parse_command_line(
         /* Check that p and q are (probable) prime numbers. */
         int result;
 
-        result = mpz_probab_prime_p(arguments->p, RSA_RABIN_MILLER_ITERATIONS);
+        result = mpz_probab_prime_p(arguments->p, RSA_MILLER_RABIN_ITERATIONS);
         /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {
@@ -282,7 +282,7 @@ static bool arguments_init_parse_command_line(
           return FALSE;
         }
 
-        result = mpz_probab_prime_p(arguments->q, RSA_RABIN_MILLER_ITERATIONS);
+        result = mpz_probab_prime_p(arguments->q, RSA_MILLER_RABIN_ITERATIONS);
         /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {

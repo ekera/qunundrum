@@ -22,10 +22,10 @@
 #include <stdint.h>
 
 /*!
- * \brief   The number of iterations to run of the Rabin-Miller probabilistic
+ * \brief   The number of iterations to run of the Miller–Rabin probabilistic
  *          primality test when generating and verifying RSA moduli.
  */
-#define RSA_RABIN_MILLER_ITERATIONS       200
+#define RSA_MILLER_RABIN_ITERATIONS       200
 
 /*!
  * \brief   Generates a random RSA modulus N = pq bits.
