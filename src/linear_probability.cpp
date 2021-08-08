@@ -34,6 +34,7 @@ void linear_probability_d(
   mpfr_t tmp3;
   mpfr_init2(tmp3, precision);
 
+  /* Detect and handle the corner case that theta_d is zero. */
   if (0 == mpfr_cmp_ui(theta_d, 0)) {
     mpfr_set_ui_2exp(tmp, 1, (mpfr_exp_t)(parameters->l), MPFR_RNDN);
       /* tmp = 2^l */
@@ -76,6 +77,9 @@ void linear_probability_d(
     mpfr_clear(tmp);
     mpfr_clear(tmp2);
     mpfr_clear(tmp3);
+    
+    /* Return after handling the corner case. */
+    return;
   }
 
   mpfr_t one_minus_cos_theta; /* := 1 - cos(theta_d) */
