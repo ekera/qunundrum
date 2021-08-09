@@ -18,7 +18,6 @@
 
 #include "distribution.h"
 #include "linear_distribution.h"
-#include "parameters.h"
 #include "random.h"
 
 #include <stdint.h>

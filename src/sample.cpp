@@ -7,6 +7,7 @@
 
 #include "sample.h"
 
+#include "parameters.h"
 #include "random.h"
 #include "errors.h"
 #include "math.h"

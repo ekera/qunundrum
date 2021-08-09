@@ -8,7 +8,6 @@
 
 #include "tau_volume_quotient.h"
 
-#include "parameters.h"
 #include "common.h"
 
 #include <mpfr.h>

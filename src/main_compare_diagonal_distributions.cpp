@@ -16,7 +16,6 @@
  */
 
 #include "diagonal_distribution.h"
-#include "parameters.h"
 #include "errors.h"
 #include "math.h"
 

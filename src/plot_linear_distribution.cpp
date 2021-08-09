@@ -12,7 +12,6 @@
 
 #include "linear_distribution.h"
 #include "linear_distribution_slice.h"
-#include "parameters.h"
 #include "common.h"
 #include "errors.h"
 

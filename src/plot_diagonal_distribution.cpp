@@ -14,7 +14,6 @@
 #include "distribution_slice.h"
 #include "diagonal_distribution.h"
 #include "diagonal_distribution_slice.h"
-#include "parameters.h"
 #include "common.h"
 #include "errors.h"
 

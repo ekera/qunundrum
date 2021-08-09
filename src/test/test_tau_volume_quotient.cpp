@@ -12,7 +12,7 @@
 
 #include "../tau_volume_quotient.h"
 #include "../parameters_selection.h"
-#include "../parameters.h"
+#include "../common.h"
 #include "../errors.h"
 #include "../math.h"
 

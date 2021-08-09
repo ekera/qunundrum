@@ -9,7 +9,6 @@
 #include "distribution.h"
 
 #include "common.h"
-#include "parameters.h"
 #include "errors.h"
 #include "math.h"
 

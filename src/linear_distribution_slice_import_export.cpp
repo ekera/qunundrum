@@ -8,7 +8,6 @@
 
 #include "linear_distribution_slice.h"
 
-#include "parameters.h"
 #include "errors.h"
 #include "math.h"
 #include "common.h"
