@@ -125,8 +125,8 @@ void lattice_compute_reduced_basis(
                 LLL_DEF_ETA, /* eta */
                 LM_WRAPPER, /* method */
                 FT_DEFAULT, /* floating point */
-                0, /* flags */
-                0); /* .. */
+                0, /* precision */
+                LLL_DEFAULT); /* flags */
     if (RED_SUCCESS != status) {
       critical("lattice_compute_reduced_basis(): "
         "Failed to reduce matrix A using LLL.");

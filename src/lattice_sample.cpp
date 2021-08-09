@@ -75,7 +75,7 @@ void lattice_alpha_init(
                 LM_WRAPPER, /* method */
                 FT_DEFAULT, /* floating point */
                 0, /* precision */
-                0); /* flags */
+                LLL_DEFAULT); /* flags */
   if (RED_SUCCESS != status) {
     critical("lattice_alpha_init(): Failed to reduce matrix A using LLL.");
   }
