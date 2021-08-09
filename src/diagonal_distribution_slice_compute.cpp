@@ -97,24 +97,27 @@ void diagonal_distribution_slice_compute(
   mpfr_t max_alpha_r;
   mpfr_init2(max_alpha_r, precision);
 
-  /* Evaluate the norm in the dimension + 1 main the points given by
+  /* Evaluate the norm in the dimension + 1 main points given by
    * 
-   *      alpha = 2^(min_log_alpha + i * step,
+   *   alpha_r = sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + i * step),
    * 
-   * where 0 <= i <= dimension and step = 1 / dimension. Also evaluate in the 
-   * average points inbetween the main points, given by
+   * where 0 <= i <= dimension and step = 1 / dimension. Also evaluate the norm
+   * in the average points inbetween the main points, given by
    * 
-   * (2^(min_log_alpha + i * step) + 2^(min_log_alpha + (i + 1) * step)) / 2
+   *   alpha_r = sgn(min_log_alpha_r) * 
+   *               (2^(abs(min_log_alpha_r) + i * step) + \
+   *                2^(abs(min_log_alpha_r) + (i + 1) * step)) / 2
    * 
    * and store the results in an interleaved fashion in the norm vector. For X 
    * the main points, and A the averages inbetween, store as:
    * 
-   *      X A X A X : X
+   *   X A X A X : X.
    * 
    * Note: To interleave we let i run through 0 <= i <= 2 * dimension below,
    * and use for the main points that
    * 
-   *      alpha = 2^(min_log_alpha_d + (i / 2) * step). */
+   *  alpha_r = sgn(min_log_alpha_r) 2^(abs(min_log_alpha_r) + (i / 2) * step).
+   */
 
   /* Bootstrap the exponentiation in alpha_r. */
   mpfr_set_ui_2exp(max_alpha_r, 1, abs_i(min_log_alpha_r), MPFR_RNDN);
@@ -161,12 +164,12 @@ void diagonal_distribution_slice_compute(
   mpfr_set_prec(min_alpha_r, PRECISION);
   mpfr_set_prec(max_alpha_r, PRECISION);
   
-  /* Apply Simpson's method to each 3 element sub-vector, with main points X at  
+  /* Apply Simpson's method to each 3 element sub-vector, with main points X at 
    * the edges, to sum up the probabilities in the norm vector.
    * 
    * This is easy as we have stored the points in an interleaved fashion
    * 
-   *      X A X : X
+   *   X A X A X : X.
    * 
    * For each sub-vector X A X, we apply weights 1 4 1, sum up the results, and 
    * divide by 2 * 1 + 4 = 6. */
@@ -189,7 +192,7 @@ void diagonal_distribution_slice_compute(
     mpfr_add(avg_norm, avg_norm, norm_vector[i + 2], MPFR_RNDN);
     mpfr_div_ui(avg_norm, avg_norm, 6, MPFR_RNDN);
 
-    /* Account for the number of alpha-values in this region. */
+    /* Account for the number of alpha_r-values in this region. */
     mpfr_mul(avg_norm, avg_norm, alpha_r, MPFR_RNDN);
     
     const long double norm = mpfr_get_ld(avg_norm, MPFR_RNDN);

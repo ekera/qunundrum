@@ -161,33 +161,40 @@ void distribution_slice_compute(
     sigma = round(((float)parameters->l + tau + 4 - 1.6515f) / 2.0f);
   }
 
-  /* Evaluate the norm (and error when applicable, depending on the method) in 
+  /* Evaluate the norm (and error when applicable, depending on the method) in
    * the (dimension + 1)^2 main the points given by
-   * 
-   *      (alpha_d, alpha_r) = (2^(min_log_alpha_d + i * step),
-   *                            2^(min_log_alpha_r + j * step)),
-   * 
-   * where 0 <= i, j <= dimension and step = 1 / dimension. Also evaluate in 
-   * the average points inbetween the main points, given by
-   * 
-   * ((2^(min_log_alpha_d + i * step) + 2^(min_log_alpha_d + (i+1) * step))/2)
-   *  (2^(min_log_alpha_r + j * step) + 2^(min_log_alpha_r + (j+1) * step))/2))
-   * 
-   * and store the results in an interleaved fashion in the norm (and error) 
-   * matrix. For X the main points, and A the averages inbetween, store as:
-   * 
-   *      X A X : X
-   *      A A A : A
-   *      X A X : X
-   *      A A A : A
-   *      : : : : : 
-   *      X A X : X
-   *  
+   *
+   *  (alpha_d, alpha_r) =
+   *    (sgn(min_log_alpha_d) * 2^(abs(min_log_alpha_d) + i * step),
+   *     sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + j * step)),
+   *
+   * where 0 <= i, j <= dimension and step = 1 / dimension. Also evaluate the 
+   * norm in the average points inbetween the main points, given by
+   *
+   *   (alpha_d, alpha_r) = (sgn(min_log_alpha_d) * 
+   *                           (2^(abs(min_log_alpha_d) + i * step) + 
+   *                            2^(abs(min_log_alpha_d) + (i + 1) * step)) / 2),
+   *                         sgn(min_log_alpha_r) * 
+   *                           (2^(abs(min_log_alpha_r) + j * step) + 
+   *                            2^(min_log_alpha_r + (j + 1) * step)) / 2))
+   *
+   * and store the results in an interleaved fashion in the norm (and error)
+   * matrices. For X the main points, and A the averages inbetween, store as:
+   *
+   *   X A X : X
+   *   A A A : A
+   *   X A X : X
+   *   A A A : A
+   *   : : : : : 
+   *   X A X : X.
+   *
    * Note: To interleave we let i, j run through 0 <= i, j <= 2 * dimension 
    * below, and use for the main points that
-   * 
-   *      (alpha_d, alpha_r) = (2^(min_log_alpha_d + (i / 2) * step),
-   *                            2^(min_log_alpha_r + (j / 2) * step)). */
+   *
+   * (alpha_d, alpha_r) = 
+   *    (sgn(min_log_alpha_d) * 2^(abs(min_log_alpha_d) + (i / 2) * step),
+   *     sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + (j / 2) * step)).
+   */
 
   /* Bootstrap the exponentiation in alpha_d. */
   mpfr_set_ui_2exp(max_alpha_d, 1, abs_i(min_log_alpha_d), MPFR_RNDN);
@@ -306,18 +313,18 @@ void distribution_slice_compute(
    * 
    * This is easy as we have stored the points in an interleaved fashion
    * 
-   *      X A X : X
-   *      A A A : A
-   *      X A X : X
-   *      A A A : A
-   *      : : : : : 
-   *      X A X : X.
+   *   X A X : X
+   *   A A A : A
+   *   X A X : X
+   *   A A A : A
+   *   : : : : : 
+   *   X A X : X.
    * 
    * For each 3 x 3 sub-matrix, 
    * 
-   *      X A X                           1  4 1
-   *      A A A      we apply weights     4 16 4
-   *      A A A                           1  4 1,
+   *   X A X                      1  4 1
+   *   A A A   we apply weights   4 16 4
+   *   X A X                      1  4 1,
    * 
    * sum up the results, and divide by 4 * 1 + 4 * 4 + 16 = 36. */
 
