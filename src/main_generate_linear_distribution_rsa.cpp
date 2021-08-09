@@ -369,7 +369,7 @@ static bool arguments_init_parse_command_line(
     arguments->selection_method = SELECTION_METHOD_MAXIMAL;
   }
 
-  /* Parse entries {<n>}. */
+  /* Parse entries { <n> }. */
   if ((argc - i) <= 0) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -944,7 +944,7 @@ static void print_synopsis(
   fprintf(file,
     "Entries <n>: -- one distribution is generated for each entry\n");
   fprintf(file,
-    " <n>   the length in bits of N = pq\n");
+    " <n>   the even length n in bits of the RSA integer N = pq\n");
 
   fprintf(file, "\n");
   fprintf(file, "Delta: -- defaults to 20\n");

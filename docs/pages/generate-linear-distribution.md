@@ -18,12 +18,12 @@ The distribution generated will be assigned an appropriate name and written to t
 
 ### Mandatory command line arguments
 Tuples <code>\<m\></code> <code>\<s\></code> where
-- <code>\<m\></code> is the bit length of the logarithm d or order r
-- <code>\<s\></code> is the tradeoff factor, so that l = ceil(m/s)
+- <code>\<m\></code> is the length m in bits of the logarithm d or order r
+- <code>\<s\></code> is the tradeoff factor s; used to set l = ceil(m / s)
 
 or, if the <code>-l</code> flag is specified, tuples <code>\<m\></code> <code>\<l\></code> where
 - <code>\<m\></code> is as above
-- <code>\<l\></code> is the number of padding bits l
+- <code>\<l\></code> is the parameter l
 
 ### Optional command line arguments
 Flags controlling the value of d or r (defaults to <code>-max</code>):

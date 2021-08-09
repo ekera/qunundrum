@@ -330,7 +330,7 @@ static bool arguments_init_parse_command_line(
     arguments->selection_method = SELECTION_METHOD_DETERMINISTIC;
   }
 
-  /* Parse tuples {<m> <l>}. */
+  /* Parse tuples { <m> <l> }. */
   if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -935,9 +935,9 @@ static void print_synopsis(
   fprintf(file,
     "Tuples <m> <l>: -- one distribution is generated for each tuple\n");
   fprintf(file,
-    " <m>           the length in bits of d or r\n");
+    " <m>           the length m in bits of r\n");
   fprintf(file,
-    " <l>           the length in bits of the prefix\n");
+    " <l>           the parameter l\n");
 
   fprintf(file, "\n");
   fprintf(file, "Upper bound on delta: -- defaults to 20\n");

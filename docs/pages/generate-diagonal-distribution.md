@@ -21,8 +21,8 @@ The distribution generated will be assigned an appropriate name and written to t
 ### Mandatory command line arguments
 Tuples <code>\<m\></code> <code>\<l\></code> where
    
-- <code>\<m\></code> is the bit length of the order r
-- <code>\<l\></code> is the number of padding bits l
+- <code>\<m\></code> is the length m in bits of the order r
+- <code>\<l\></code> is the parameter l
 
 ### Optional command line arguments
 Flags controlling the value of d and r (defaults to <code>-det</code>):

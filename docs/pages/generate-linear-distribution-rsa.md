@@ -17,7 +17,7 @@ The distribution generated will be assigned an appropriate name and written to t
 
 ### Mandatory command line arguments
 Entries <code>\<n\></code> where
-- <code>\<n\></code> is the even bit length of the RSA integer
+- <code>\<n\></code> is the even bit length n of the RSA integer N = pq
 
 ### Optional command line arguments
 Flags controlling the value of d (defaults to <code>-det</code>):

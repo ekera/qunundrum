@@ -454,7 +454,7 @@ static bool arguments_init_parse_command_line(
     }
   }
 
-  /* Parse tuples {<m> <s>} or {<m> <l>}. */
+  /* Parse tuples { <m> <s> } or { <m> <l> }. */
   if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -1428,11 +1428,11 @@ static void print_synopsis(
     "Tuples <m> <s> or <m> <l>: -- one distribution is generated for each "
       "tuple\n");
   fprintf(file,
-    " <m>   the length in bits of r\n");
+    " <m>   the length m in bits of r\n");
   fprintf(file,
     " <s>   the tradeoff factor s; used to set l = ceil(m / s)\n");
   fprintf(file,
-    " <l>   the length in bits of the prefix\n");
+    " <l>   the parameter l\n");
 
   fprintf(file,
     "\nNote: If -rnd is specified and m is kept constant for consecutive "
