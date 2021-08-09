@@ -17,7 +17,6 @@
 #ifndef DIAGONAL_DISTRIBUTION_SLICE_H
 #define DIAGONAL_DISTRIBUTION_SLICE_H
 
-#include "probability.h"
 #include "parameters.h"
 
 #include <stdint.h>

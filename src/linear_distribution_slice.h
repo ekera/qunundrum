@@ -17,7 +17,6 @@
 #ifndef LINEAR_DISTRIBUTION_SLICE_H
 #define LINEAR_DISTRIBUTION_SLICE_H
 
-#include "probability.h"
 #include "parameters.h"
 
 #include <stdint.h>

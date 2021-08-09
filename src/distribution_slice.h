@@ -18,7 +18,6 @@
 #ifndef DISTRIBUTION_SLICE_H
 #define DISTRIBUTION_SLICE_H
 
-#include "probability.h"
 #include "parameters.h"
 #include "common.h"
 
