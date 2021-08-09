@@ -6,8 +6,8 @@
  *          and order r.
  */
 
-#ifndef PARAMETER_SELECTION_H
-#define PARAMETER_SELECTION_H
+#ifndef PARAMETERS_SELECTION_H
+#define PARAMETERS_SELECTION_H
 
 #include "random.h"
 
@@ -92,4 +92,4 @@ void parameters_selection_random_rsa(
   mpz_t q,
   const uint32_t n);
 
-#endif /* PARAMETER_SELECTION_H */
+#endif /* PARAMETERS_SELECTION_H */
