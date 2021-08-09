@@ -91,7 +91,7 @@ static void plot_diagonal_distribution(
     critical("plot_diagonal_distribution(): Failed to open \"%s\".", path);
   }
 
-  printf("Writing the distribution to \"%s\"...\n", path);
+  printf("Writing the plot to \"%s\"...\n", path);
 
   /* Write the file header. */
   fprintf(file, "%% m = %u\n", m);

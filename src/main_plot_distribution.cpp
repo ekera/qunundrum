@@ -99,7 +99,7 @@ static void plot_distribution(
     critical("plot_distribution(): Failed to open \"%s\" for writing.", path);
   }
 
-  printf("Writing the distribution to \"%s\"...\n", path);
+  printf("Writing the plot to \"%s\"...\n", path);
 
   fprintf(file, "%% Use e.g. pdflatex, xelatex or lualatex to compile this "
     "file to a PDF.\n");
