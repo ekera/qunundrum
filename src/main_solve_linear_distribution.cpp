@@ -254,7 +254,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x <= 0) {
         fprintf(stderr, "Error: The timeout must be positive.\n");
         return FALSE;
@@ -342,7 +342,7 @@ static bool arguments_init_parse_command_line(
     }
 
     /* Parse n. */
-    int n = atoi(argv[i + 1]);
+    const int n = atoi(argv[i + 1]);
     if (n < 1) {
       fprintf(stderr, "Error: Failed to parse <n>.\n");
       return FALSE;

@@ -272,7 +272,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if ((x < 0) || (x > DIAGONAL_DISTRIBUTION_MAX_DELTA)) {
         fprintf(stderr, "Error: The <bound> passed to -bound-delta must be "
           "non-negative and less than or equal to %u.\n",
@@ -302,7 +302,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if ((x < 16) || (x > 8192) || (!is_pow2((uint32_t)x))) {
         fprintf(stderr, "Error: The <dimension> passed to -dim must be a power "
           "of two on the interval [16, 8192].\n");
@@ -373,7 +373,7 @@ static bool arguments_init_parse_command_line(
 
   /* Iterate over the tuples. */
   for (uint32_t j = 0; j < arguments->count; j++, i += 2) {
-    int m = atoi(argv[i]);
+    const int m = atoi(argv[i]);
     if (m <= 1) {
       fprintf(stderr, "Error: Failed to parse <m>.\n");
       return FALSE;
@@ -381,7 +381,7 @@ static bool arguments_init_parse_command_line(
 
     arguments->entries[j].m = (uint32_t)m;
 
-    int l = atoi(argv[i + 1]);
+    const int l = atoi(argv[i + 1]);
     if (l < 0) {
       fprintf(stderr, "Error: Failed to parse <l>.\n");
       return FALSE;

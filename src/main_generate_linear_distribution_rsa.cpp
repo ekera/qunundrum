@@ -310,7 +310,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x <= 0) {
         fprintf(stderr, "Error: The value of <delta> must be positive.\n");
         return FALSE;
@@ -337,7 +337,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if ((x < 16) || (x > 8192) || (!is_pow2((uint32_t)x))) {
         fprintf(stderr, "Error: The <dimension> passed to -dim must be a power "
           "of two on the interval [16, 8192].\n");
@@ -415,7 +415,7 @@ static bool arguments_init_parse_command_line(
 
   /* Iterate over the tuples. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
-    int x = atoi(argv[i]);
+    const int x = atoi(argv[i]);
     if (x <= 0) {
       fprintf(stderr, "Error: Failed to parse <n>.\n");
       return FALSE;

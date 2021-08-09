@@ -120,7 +120,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x < 0) {
         fprintf(stderr, "Error: The search bound must be non-negative.\n");
         return FALSE;
