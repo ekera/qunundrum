@@ -1381,7 +1381,7 @@ static void print_synopsis(
             "[ -dim-heuristic | -dim <dimension> ] \\\n"
           "      [ -approx-quick | "
             "[ -sigma-heuristic | -sigma-optimal ] ] \\\n"
-          "        ( <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
+          "         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
 
   fprintf(file, "\n");
   fprintf(file, "Selection method for d and r: -- defaults to -det\n");

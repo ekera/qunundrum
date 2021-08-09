@@ -5,7 +5,7 @@
 Synopsis: mpirun generate_distribution \
    [ -det | -rnd | -exp <d> <r> ] [ -dim-heuristic | -dim <dimension> ] \
       [ -approx-quick | [ -sigma-heuristic | -sigma-optimal ] ] \
-        ( <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
+         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 
 Computes the distribution induced by Ekerå's algorithm for general discrete logarithms and orders with tradeoffs.

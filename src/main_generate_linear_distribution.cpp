@@ -1025,7 +1025,7 @@ static void print_synopsis(
   fprintf(file, "Synopsis: mpirun generate_linear_distribution \\\n"
           "   [ -d | -r ] [ -dim <dimension> ] \\\n"
           "      [ -min | -max | -det | -rnd | -exp <value> ] \\\n"
-          "         ( <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
+          "         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
 
   fprintf(file, "\n");
   fprintf(file, "Distribution type: -- defaults to -d\n");

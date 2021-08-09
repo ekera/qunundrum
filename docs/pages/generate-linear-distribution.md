@@ -5,7 +5,7 @@
 Synopsis: mpirun generate_linear_distribution \
    [ -d | -r ] [ -dim <dimension> ] \
       [ -min | -max | -det | -rnd | -exp <value> ] \
-        { <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } }
+         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 
 Computes the distribution induced by Ekerå-Håstad's algorithm for computing short discrete logarithms if the <code>-d</code> flag is specified. This is the default. Computes the distribution induced by Shor's (for s = 1) and Seifert's (for s > 1) order-finding algorithms if the <code>-r</code> flag is specified.
