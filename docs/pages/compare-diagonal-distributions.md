@@ -60,7 +60,7 @@ Warning: Failed to find slice 3 in both distributions. This may be due to a diff
 On each line of the printout, we find (m1+t) (m2+t): p1 p2 -- delta where
 - m1 is the order length in bits for the first distribution
 - m2 is the order length in bits for the second distribution
-- t is an integer parameter that runs from -30 to 30
+- t is an integer parameter that runs over a sub-interval of [-30, 30]
 - p1 is the probability mass captured by all slices in alpha_d for which m1+t <= abs(alpha_r) < m1+t+1 in the first distribution
 - p2 is the probability mass captured by all slices in alpha_d for which m2+t <= abs(alpha_r) < m2+t+1 in the second distribution
 - delta = abs(p1 - p2) is the absolute value of the difference between p1 and p2
