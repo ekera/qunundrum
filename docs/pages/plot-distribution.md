@@ -17,8 +17,13 @@ Entries <code>\<distribution\></code> where
 To compile the source for the plot, you may use <code>pdflatex</code> as exemplified below:
 ```console
 $ ./plot_distribution distributions/distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt
+Importing the distribution from "distributions/distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt"...
+Writing the plot to "plots/plot-distribution-m-2048-s-30.tex"...
+Done.
 $ cd plots
 $ pdflatex plot-distribution-m-2048-s-30.tex
+
+(..)
 ```
 You may of course also use other versions of Latex such as <code>xelatex</code>. Note that the Latex source requires Tikz. Note furthermore that the source file is typically quite large for two-dimensional plots even though the resolution is scaled down automatically when plotting. You may therefore need to increase the amount of memory available to Latex. Another option is to use Lualatex which typically manages memory better. Note that if you use Lualatex, you may need to uncomment a line in the header of the Latex source file, see the comment in the source file for further details.
 

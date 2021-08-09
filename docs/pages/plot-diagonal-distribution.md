@@ -22,8 +22,13 @@ Flags specifying the plot appearance (defaults to <code>-sgn</code>):
 To compile the source for the plot, you may use <code>pdflatex</code> as exemplified below:
 ```console
 $ ./plot_diagonal_distribution distributions/diagonal-distribution-det-dim-2048-m-2048-l-5.txt
+Importing the distribution from "distributions/diagonal-distribution-det-dim-2048-m-2048-l-5.txt"...
+Writing the plot to "plots/plot-diagonal-distribution-m-2048-l-5.tex"...
+Done.
 $ cd plots
 $ pdflatex plot-diagonal-distribution-m-2048-l-5.tex
+
+(..)
 ```
 You may of course also use other versions of Latex such as <code>xelatex</code>. Note that the Latex source requires Tikz.
 

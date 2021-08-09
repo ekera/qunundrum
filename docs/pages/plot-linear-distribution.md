@@ -22,8 +22,13 @@ Flags specifying the plot appearance (defaults to <code>-sgn</code>):
 To compile the source for the plot, you may use <code>pdflatex</code> as exemplified below:
 ```console
 $ ./plot_linear_distribution distributions/linear-distribution-det-dim-2048-d-m-2048-s-30.txt
+Importing the distribution from "distributions/linear-distribution-det-dim-2048-d-m-2048-s-30.txt"...
+Writing the plot to "plots/plot-linear-distribution-d-m-2048-s-30.tex"...
+Done.
 $ cd plots
 $ pdflatex plot-linear-distribution-d-m-2048-s-30.tex
+
+(..)
 ```
 You may of course also use other versions of Latex such as <code>xelatex</code>. Note that the Latex source requires Tikz.
 
