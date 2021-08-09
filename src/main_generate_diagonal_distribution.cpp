@@ -953,7 +953,7 @@ static void print_synopsis(
     "\nNote: If -rnd is specified and m is kept constant for consecutive "
       "tuples\n");
   fprintf(file,
-    "<m> <l>, the same value of d and r will be re-used.\n");
+    "<m> <l>, the same values of d and r will be re-used.\n");
 
   fprintf(file,
     "\nNote: This implementation is optimized for small to medium kappa. If ");
