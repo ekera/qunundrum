@@ -9,7 +9,6 @@
 #include "diagonal_distribution.h"
 
 #include "diagonal_distribution_slice.h"
-#include "diagonal_distribution.h"
 #include "parameters.h"
 #include "probability.h"
 #include "random.h"

@@ -8,7 +8,6 @@
 
 #include "diagonal_distribution_slice.h"
 
-#include "sample.h"
 #include "parameters.h"
 #include "errors.h"
 #include "common.h"
