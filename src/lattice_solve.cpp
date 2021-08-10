@@ -103,23 +103,8 @@ void lattice_solve_reduced_basis_for_d(
   /* Solve for the closest vector. */
   vector<Z_NR<mpz_t>> solution;
 
-  #ifdef CLOSEST_VECTOR_FPLLL
-    vector<Z_NR<mpz_t>> solution_coordinates;
-
-    status = closest_vector(A, target, solution_coordinates, flags);
-    if (0 != status) {
-      critical("lattice_solve_reduced_basis_for_d(): "
-        "Failed to find the closest vector.");
-    }
-
-    vector_matrix_product(solution, solution_coordinates, A);
-
-    /* Clear memory. */
-    solution_coordinates.clear();
-  #else
-    /* Compute the closest vector. */
-    babai_closest_vector(solution, target, G, A, n, precision);
-  #endif
+  /* Compute the closest vector. */
+  babai_closest_vector(solution, target, G, A, n, precision);
 
   /* Extract the candidate d. */
   mpz_abs(candidate_d, solution[n].get_data());
