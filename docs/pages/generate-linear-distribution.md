@@ -8,7 +8,7 @@ Synopsis: mpirun generate_linear_distribution \
          ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 
-Computes the distribution induced by Ekerå-Håstad's algorithm for computing short discrete logarithms if the <code>-d</code> flag is specified. This is the default. Computes the distribution induced by Shor's (for s = 1) and Seifert's (for s > 1) order-finding algorithms if the <code>-r</code> flag is specified.
+Computes the distribution induced by Ekerå–Håstad's algorithm for computing short discrete logarithms if the <code>-d</code> flag is specified. This is the default. Computes the distribution induced by Shor's (for s = 1) and Seifert's (for s > 1) order-finding algorithms if the <code>-r</code> flag is specified.
 
 All of the aforementioned distributions are distributions in a argument alpha, or equivalently, angle theta. In this software such distributions are called linear. The executable is named accordingly.
 
