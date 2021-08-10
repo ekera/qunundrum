@@ -108,34 +108,34 @@ void plot_detailed_distribution(
           slice->min_log_alpha_d,
           slice->min_log_alpha_r);
       }
+
+      #ifdef DRAW_SLICE_BOUNDARIES
+      /* Draw the slice boundary for debug purposes. */
+      double alpha_d_min;
+      double alpha_d_max;
+      double alpha_r_min;
+      double alpha_r_max;
+
+      distribution_slice_coordinates(
+        slice,
+        &alpha_d_min,
+        &alpha_d_max,
+        &alpha_r_min,
+        &alpha_r_max);
+
+      fprintf(
+        file,
+        "\\draw[red, thin] (%f, %f) rectangle (%f, %f); %% (%d, %d)\n",
+        plot_distribution_coordinate(alpha_d_min, m),
+        plot_distribution_coordinate(alpha_r_min, m),
+        plot_distribution_coordinate(alpha_d_max, m),
+        plot_distribution_coordinate(alpha_r_max, m),
+        slice->min_log_alpha_d,
+        slice->min_log_alpha_r);
+
+      fprintf(file, "\n");
+      #endif /* DRAW_SLICE_BOUNDARIES */
     }
-
-    #ifdef DRAW_SLICE_BOUNDARIES
-    /* Draw the slice boundary for debug purposes. */
-    double alpha_d_min;
-    double alpha_d_max;
-    double alpha_r_min;
-    double alpha_r_max;
-
-    distribution_slice_coordinates(
-      slice,
-      &alpha_d_min,
-      &alpha_d_max,
-      &alpha_r_min,
-      &alpha_r_max);
-
-    fprintf(
-      file,
-      "\\draw[red, thin] (%f, %f) rectangle (%f, %f); %% (%d, %d)\n",
-      plot_distribution_coordinate(alpha_d_min, m),
-      plot_distribution_coordinate(alpha_r_min, m),
-      plot_distribution_coordinate(alpha_d_max, m),
-      plot_distribution_coordinate(alpha_r_max, m),
-      slice->min_log_alpha_d,
-      slice->min_log_alpha_r);
-
-    fprintf(file, "\n");
-    #endif /* DRAW_SLICE_BOUNDARIES */
   }
 
   /* Draw axes. */
