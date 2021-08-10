@@ -151,12 +151,6 @@
 #define MPI_TAG_SLICE_MIN_LOG_ALPHA_R             17028
 
 /*!
- * \brief   An MPI tag used to send and receive the offset in the argument
- *          alpha_d when processing diagonal distributions.
- */
-#define MPI_TAG_SLICE_OFFSET_ALPHA_D              17029
-
-/*!
  * \}
  */
 
