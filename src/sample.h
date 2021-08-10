@@ -16,6 +16,7 @@
 #define SAMPLE_H
 
 #include "parameters.h"
+#include "diagonal_parameters.h"
 #include "random.h"
 
 #include <gmp.h>
@@ -145,25 +146,20 @@ void sample_j_k_from_alpha_d_r(
   Random_State * const random_state);
 
 /*!
- * \brief   Samples an integer pair (j, k) uniformly at random from the set of 
- *          all pairs (j, k) that yield the admissible argument pair 
- *          (alpha_d, alpha_r).
+ * \brief   Samples an integer j uniformly at random from the set of all 
+ *          integers j that yield the admissible argument alpha_r.
  *
- * This function assumes (alpha_d, alpha_r) to be from a diagonal distribution.
+ * This function assumes alpha_r to be from a diagonal distribution.
  *
  * \param[in, out] j              The integer j.
- * \param[in, out] k              The integer k.
- * \param[in] alpha_d             The argument alpha_d.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
  * \param[in, out] random_state   The random state to use when sampling.
  */
-void sample_j_k_from_diagonal_alpha_d_r(
+void sample_j_from_diagonal_alpha_r(
   mpz_t j,
-  mpz_t k,
-  const mpz_t alpha_d,
   const mpz_t alpha_r,
-  const Parameters * const parameters,
+  const Diagonal_Parameters * const parameters,
   Random_State * const random_state);
 
 /*!

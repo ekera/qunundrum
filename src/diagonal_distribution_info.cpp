@@ -31,11 +31,13 @@ void diagonal_distribution_export_info(
   fprintf(file, "Precision: %u bits\n\n", distribution->precision);
 
   fprintf(file, "Parameters:\n");
-  fprintf(file, " m: %u\n", distribution->parameters.m);
-  fprintf(file, " l: %u\n", distribution->parameters.l);
+  fprintf(file, " m:     %u\n", distribution->parameters.m);
+  fprintf(file, " sigma: %u\n", distribution->parameters.sigma);
+  fprintf(file, " s:     %u\n", distribution->parameters.s);
+  fprintf(file, " l:     %u\n", distribution->parameters.l);
 
-  gmp_fprintf(file, " r: %Zd\n", distribution->parameters.r);
-  gmp_fprintf(file, " d: %Zd\n\n", distribution->parameters.d);
+  gmp_fprintf(file, " r:     %Zd\n", distribution->parameters.r);
+  gmp_fprintf(file, " d:     %Zd\n\n", distribution->parameters.d);
 
   fprintf(file, " Flags: %.8x\n\n", distribution->flags);
 
@@ -81,7 +83,8 @@ void diagonal_distribution_export_info(
       i - 1,
       region_probability);
 
-    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++) {
+    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++)
+    {
       if (dimensions[dimension] != 0) {
         fprintf(file, "  Dimension %u: %u slice(s)\n",
           dimension,
@@ -106,10 +109,10 @@ void diagonal_distribution_export_info(
         distribution->slices[i]->total_probability;
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
-      const int32_t delta = distribution->slices[i]->offset_alpha_d;
 
-      fprintf(file, "Slice: %u (alpha_r: %d, delta: %d, dimension: %u, "
-        "probability: %Lg)\n", i, alpha_r, delta, dimension, probability);
+      fprintf(file, 
+        "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
+          i, alpha_r, dimension, probability);
     }
   }
 
@@ -122,10 +125,10 @@ void diagonal_distribution_export_info(
         distribution->slices[i]->total_probability;
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
-      const int32_t delta = distribution->slices[i]->offset_alpha_d;
 
-      fprintf(file, "Slice: %u (alpha_r: %d, delta: %d, dimension: %u, "
-        "probability: %Lg)\n", i, alpha_r, delta, dimension, probability);
+      fprintf(file, 
+        "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
+          i, alpha_r, dimension, probability);
 
       for (uint32_t j = 0; j < dimension; j++) {
         double region_alpha_r = (double)(abs_i(alpha_r));

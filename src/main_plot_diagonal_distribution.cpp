@@ -61,8 +61,10 @@ static void plot_diagonal_distribution(
     }
   }
 
-  /* Extract m and l. */
+  /* Extract m, sigma, s and l. */
   const uint32_t m = distribution->parameters.m;
+  const uint32_t sigma = distribution->parameters.sigma;
+  const uint32_t s = distribution->parameters.s;
   const uint32_t l = distribution->parameters.l;
 
   /* Check that the output directory exists and is accessible. */
@@ -76,8 +78,12 @@ static void plot_diagonal_distribution(
   /* Setup the path to the output file. */
   char path[MAX_SIZE_PATH_BUFFER];
   safe_snprintf(path, MAX_SIZE_PATH_BUFFER,
-    "%s/plot-diagonal-distribution-m-%u-l-%u.tex",
-    PLOTS_DIRECTORY, m, l);
+    "%s/plot-diagonal-distribution-m-%u-sigma-%u-%c-%u.tex",
+    PLOTS_DIRECTORY,
+    m,
+    sigma,
+    (0 != s) ? 's' : 'l',
+    (0 != s) ?  s  :  l);
 
   /* Check that the output file does not already exist. */
   if (0 == access(path, F_OK)) {
@@ -95,6 +101,8 @@ static void plot_diagonal_distribution(
 
   /* Write the file header. */
   fprintf(file, "%% m = %u\n", m);
+  fprintf(file, "%% sigma = %u\n", sigma);
+  fprintf(file, "%% s = %u\n", s);
   fprintf(file, "%% l = %u\n", l);
   gmp_fprintf(file, "%% d = %Zd\n", distribution->parameters.d);
   gmp_fprintf(file, "%% r = %Zd\n", distribution->parameters.r);
@@ -118,7 +126,7 @@ static void plot_diagonal_distribution(
     distribution,
     SCALED_DIMENSION_LINEAR);
 
-  plot_collapsed_diagonal_distribution_horizontal(
+  plot_diagonal_distribution_horizontal(
     &scaled_distribution,
     0, /* offset_y */
     file,

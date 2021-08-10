@@ -94,7 +94,6 @@
 
 #include "linear_distribution_slice.h"
 #include "distribution.h"
-#include "diagonal_distribution.h"
 #include "random.h"
 #include "parameters.h"
 #include "common.h"
@@ -135,13 +134,7 @@ enum {
    *          collapsing a two-dimensional distribution to a marginal
    *          distribution.
    */
-  LINEAR_DISTRIBUTION_FLAG_COLLAPSED = 2,
-
-  /*!
-   * \brief   A flag indicating that the distribution was constructed by
-   *          collapsing a diagonal distribution to a marginal distribution.
-   */
-  LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL = 128
+  LINEAR_DISTRIBUTION_FLAG_COLLAPSED = 2
 };
 
 /*!
@@ -412,30 +405,6 @@ void linear_distribution_init_collapse_d(
 void linear_distribution_init_collapse_r(
   Linear_Distribution * const dst,
   const Distribution * const src);
-
-/*!
- * \brief   Initializes a distribution by collapsing a diagonal distribution to
- *          a marginal distribution in alpha_r.
- *
- * \param[in, out] dst    The distribution to initialize.
- * \param[in] src         The distribution to collapse.
- */
-void linear_distribution_init_collapse_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src);
-
-/*!
- * \brief   Initializes a distribution by extracting a specific offset in
- *          alpha_d from a diagonal distribution.
- *
- * \param[in, out] dst        The distribution to initialize.
- * \param[in] src             The distribution from which to extract.
- * \param[in] offset_alpha_d  The offset in alpha_d.
- */
-void linear_distribution_init_extract_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src,
-  const int32_t offset_alpha_d);
 
 /*!
  * \}

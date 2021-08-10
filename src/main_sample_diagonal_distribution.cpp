@@ -17,6 +17,7 @@
 #include "diagonal_distribution.h"
 #include "sample.h"
 #include "random.h"
+#include "math.h"
 #include "common.h"
 
 #include "errors.h"
@@ -128,33 +129,49 @@ int main(int argc, char ** argv) {
   mpz_t k;
   mpz_init(k);
 
+  mpz_t tmp;
+  mpz_init(tmp);
+
   for (uint32_t i = 0; i < n; i++) {
     printf("sample: %u / %u\n", i + 1, n);
 
     bool result;
 
-    result = diagonal_distribution_sample_alpha_d_r(
+    result = diagonal_distribution_sample_pair_j_k(
       &distribution,
       &random_state,
-      alpha_d,
-      alpha_r);
+      j,
+      k);
 
     if (TRUE != result) {
       printf("*** out of bounds\n\n");
       continue;
     }
 
+    /* Compute alpha_r. */
+    mpz_mul(alpha_r, distribution.parameters.r, j);
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m + distribution.parameters.sigma);
+    mod_reduce(alpha_r, tmp);
+  
+    /* Compute alpha_d. */
+    mpz_mul(alpha_d, distribution.parameters.d, j);
+
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m + 
+                    distribution.parameters.sigma - 
+                    distribution.parameters.l);
+    mpz_mul(tmp, tmp, k);
+
+    mpz_add(alpha_d, alpha_d, tmp);
+
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m + distribution.parameters.sigma);
+    mod_reduce(alpha_d, tmp);
+
+    /* Perform the printout. */
     gmp_printf("alpha_d: %Zd\n", alpha_d);
     gmp_printf("alpha_r: %Zd\n", alpha_r);
-
-    sample_j_k_from_diagonal_alpha_d_r(
-      j,
-      k,
-      alpha_d,
-      alpha_r,
-      &(distribution.parameters),
-      &random_state);
-
 
     gmp_printf("j: %Zd\n", j);
     gmp_printf("k: %Zd\n", k);
@@ -171,6 +188,8 @@ int main(int argc, char ** argv) {
   mpz_clear(alpha_r);
   mpz_clear(j);
   mpz_clear(k);
+
+  mpz_clear(tmp);
 
   diagonal_distribution_clear(&distribution);
   

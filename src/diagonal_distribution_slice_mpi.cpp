@@ -8,7 +8,7 @@
 
 #include "diagonal_distribution_slice.h"
 
-#include "parameters.h"
+#include "diagonal_parameters.h"
 #include "errors.h"
 #include "math.h"
 #include "common.h"
@@ -39,19 +39,6 @@ static void diagonal_distribution_slice_recv_common(
   {
     critical("diagonal_distribution_slice_recv_common(): "
       "Failed to receive min_log_alpha_r.");
-  }
-
-  if (MPI_SUCCESS != MPI_Recv(
-      &(slice->offset_alpha_d),
-      1, /* count */
-      MPI_INT,
-      rank,
-      MPI_TAG_SLICE_OFFSET_ALPHA_D,
-      MPI_COMM_WORLD,
-      &status))
-  {
-    critical("diagonal_distribution_slice_recv_common(): "
-      "Failed to receive offset_alpha_d.");
   }
 
   /* Receive the flags. */
@@ -194,18 +181,6 @@ void diagonal_distribution_slice_send(
       "Failed to send min_log_alpha_r.");
   }
 
-  if (MPI_SUCCESS != MPI_Send(
-      &(slice->offset_alpha_d),
-      1, /* count */
-      MPI_INT,
-      rank,
-      MPI_TAG_SLICE_OFFSET_ALPHA_D,
-      MPI_COMM_WORLD))
-  {
-    critical("diagonal_distribution_slice_send(): "
-      "Failed to send offset_alpha_d.");
-  }
-
   /* Send the flags. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->flags),
@@ -292,23 +267,6 @@ void diagonal_distribution_slice_init_bcast_recv(
   /* Store min_log_alpha_r. */
   slice->min_log_alpha_r = min_log_alpha_r;
 
-  /* Broadcast offset_alpha_d. */
-  int32_t offset_alpha_d;
-
-  if (MPI_SUCCESS != MPI_Bcast(
-      &offset_alpha_d,
-      1, /* count */
-      MPI_INT,
-      root,
-      MPI_COMM_WORLD))
-  {
-    critical("diagonal_distribution_slice_init_bcast_recv(): "
-      "Failed to broadcast offset_alpha_d.");
-  }
-
-  /* Store alpha. */
-  slice->offset_alpha_d = offset_alpha_d;
-
   /* Broadcast the flags. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->flags),
@@ -386,20 +344,6 @@ void diagonal_distribution_slice_bcast_send(
   {
     critical("diagonal_distribution_slice_bcast_send(): "
       "Failed to broadcast min_log_alpha_r.");
-  }
-
-  /* Broadcast offset_alpha_d. */
-  int32_t offset_alpha_d = slice->offset_alpha_d;
-
-  if (MPI_SUCCESS != MPI_Bcast(
-      &offset_alpha_d,
-      1, /* count */
-      MPI_INT,
-      root,
-      MPI_COMM_WORLD))
-  {
-    critical("diagonal_distribution_slice_bcast_send(): "
-      "Failed to broadcast offset_alpha_d.");
   }
 
   /* Broadcast the flags. */

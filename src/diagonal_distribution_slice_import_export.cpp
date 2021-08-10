@@ -28,11 +28,6 @@ static void diagonal_distribution_slice_import_common(
       "Failed to import min_log_alpha_r.");
   }
 
-  if (1 != fscanf(file, "%d\n", &(slice->offset_alpha_d))) {
-    critical("diagonal_distribution_slice_import_common(): "
-      "Failed to import offset_alpha_d.");
-  }
-
   if (1 != fscanf(file, "%x\n", &(slice->flags))) {
     critical("diagonal_distribution_slice_import_common(): "
       "Failed to import flags.");
@@ -96,7 +91,6 @@ void diagonal_distribution_slice_export(
 {
   fprintf(file, "%u\n", slice->dimension);
   fprintf(file, "%d\n", slice->min_log_alpha_r);
-  fprintf(file, "%d\n", slice->offset_alpha_d);
   fprintf(file, "%.8x\n", slice->flags);
 
   for (uint32_t i = 0; i < slice->dimension; i++) {

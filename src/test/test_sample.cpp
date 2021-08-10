@@ -14,6 +14,7 @@
 #include "../distribution.h"
 #include "../parameters.h"
 #include "../parameters_selection.h"
+#include "../diagonal_parameters.h"
 #include "../math.h"
 #include "../errors.h"
 #include "../common.h"
@@ -200,10 +201,6 @@ void test_sample_j_from_alpha_r() {
   mpz_t pow2ml;
   mpz_init_set_ui(pow2ml, 0);
   mpz_setbit(pow2ml, m + l);
-
-  mpz_t pow2mlm1;
-  mpz_init_set_ui(pow2mlm1, 0);
-  mpz_setbit(pow2mlm1, m + l - 1);
   
   parameters_selection_random_d_or_r(r, m);
   mpz_set(d, r); /* by convention */
@@ -223,10 +220,7 @@ void test_sample_j_from_alpha_r() {
       sample_j_from_alpha_r(j, alpha, &parameters, &random_state);
 
       mpz_mul(tmp, j, r);
-      mpz_mod(tmp, tmp, pow2ml);
-      if (mpz_cmp(tmp, pow2mlm1) >= 0) {
-        mpz_sub(tmp, tmp, pow2ml);
-      }
+      mod_reduce(tmp, pow2ml);
 
       if (0 != mpz_cmp(tmp, alpha)) {
         critical("test_sample_j_from_alpha_r(): "
@@ -239,10 +233,7 @@ void test_sample_j_from_alpha_r() {
       sample_j_from_alpha_r(j, alpha, &parameters, &random_state);
 
       mpz_mul(tmp, j, r);
-      mpz_mod(tmp, tmp, pow2ml);
-      if (mpz_cmp(tmp, pow2mlm1) >= 0) {
-        mpz_sub(tmp, tmp, pow2ml);
-      }
+      mod_reduce(tmp, pow2ml);
 
       if (0 != mpz_cmp(tmp, alpha)) {
         critical("test_sample_j_from_alpha_r(): "
@@ -262,7 +253,6 @@ void test_sample_j_from_alpha_r() {
   mpz_clear(tmp);
 
   mpz_clear(pow2ml);
-  mpz_clear(pow2mlm1);
   
   random_close(&random_state);
   parameters_clear(&parameters);
@@ -600,12 +590,13 @@ void test_sample_j_k_from_alpha_d_r() {
   distribution_clear(&distribution);
 }
 
-void test_sample_j_k_from_diagonal_alpha_d_r() {
-  printf("Testing test_sample_j_k_from_diagonal_alpha_d_r()...\n");
+void test_sample_j_from_diagonal_alpha_r() {
+  printf("Testing sample_j_from_diagonal_alpha_r()...\n");
 
   const uint32_t t = 30;
   const uint32_t m = 2048;
-  const uint32_t l = 5;
+  const uint32_t sigma = 5;
+  const uint32_t l = m + sigma;
 
   Random_State random_state;
   random_init(&random_state);
@@ -616,40 +607,26 @@ void test_sample_j_k_from_diagonal_alpha_d_r() {
   mpz_t r;
   mpz_init(r);
 
-  mpz_t alpha_d;
-  mpz_init(alpha_d);
-
   mpz_t alpha_r;
   mpz_init(alpha_r);
 
   mpz_t j;
   mpz_init(j);
 
-  mpz_t k;
-  mpz_init(k);
-
   mpz_t tmp;
   mpz_init(tmp);
 
-  mpz_t pow2ml;
-  mpz_init_set_ui(pow2ml, 0);
-  mpz_setbit(pow2ml, m + l);
-
-  mpz_t pow2mlm1;
-  mpz_init_set_ui(pow2mlm1, 0);
-  mpz_setbit(pow2mlm1, m + l - 1);
-  
-  mpfr_t alpha_f;
-  mpfr_init2(alpha_f, 2 * (m + l));
+  mpz_t pow2msigma;
+  mpz_init_set_ui(pow2msigma, 0);
+  mpz_setbit(pow2msigma, m + sigma);
 
   parameters_selection_random_d_and_r(d, r, m);
 
-  Parameters parameters;
-  parameters_init(&parameters);
-  parameters_explicit_m_l(&parameters, d, r, m, l, t);
+  Diagonal_Parameters parameters;
+  diagonal_parameters_init(&parameters);
+  diagonal_parameters_explicit_m_l(&parameters, d, r, m, sigma, l, t);
 
-  for (int32_t delta = -30; delta <= 30; delta++) {
-    for (uint32_t i = m - 30; i < m + l - 1; i++) {
+  for (uint32_t i = m - 30; i < m + sigma - 1; i++) {
     for (uint32_t i2 = 0; i2 < 10; i2++) {
     for (uint32_t i3 = 0; i3 <= 1; i3++) {
       double min_log_alpha_r = 10 * i + i2;     min_log_alpha_r /= 10;
@@ -661,45 +638,19 @@ void test_sample_j_k_from_diagonal_alpha_d_r() {
 
       sample_alpha_from_region(
         alpha_r, min_log_alpha_r, max_log_alpha_r, kappa(r), &random_state);
-      
-      mpfr_set_z(alpha_f, alpha_r, MPFR_RNDN);
-      mpfr_mul_z(alpha_f, alpha_f, d, MPFR_RNDN);
-      mpfr_div_z(alpha_f, alpha_f, r, MPFR_RNDN);
-      mpfr_round(alpha_f, alpha_f);
-      mpfr_get_z(alpha_d, alpha_f, MPFR_RNDN);
 
-      if (delta < 0) {
-        mpz_sub_ui(alpha_d, alpha_d, abs_i(delta));
-      } else {
-        mpz_add_ui(alpha_d, alpha_d, abs_i(delta));
-      }
-
-      sample_j_k_from_diagonal_alpha_d_r(
-        j, k, alpha_d, alpha_r, &parameters, &random_state);
-
-      mpz_mul(tmp, j, d);
-      mpz_add(tmp, tmp, k);
-      mpz_mod(tmp, tmp, pow2ml);
-      if (mpz_cmp(tmp, pow2mlm1) >= 0) {
-        mpz_sub(tmp, tmp, pow2ml);
-      }
-
-      if (0 != mpz_cmp(tmp, alpha_d)) {
-        critical("Failed to correctly sample (j, k).");
-      }
+      sample_j_from_diagonal_alpha_r(
+        j, alpha_r, &parameters, &random_state);
 
       mpz_mul(tmp, j, r);
-      mpz_mod(tmp, tmp, pow2ml);
-      if (mpz_cmp(tmp, pow2mlm1) >= 0) {
-        mpz_sub(tmp, tmp, pow2ml);
-      }
+      mod_reduce(tmp, pow2msigma);
 
       if (0 != mpz_cmp(tmp, alpha_r)) {
-        critical("Failed to correctly sample j.");
+        critical("test_sample_j_from_diagonal_alpha_r(): "
+          "Failed to correctly sample j.");
       }
 
       /* Note: Calling with incorrect order would trigger a critical error. */
-    }
     }
     }
   }
@@ -707,20 +658,15 @@ void test_sample_j_k_from_diagonal_alpha_d_r() {
   /* Clear memory. */
   mpz_clear(d);
   mpz_clear(r);
-  mpz_clear(alpha_d);
   mpz_clear(alpha_r);
   mpz_clear(j);
-  mpz_clear(k);
   
   mpz_clear(tmp);
 
-  mpz_clear(pow2ml);
-  mpz_clear(pow2mlm1);
-  
-  mpfr_clear(alpha_f);
+  mpz_clear(pow2msigma);
   
   random_close(&random_state);
-  parameters_clear(&parameters);
+  diagonal_parameters_clear(&parameters);
 }
 
 void test_sample() {
@@ -730,5 +676,5 @@ void test_sample() {
   test_sample_j_from_alpha_r();
   test_sample_j_k_from_alpha_d();
   test_sample_j_k_from_alpha_d_r();
-  test_sample_j_k_from_diagonal_alpha_d_r();
+  test_sample_j_from_diagonal_alpha_r();
 }

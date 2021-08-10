@@ -16,6 +16,7 @@
 #include "lattice_smoothness.h"
 #include "lattice_solve.h"
 
+#include "diagonal_parameters.h"
 #include "parameters.h"
 #include "sample.h"
 #include "errors.h"
@@ -238,12 +239,16 @@ static void lattice_enumerate_inner(
   const mpz_t min_d_or_r,
   const mpz_t max_d_or_r,
   const mpz_t d_or_r,
-  const Parameters * const parameters,
+  const uint32_t m,
   const uint32_t precision,
   const bool detect_smooth,
   const uint64_t timeout,
   Timer * const timer)
 {
+  if ((mpz_cmp(min_d_or_r, d_or_r) > 0) || (mpz_cmp(max_d_or_r, d_or_r) < 0)) {
+    critical("lattice_enumerate_inner(): Sanity checks not respected.");
+  }
+
   /* Initially set the status to not recovered. */
   (*status) = LATTICE_STATUS_NOT_RECOVERED;
 
@@ -320,6 +325,7 @@ static void lattice_enumerate_inner(
   mpz_set(new_cu_coordinates[k - 1].get_data(), uhat);
 
   /* Find the maximum and minimum value in the k:th position. */
+
   {
     /* The maximum in the k:th component is = uhat + max_cu. Set max_cu to
      * zero initially, then to one, and then double max_cu in every iteration
@@ -577,7 +583,7 @@ static void lattice_enumerate_inner(
             const bool smooth = lattice_smoothness_is_smooth(
                                   z,
                                   LATTICE_SMOOTHNESS_CONSTANT_C,
-                                  parameters->m);
+                                  m);
 
             if (smooth) {
               /* Set the status to recovered. */
@@ -702,7 +708,7 @@ static void lattice_enumerate_inner(
             const bool smooth = lattice_smoothness_is_smooth(
                                   z,
                                   LATTICE_SMOOTHNESS_CONSTANT_C,
-                                  parameters->m);
+                                  m);
 
             if (smooth) {
               /* Set the status to recovered. */
@@ -760,7 +766,7 @@ static void lattice_enumerate_inner(
         min_d_or_r,
         max_d_or_r,
         d_or_r,
-        parameters,
+        m,
         precision,
         detect_smooth,
         timeout,
@@ -790,7 +796,7 @@ static void lattice_enumerate_inner(
         min_d_or_r,
         max_d_or_r,
         d_or_r,
-        parameters,
+        m,
         precision,
         detect_smooth,
         timeout,
@@ -874,7 +880,7 @@ void lattice_enumerate_reduced_basis_for_d(
 
   mpfr_t tmp;
   mpfr_init2(tmp, precision);
-  
+
   /* Compute the square norms of the rows of the G matrix. */
   vector<FP_NR<mpfr_t>> G_square_norms(n + 1);
 
@@ -1038,7 +1044,7 @@ void lattice_enumerate_reduced_basis_for_d(
         min_d,
         max_d,
         d,
-        parameters,
+        parameters->m, /* = m */
         precision,
         FALSE, /* = detect_smooth */
         timeout,
@@ -1090,6 +1096,242 @@ void lattice_enumerate_reduced_basis_for_d(
   mpz_clear(pow2lm);
   mpz_clear(pow2lm_half);
   mpz_clear(candidate_d);
+}
+
+void lattice_enumerate_reduced_basis_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const ZZ_mat<mpz_t> &A,
+  const FP_mat<mpfr_t> &G,
+  const FP_mat<mpfr_t> &M,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  const uint32_t precision,
+  const uint64_t timeout)
+{
+  /* Check dimensions. */
+  if ((A.get_rows() != (int)(n + 1)) || (A.get_cols() != (int)(n + 1))) {
+    critical("lattice_enumerate_reduced_basis_for_d_given_r(): "
+      "Incorrect dimensions for the matrix A.");
+  }
+
+  if ((G.get_rows() != (int)(n + 1)) || (G.get_cols() != (int)(n + 1))) {
+    critical("lattice_enumerate_reduced_basis_for_d_given_r(): "
+      "Incorrect dimensions for the matrix G.");
+  }
+
+  if ((M.get_rows() != (int)(n + 1)) || (M.get_cols() != (int)(n + 1))) {
+    critical("lattice_enumerate_reduced_basis_for_d_given_r(): "
+      "Incorrect dimensions for the matrix M.");
+  }
+
+  /* Setup constants. */
+  mpz_t pow2m;
+  mpz_init(pow2m);
+  mpz_set_ui(pow2m, 0);
+  mpz_setbit(pow2m, parameters->m);
+
+  mpz_t rpow2lm;
+  mpz_init(rpow2lm);
+  mpz_set_ui(rpow2lm, 0);
+  mpz_setbit(rpow2lm, parameters->l + parameters->m);
+  mpz_mul(rpow2lm, rpow2lm, parameters->r);
+
+  mpz_t rpow2lsigma;
+  mpz_init(rpow2lsigma);
+  mpz_set_ui(rpow2lsigma, 0);
+  mpz_setbit(rpow2lsigma, parameters->l - parameters->sigma);
+  mpz_mul(rpow2lsigma, rpow2lsigma, parameters->r);
+
+  /* Setup variables. */
+  mpz_t candidate_d;
+  mpz_init(candidate_d);
+
+  mpz_t target_d;
+  mpz_init(target_d);
+
+  mpfr_t tmp;
+  mpfr_init2(tmp, precision);
+  
+  /* Compute the square norms of the rows of the G matrix. */
+  vector<FP_NR<mpfr_t>> G_square_norms(n + 1);
+
+  for (uint32_t i = 0; i <= n; i++) {
+    mpfr_set_prec(G_square_norms[i].get_data(), precision);
+    mpfr_set_ui(G_square_norms[i].get_data(), 0, MPFR_RNDN);
+
+    for (uint32_t j = 0; j <= n; j++) {
+      mpfr_mul(tmp, G[i][j].get_data(), G[i][j].get_data(), MPFR_RNDN);
+
+      mpfr_add(
+          G_square_norms[i].get_data(),
+          G_square_norms[i].get_data(),
+          tmp,
+          MPFR_RNDN);
+    }
+  }
+
+  /* Setup the starting vector. */
+  vector<Z_NR<mpz_t>> v(n + 1);
+
+  for (uint32_t j = 0; j < n; j++) {
+    mpz_mul(v[j].get_data(), ks[j], pow2m);
+    mpz_mul(v[j].get_data(), v[j].get_data(), parameters->r);
+    mpz_neg(v[j].get_data(), v[j].get_data());
+
+    mod_reduce(v[j].get_data(), rpow2lm);
+  }
+
+  mpz_set_ui(v[n].get_data(), 0);
+
+  /* Solve v = c_v A for c_v. */
+  vector<FP_NR<mpfr_t>> cv_coordinates(n + 1);
+  solve_left_coordinates(cv_coordinates, v, A, n, precision);
+
+  /* Compute the closest vector. */
+  vector<Z_NR<mpz_t>> solution(n + 1);
+  babai_closest_vector(solution, v, G, A, n, precision);
+
+  /* Compute the target. */
+  mpz_mul(target_d, parameters->d, parameters->r);
+
+  /* Extract the candidate d. */
+  mpz_abs(candidate_d, solution[n].get_data());
+
+  /* Set the status to indicate failed recovery. */
+  (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
+
+  if (mpz_cmp(candidate_d, target_d) == 0) {
+    (*status_d) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
+  } else {
+    mpz_t multiple;
+    mpz_init(multiple);
+
+    mpz_t tmp_d;
+    mpz_init(tmp_d);
+
+    mpz_set(candidate_d, solution[n].get_data());
+
+    for (uint32_t i = 1; i <= 256; i++) {
+      mpz_mul_ui(multiple, A[0][n].get_data(), i);
+
+      mpz_add(tmp_d, candidate_d, multiple);
+      mpz_abs(tmp_d, tmp_d);
+      if (mpz_cmp(tmp_d, target_d) == 0) {
+        (*status_d) = LATTICE_STATUS_RECOVERED_SEARCH;
+        break;
+      }
+
+      mpz_sub(tmp_d, candidate_d, multiple);
+      mpz_abs(tmp_d, tmp_d);
+      if (mpz_cmp(tmp_d, target_d) == 0) {
+        (*status_d) = LATTICE_STATUS_RECOVERED_SEARCH;
+        break;
+      }
+    }
+
+    mpz_clear(multiple);
+    mpz_clear(tmp_d);
+  }
+
+  if (LATTICE_STATUS_NOT_RECOVERED == (*status_d)) {
+    /* Step 2: Let c_u be the zero coordinate vector. */
+    vector<Z_NR<mpz_t>> cu_coordinates(n + 1);
+    for (uint32_t j = 0; j <= n; j++) {
+      mpz_set_ui(cu_coordinates[j].get_data(), 0);
+    }
+
+    /* Initially set the radius to the square norm of the shortest vector. */
+    mpfr_t square_radius;
+    mpfr_init2(square_radius, precision);
+    mpfr_set_ui(square_radius, 0, MPFR_RNDN);
+
+    for (uint32_t j = 0; j <= n; j++) {
+      mpfr_set_z(tmp, A[0][j].get_data(), MPFR_RNDN);
+      mpfr_mul(tmp, tmp, tmp, MPFR_RNDN);
+      mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
+    }
+
+    /* To make sure we do not miss the vector, reduce radius by 2^10. */
+    mpfr_div_ui(square_radius, square_radius, 1024, MPFR_RNDN);
+
+    /* Start a timer. */
+    Timer timer;
+    timer_start(&timer);
+
+    /* Execute the enumeration. */
+    (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
+
+    mpz_t min_d;
+    mpz_init(min_d);
+    mpz_set_ui(min_d, 0); /* min_d = 0 */
+
+    mpz_t max_d;
+    mpz_init(max_d);
+    mpz_set_ui(max_d, 0);
+    mpz_setbit(max_d, 2 * parameters->m); /* max_d = 2^(2m) > d * r */
+
+    mpz_t d;
+    mpz_init(d);
+    mpz_mul(d, parameters->d, parameters->r);
+
+    for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
+      lattice_enumerate_inner(
+        status_d,
+        square_radius,
+        cu_coordinates,
+        cv_coordinates,
+        A,
+        G_square_norms,
+        M,
+        n + 1, /* = k */
+        n,
+        min_d,
+        max_d,
+        d,
+        parameters->m, /* = m */
+        precision,
+        FALSE, /* = detect_smooth */
+        timeout,
+        &timer);
+
+      /* Note that we set detect_smooth to FALSE above. If r is partially very
+       * smooth, there may be an artificially short vector in the lattice, 
+       * leading us to enumerate very many vectors. To handle this, however, 
+       * we reduce the upper interval for d, see the above code. The 
+       * detect_smooth flag is only relevant when enumerating for r. */
+
+      if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
+        /* A solution was found or there was a timeout. */
+        break;
+      }
+
+      /* Double the radius explored in the next iteration. */
+      mpfr_mul_ui(square_radius, square_radius, 4, MPFR_RNDN);
+    }
+
+    /* Clear memory. */
+    mpz_clear(d);
+    mpz_clear(min_d);
+    mpz_clear(max_d);
+
+    cu_coordinates.clear();
+
+    mpfr_clear(square_radius);
+  }
+
+  /* Clear memory. */
+  G_square_norms.clear();
+  cv_coordinates.clear();
+  v.clear();
+
+  mpz_clear(candidate_d);
+  mpz_clear(target_d);
+  mpfr_clear(tmp);
+
+  mpz_clear(pow2m);
+  mpz_clear(rpow2lm);
+  mpz_clear(rpow2lsigma);
 }
 
 void lattice_enumerate_reduced_basis_for_r(
@@ -1201,7 +1443,7 @@ void lattice_enumerate_reduced_basis_for_r(
       min_r,
       max_r,
       parameters->r, /* = r */
-      parameters,
+      parameters->m, /* = m */
       precision,
       detect_smooth_r,
       timeout,
@@ -1297,6 +1539,80 @@ void lattice_enumerate_for_d(
     parameters,
     precision,
     detect_smooth_r,
+    timeout);
+
+  /* Clear memory. */
+  A.clear();
+  G.clear();
+  M.clear();
+}
+
+void lattice_enumerate_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const mpz_t * const js,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  Lattice_Reduction_Algorithm algorithm,
+  const uint32_t precision,
+  const uint64_t timeout)
+{
+  /* Setup the A matrix. */
+  ZZ_mat<mpz_t> A(n + 1, n + 1);
+
+  /* Setup the Gram-Schmidt matrices. */
+  FP_mat<mpfr_t> G(n + 1, n + 1);
+  FP_mat<mpfr_t> M(n + 1, n + 1);
+
+  while (TRUE) {
+    /* Reduce the A matrix. */
+    lattice_compute_reduced_diagonal_basis(
+      A,
+      js,
+      n,
+      parameters,
+      (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) ?
+        REDUCTION_ALGORITHM_LLL : algorithm,
+      2 * parameters->m); /* red_precision */
+
+    /* Compute the Gram-Schmidt matrices. */
+    gram_schmidt_orthogonalization(M, G, A, n, precision);
+
+    /* Solve for d. */
+    lattice_solve_reduced_basis_for_d_given_r(
+      status_d,
+      A,
+      G,
+      ks,
+      n,
+      parameters,
+      precision);
+
+    if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
+      A.clear();
+      G.clear();
+      M.clear();
+
+      return;
+    }
+
+    if (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) {
+      algorithm = REDUCTION_ALGORITHM_BKZ;
+    } else {
+      break;
+    }
+  }
+
+  /* Enumerate for d. */
+  lattice_enumerate_reduced_basis_for_d_given_r(
+    status_d,
+    A,
+    G,
+    M,
+    ks,
+    n,
+    parameters,
+    precision,
     timeout);
 
   /* Clear memory. */

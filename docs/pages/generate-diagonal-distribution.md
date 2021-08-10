@@ -3,15 +3,18 @@
 ## Synopsis
 ```console
 Synopsis: mpirun generate_diagonal_distribution \
-   [ -dim <dimension> ] [ -bound-delta <bound> ] \
-      [ -det | -rnd | -exp <d> <r> ] <m> <l> { <m> <l> }
+   [ -dim <dimension> ] [ -det | -rnd | -exp <d> <r> ] \
+      ( [ -s ] <m> <sigma> <s> { <m> <sigma> <s> } | \
+          -l   <m> <sigma> <l> { <m> <sigma> <l> } )
 ```
 
-Computes the distribution induced by Shor's algorithm for computing general discrete logarithms when tweaked as in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
+Computes a part of the distribution induced by Shor's algorithm for computing general discrete logarithms when modified as in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
 
-The aforementioned distribution is a distribution in two arguments (alpha_d, alpha_r), or equivalently, in two angle pairs (theta_d, theta_r).
-The argument pairs are related in that alpha_d = round(alpha_r d/r) + Delta for some small Delta.
-In this software such distributions are called diagonal as all probability mass in on the diagonal were alpha_d is approximated round(alpha_r d/r).
+The full distribution is two-dimensional in (alpha_d, alpha_r), or equivalently, in(theta_d, theta_r).
+
+This executable computes and stores a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
+
+The distribution is said to be diagonal, since we expect interference on the diagonal in the argument plane where the angle phi is small.
 The executable is named accordingly.
 
 The distribution generated will be assigned an appropriate name and written to the <code>distributions</code> directory. If this directory does not exist, it will be created. If the distribution already exists, an error will be reported.
@@ -19,9 +22,14 @@ The distribution generated will be assigned an appropriate name and written to t
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
 ### Mandatory command line arguments
-Tuples <code>\<m\></code> <code>\<l\></code> where
-   
+Tuples <code>\<m\></code> <code>\<sigma\></code> <code>\<s\></code> where
+
 - <code>\<m\></code> is the length m in bits of the order r
+- <code>\<sigma\></code> is the padding length sigma
+- <code>\<s\></code> is the tradeoff factor s; used to set l = ceil((m + sigma) / s)
+
+or, if the <code>-l</code> flag is specified, tuples <code>\<m\></code> <code>\<sigma\></code> <code>\<l\></code> where
+- <code>\<m\></code> and <code>\<sigma\></code> are as above
 - <code>\<l\></code> is the parameter l
 
 ### Optional command line arguments
@@ -30,11 +38,7 @@ Flags controlling the value of d and r (defaults to <code>-det</code>):
 - <code>-rnd</code> selects r uniformly at random from (2^(m-1), 2^m) and d uniformly at random from [r/2, r)
 - <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) < <code>\<r\></code> < 2^m
 
-Flags controlling the bound on |Delta| (defaults to: 20):
-- <code>-bound-delta \<bound\></code> sets the bound on |Delta| to <code>\<bound\></code>
-
-Flags controlling the dimension (defaults to <code>-dim-heuristic</code>):
-- <code>-dim-heuristic</code> adaptively sets the dimension according to a heuristic
+Flags controlling the dimension (defaults to 2048):
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>
 
-The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in the paper on revisiting Shor's algorithm. See this reference for a description of how the histogram is constructed.
+The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in [[E19]](https://arxiv.org/pdf/1905.09084.pdf). See [[E19]](https://arxiv.org/pdf/1905.09084.pdf) for a complete description of how the histogram is constructed in two steps.

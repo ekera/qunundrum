@@ -8,6 +8,7 @@
 #include "sample.h"
 
 #include "parameters.h"
+#include "diagonal_parameters.h"
 #include "random.h"
 #include "errors.h"
 #include "math.h"
@@ -350,12 +351,10 @@ void sample_j_k_from_alpha_d_r(
   mpz_clear(pow2);
 }
 
-void sample_j_k_from_diagonal_alpha_d_r(
+void sample_j_from_diagonal_alpha_r(
   mpz_t j,
-  mpz_t k,
-  const mpz_t alpha_d,
   const mpz_t alpha_r,
-  const Parameters * const parameters,
+  const Diagonal_Parameters * const parameters,
   Random_State * const random_state)
 {
   /* Declare variables. */
@@ -381,30 +380,29 @@ void sample_j_k_from_diagonal_alpha_d_r(
   mpz_div(j, parameters->r, pow2); /* j = r / 2^kappa_r */
 
   mpz_set_ui(pow2, 0);
-  mpz_setbit(pow2, parameters->m + parameters->l); /* pow2 = 2^(m+l) */
-  mpz_invert(j, j, pow2); /* j = (r / 2^kappa_r)^-1 mod 2^(m + l) */
+  mpz_setbit(pow2, parameters->m + parameters->sigma);
+    /* pow2 = 2^(m + sigma) */
+  mpz_invert(j, j, pow2); /* j = (r / 2^kappa_r)^-1 mod 2^(m + sigma) */
 
-  mpz_mul(j, j, alpha_r); /* j = alpha_r ((r / 2^kappa_r)^-1 mod 2^(m + l)) */
+  mpz_mul(j, j, alpha_r);
+    /* j = alpha_r ((r / 2^kappa_r)^-1 mod 2^(m + sigma)) */
 
   mpz_set_ui(pow2, 0);
   mpz_setbit(pow2, kappa_r); /* pow2 = 2^kappa_r */
   mpz_div(j, j, pow2);
-    /* j = j_0 = (alpha_r / 2^kappa_r) ((r / 2^kappa_r)^-1 mod 2^(m + l)) */
+    /* j = j_0 = (alpha_r / 2^kappa_r) ((r / 2^kappa_r)^-1 mod 2^(m + sigma)) */
 
   mpz_set_ui(pow2, 0);
-  mpz_setbit(pow2, parameters->m + parameters->l - kappa_r);
-    /* pow2 = 2^(m + l - kappa_r) */
-  mpz_mul(pow2, pow2, t_r); /* pow2 = t_r * 2^(m + l - kappa_r) */
-  mpz_add(j, j, pow2); /* j = j_0 + t_r * 2^(m + l - kappa_r) */
+  mpz_setbit(pow2, parameters->m + parameters->sigma - kappa_r);
+    /* pow2 = 2^(m + sigma - kappa_r) */
+  mpz_mul(pow2, pow2, t_r); /* pow2 = t_r * 2^(m + sigma - kappa_r) */
+  mpz_add(j, j, pow2); /* j = j_0 + t_r * 2^(m + sigma - kappa_r) */
 
   mpz_set_ui(pow2, 0);
-  mpz_setbit(pow2, parameters->m + parameters->l); /* pow2 = 2^(m + l) */
-  mpz_mod(j, j, pow2); /* j = (j_0 + t_r * 2^(m + l - kappa_r)) mod 2^(m + l) */
-
-  /* Compute the integer k given j to form the pair (j, k). */
-  mpz_mul(k, parameters->d, j); /* k = dj */
-  mpz_sub(k, alpha_d, k); /* k = alpha_d - dj */
-  mpz_mod(k, k, pow2); /* k = (alpha_d - dj) mod 2^(m + l) */
+  mpz_setbit(pow2, parameters->m + parameters->sigma);
+    /* pow2 = 2^(m + sigma) */
+  mpz_mod(j, j, pow2);
+    /* j = (j_0 + t_r * 2^(m + sigma - kappa_r)) mod 2^(m + sigma) */
 
   /* Clear memory. */
   mpz_clear(t_r);

@@ -3,7 +3,8 @@
  * \ingroup parameters
  *
  * \brief   The definition of functions for manipulating data structures
- *          representing parameters for probability distributions.
+ *          representing parameters for linear and two-dimensional probability
+ *          distributions.
  */
 
 #include "parameters.h"

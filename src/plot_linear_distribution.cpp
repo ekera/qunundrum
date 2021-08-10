@@ -43,9 +43,7 @@ void plot_linear_distribution_horizontal(
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 
-  if (((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) ||
-      ((flags & LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL) != 0))
-  {
+  if ((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
     if (absolute) {
       fprintf(file,  "\\draw (%f, %f) "
         "node[above, rotate=-90] "
@@ -336,9 +334,7 @@ void plot_linear_distribution_vertical(
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 
-  if (((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) ||
-      ((flags & LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL) != 0))
-  {
+  if ((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
     fprintf(file, "\\draw (%f, %f) node[above]"
       "{\\tiny $\\text{sgn}(\\alpha_r) \\log_2(|\\alpha_r|)$};\n",
         offset_x -

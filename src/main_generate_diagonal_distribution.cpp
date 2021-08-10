@@ -22,7 +22,7 @@
 #include "diagonal_distribution_slice.h"
 #include "diagonal_distribution_enumerator.h"
 #include "probability.h"
-#include "parameters.h"
+#include "diagonal_parameters.h"
 #include "parameters_selection.h"
 #include "thread_pool.h"
 #include "math.h"
@@ -38,6 +38,7 @@
 
 #include <memory.h>
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -48,9 +49,9 @@
 #include <sys/types.h>
 
 /*!
- * \brief   A data structure representing argument entries in the form of
- *          parsed \<m\> \<s\> or \<m\> \<l\> tuples from the command line
- *          arguments.
+ * \brief   A data structure representing argument entries in the form of parsed
+ *          \<m\> \<sigma\> \<s\> or \<m\> \<sigma\> \<l\> tuples from the 
+ *          command line arguments.
  *
  * \ingroup generate_diagonal_distribution_exe
  */
@@ -59,6 +60,16 @@ typedef struct {
    * \brief   The parameter m.
    */
   uint32_t m;
+
+  /*!
+   * \brief   The parameter sigma.
+   */
+  uint32_t sigma;
+
+  /*!
+   * \brief   The tradeoff factor s.
+   */
+  uint32_t s;
 
   /*!
    * \brief   The parameter l.
@@ -99,6 +110,11 @@ typedef struct {
   Selection_Method selection_method;
 
   /*!
+   * \brief   The tradeoff method.
+   */
+  Tradeoff_Method tradeoff_method;
+
+  /*!
    * \brief   The explicitly specified value of the logarithm d.
    *
    * If the value is not explicitly specified, this entry is set to zero.
@@ -113,20 +129,13 @@ typedef struct {
   mpz_t explicit_r;
 
   /*!
-   * \brief    The upper bound on Delta, that is on the maximum offset from the 
-   *           optimal alpha_d given by round(alpha_r d/r). Must be less than or
-   *           equal to #DIAGONAL_DISTRIBUTION_MAX_DELTA.
-   */
-  uint32_t bound_delta;
-
-  /*!
    * \brief   The dimension of the slices in the distribution.
    */
   uint32_t dimension;
 
   /*!
-   * \brief   The number of \<m\> \<s\> or \<m\> \<l\> tuples passed to the
-   *          executable on the command line.
+   * \brief   The number of \<m\> \<sigma\> \<s\> or \<m\> \<sigma\> \<l\>
+   *          tuples passed to the executable on the command line.
    *
    * This number also corresponds to the number of distributions to generate.
    */
@@ -183,12 +192,10 @@ static bool arguments_init_parse_command_line(
 {
   /* Initialize the arguments data structure. */
   arguments->selection_method = SELECTION_METHOD_UNDEFINED;
-  arguments->bound_delta = 20;
+  arguments->tradeoff_method = TRADEOFF_METHOD_UNDEFINED;
   arguments->dimension = 0;
   arguments->entries = NULL;
   arguments->count = 0;
-
-  bool bound_delta_specified = FALSE;
 
   mpz_init(arguments->explicit_d);
   mpz_set_ui(arguments->explicit_d, 0);
@@ -257,34 +264,25 @@ static bool arguments_init_parse_command_line(
       continue;
     }
 
-    /* Parse the maximum offset in Delta. */
-    if (0 == strcmp(argv[i], "-bound-delta")) {
-      /* Check that a bound on Delta has not already been specified. */
-      if (bound_delta_specified) {
-        fprintf(stderr, 
-          "Error: The bound on Delta cannot be twice specified.\n");
+    /* Parse the tradeoff method. */
+    Tradeoff_Method tradeoff_method = TRADEOFF_METHOD_UNDEFINED;
+
+    if (0 == strcmp(argv[i], "-s")) {
+      tradeoff_method = TRADEOFF_METHOD_FACTOR;
+    } else if (0 == strcmp(argv[i], "-l")) {
+      tradeoff_method = TRADEOFF_METHOD_EXPLICIT;
+    }
+
+    if (TRADEOFF_METHOD_UNDEFINED != tradeoff_method) {
+      /* Check that a tradeoff method has not already been specified. */
+      if (TRADEOFF_METHOD_UNDEFINED != (arguments->tradeoff_method)) {
+        fprintf(stderr, "Error: The tradeoff method cannot be twice "
+          "specified.\n");
         return FALSE;
       }
 
-      if ((i + 1) >= argc) {
-        fprintf(stderr, 
-          "Error: Expected <bound> to follow after -bound-delta.\n");
-        return FALSE;
-      }
-
-      const int x = atoi(argv[i+1]);
-      if ((x < 0) || (x > DIAGONAL_DISTRIBUTION_MAX_DELTA)) {
-        fprintf(stderr, "Error: The <bound> passed to -bound-delta must be "
-          "non-negative and less than or equal to %u.\n",
-            DIAGONAL_DISTRIBUTION_MAX_DELTA);
-        return FALSE;
-      }
-
-      /* Store the dimension. */
-      arguments->bound_delta = (uint32_t)x;
-      bound_delta_specified = TRUE;
-
-      i++;
+      /* Store the tradeoff method. */
+      arguments->tradeoff_method = tradeoff_method;
 
       continue;
     }
@@ -330,14 +328,18 @@ static bool arguments_init_parse_command_line(
     arguments->selection_method = SELECTION_METHOD_DETERMINISTIC;
   }
 
-  /* Parse tuples { <m> <l> }. */
-  if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
+  if (TRADEOFF_METHOD_UNDEFINED == arguments->tradeoff_method) {
+    arguments->tradeoff_method = TRADEOFF_METHOD_FACTOR;
+  }
+
+  /* Parse tuples { <m> <sigma> <s> } or { <m> <sigma> <l> }. */
+  if (((argc - i) <= 0) || (0 != ((argc - i) % 3))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
-      "but found an odd number of arguments.\n");
+      "but found an incorrect number of arguments.\n");
     return FALSE;
   }
 
-  arguments->count = (uint32_t)((argc - i) / 2);
+  arguments->count = (uint32_t)((argc - i) / 3);
 
   arguments->entries =
     (Generate_Diagonal_Distribution_Arguments_Entry *)malloc(
@@ -372,7 +374,7 @@ static bool arguments_init_parse_command_line(
   }
 
   /* Iterate over the tuples. */
-  for (uint32_t j = 0; j < arguments->count; j++, i += 2) {
+  for (uint32_t j = 0; j < arguments->count; j++, i += 3) {
     const int m = atoi(argv[i]);
     if (m <= 1) {
       fprintf(stderr, "Error: Failed to parse <m>.\n");
@@ -381,21 +383,53 @@ static bool arguments_init_parse_command_line(
 
     arguments->entries[j].m = (uint32_t)m;
 
-    const int l = atoi(argv[i + 1]);
-    if (l < 0) {
-      fprintf(stderr, "Error: Failed to parse <l>.\n");
+    const int sigma = atoi(argv[i + 1]);
+    if (sigma < 0) {
+      fprintf(stderr, "Error: Failed to parse <sigma>.\n");
       return FALSE;
     }
 
-    arguments->entries[j].l = (uint32_t)l;
+    arguments->entries[j].sigma = (uint32_t)sigma;
+
+    if (arguments->tradeoff_method == TRADEOFF_METHOD_FACTOR) {
+      const int s = atoi(argv[i + 2]);
+      if (s < 1) {
+        fprintf(stderr, "Error: Failed to parse <s>.\n");
+        return FALSE;
+      }
+
+      arguments->entries[j].s = (uint32_t)s;
+      arguments->entries[j].l = 
+        (uint32_t)ceil((double)(m + sigma) / (double)s);
+    } else {
+      const int l = atoi(argv[i + 2]);
+      if (l < 0) {
+        fprintf(stderr, "Error: Failed to parse <l>.\n");
+        return FALSE;
+      }
+
+      arguments->entries[j].s = 0;
+      arguments->entries[j].l = (uint32_t)l;
+    }
 
     char suffix[MAX_SIZE_PATH_BUFFER];
-    safe_snprintf(suffix,
-      MAX_SIZE_PATH_BUFFER,
-      "dim-%u-m-%u-l-%u.txt",
-      arguments->dimension,
-      arguments->entries[j].m,
-      arguments->entries[j].l);
+    if (arguments->tradeoff_method == TRADEOFF_METHOD_FACTOR) {
+      safe_snprintf(suffix,
+        MAX_SIZE_PATH_BUFFER,
+        "dim-%u-m-%u-sigma-%u-s-%u.txt",
+        arguments->dimension,
+        arguments->entries[j].m,
+        arguments->entries[j].sigma,
+        arguments->entries[j].s);
+    } else {
+      safe_snprintf(suffix,
+        MAX_SIZE_PATH_BUFFER,
+        "dim-%u-m-%u-sigma-%u-l-%u.txt",
+        arguments->dimension,
+        arguments->entries[j].m,
+        arguments->entries[j].sigma,
+        arguments->entries[j].l);
+    }
 
     /* Set the value. */
     if (SELECTION_METHOD_DETERMINISTIC == arguments->selection_method) {
@@ -554,7 +588,8 @@ static void * main_server_export_distribution(void * ptr)
  * This function is called once by main() for each distribution to generate.
  *
  * \param[in] arguments   The parsed command line arguments.
- * \param[in] entry       The \<m\> \<s\> or \<m\> \<l\> tuple to process.
+ * \param[in] entry       The \<m\> \<sigma\> \<s\> or \<m\> \<sigma\> \<l\>
+ *                        tuple to process.
  * \param[in] mpi_size    The number of nodes.
  * \param[in] pool        The thread pool from which to spawn threads for
  *                        export operations that run in the background.
@@ -568,19 +603,31 @@ static void main_server(
   /* Setup the parameters. */
   const uint32_t t = 30;
 
-  Parameters parameters;
-  parameters_init(&parameters);
+  Diagonal_Parameters parameters;
+  diagonal_parameters_init(&parameters);
 
-  parameters_explicit_m_l(
-    &parameters,
-    entry->d,
-    entry->r,
-    entry->m,
-    entry->l,
-    t);
+  if (TRADEOFF_METHOD_FACTOR == arguments->tradeoff_method) {
+    diagonal_parameters_explicit_m_s(
+      &parameters,
+      entry->d,
+      entry->r,
+      entry->m,
+      entry->sigma,
+      entry->s,
+      t);
+  } else {
+    diagonal_parameters_explicit_m_l(
+      &parameters,
+      entry->d,
+      entry->r,
+      entry->m,
+      entry->sigma,
+      entry->l,
+      t);
+  }
 
   /* Send broadcast of the parameters. */
-  parameters_bcast_send(&parameters, MPI_RANK_ROOT);
+  diagonal_parameters_bcast_send(&parameters, MPI_RANK_ROOT);
 
   /* Send broadcast of the dimension. */
   uint32_t dimension = arguments->dimension;
@@ -599,8 +646,7 @@ static void main_server(
   const bool mirrored = TRUE;
 
   Diagonal_Distribution_Enumerator enumerator;
-  diagonal_distribution_enumerator_init(
-    &enumerator, &parameters, arguments->bound_delta, mirrored);
+  diagonal_distribution_enumerator_init(&enumerator, &parameters, mirrored);
 
   /* Get the required distribution capacity in slices. */
   uint32_t capacity = diagonal_distribution_enumerator_count(&enumerator);
@@ -648,18 +694,14 @@ static void main_server(
 
     if (MPI_NOTIFY_READY == notification) {
       int32_t min_log_alpha_r;
-      int32_t offset_alpha_d;
 
       bool found = diagonal_distribution_enumerator_next(
                       &min_log_alpha_r,
-                      &offset_alpha_d,
                       &enumerator);
       if (found) {
-        printf("Processing slice: %u / %u (%d with offset %d)\n",
+        printf("Processing slice: %u / %u\n",
           enumerator.offset,
-          enumerator.count,
-          min_log_alpha_r,
-          offset_alpha_d);
+          enumerator.count);
 
         uint32_t job = MPI_JOB_PROCESS_SLICE;
 
@@ -684,18 +726,6 @@ static void main_server(
         {
           critical("main_server(): Failed to send "
             "MPI_TAG_SLICE_MIN_LOG_ALPHA_R.");
-        }
-
-        if (MPI_SUCCESS != MPI_Send(
-            &offset_alpha_d,
-            1, /* count */
-            MPI_INT,
-            status.MPI_SOURCE, /* destination */
-            MPI_TAG_SLICE_OFFSET_ALPHA_D,
-            MPI_COMM_WORLD))
-        {
-          critical("main_server(): Failed to send "
-            "MPI_TAG_SLICE_OFFSET_ALPHA_D.");
         }
       } else {
         uint32_t job = MPI_JOB_STOP;
@@ -757,7 +787,7 @@ static void main_server(
   /* Clear memory. */
   diagonal_distribution_enumerator_clear(&enumerator);
 
-  parameters_clear(&parameters);
+  diagonal_parameters_clear(&parameters);
 
   /* Setup an export job. */
   Diagonal_Distribution_Export_Job * export_job =
@@ -781,11 +811,11 @@ static void main_server(
  */
 static void main_client()
 {
-  Parameters parameters;
-  parameters_init(&parameters);
+  Diagonal_Parameters parameters;
+  diagonal_parameters_init(&parameters);
 
   /* Receive broadcast of the distribution parameters. */
-  parameters_bcast_recv(&parameters, MPI_RANK_ROOT);
+  diagonal_parameters_bcast_recv(&parameters, MPI_RANK_ROOT);
 
   /* Receive broadcast of the dimension. */
   uint32_t dimension;
@@ -856,21 +886,6 @@ static void main_client()
         "MPI_TAG_SLICE_MIN_LOG_ALPHA_R.");
     }
 
-    int32_t offset_alpha_d;
-
-    if (MPI_SUCCESS != MPI_Recv(
-        &offset_alpha_d,
-        1, /* count */
-        MPI_INT,
-        MPI_RANK_ROOT,
-        MPI_TAG_SLICE_OFFSET_ALPHA_D,
-        MPI_COMM_WORLD,
-        &status))
-    {
-      critical("main_client(): Failed to receive "
-        "MPI_TAG_SLICE_OFFSET_ALPHA_D.");
-    }
-
     /* Compute slice. */
     Diagonal_Distribution_Slice slice;
     diagonal_distribution_slice_init(&slice, dimension);
@@ -878,8 +893,7 @@ static void main_client()
     diagonal_distribution_slice_compute_richardson(
         &slice,
         &parameters,
-        min_log_alpha_r,
-        offset_alpha_d);
+        min_log_alpha_r);
 
     /* Notify the server we are done computing the slice. */
     notification = MPI_NOTIFY_SLICE_DONE;
@@ -903,7 +917,7 @@ static void main_client()
   }
 
   /* Clear memory. */
-  parameters_clear(&parameters);
+  diagonal_parameters_clear(&parameters);
 }
 
 /*!
@@ -915,50 +929,50 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun generate_diagonal_distribution \\\n"
-          "   [ -dim <dimension> ] [ -bound-delta <bound> ] \\\n"
-            "      [ -det | -rnd | -exp <d> <r> ] <m> <l> { <m> <l> }\n");
+          "   [ -dim <dimension> ] [ -det | -rnd | -exp <d> <r> ] \\\n"
+            "      ( [ -s ] <m> <sigma> <s> { <m> <sigma> <s> } | \\\n"
+            "          -l   <m> <sigma> <l> { <m> <sigma> <l> } )\n");
 
   fprintf(file, "\n");
   fprintf(file, "Selection method for d and r: -- defaults to -det\n");
 
   fprintf(file,
-    " -det          select d and r deterministically from Catalan's "
+    " -det     select d and r deterministically from Catalan's "
       "constant\n");
   fprintf(file,
-    " -rnd          select r uniformly at random from (2^(m-1), 2^m)\n");
+    " -rnd     select r uniformly at random from (2^(m-1), 2^m)\n");
   fprintf(file,
-    "               and d uniformly at random from [r/2, r)\n");
+    "          and d uniformly at random from [r/2, r)\n");
   fprintf(file,
-    " -exp          explicitly set d and r to <d> and <r>\n");
+    " -exp     explicitly set d and r to <d> and <r>\n");
 
   fprintf(file, "\n");
   fprintf(file,
-    "Tuples <m> <l>: -- one distribution is generated for each tuple\n");
+    "Tuples <m> <sigma> <l> or <m> <sigma> <s>:\n");
   fprintf(file,
-    " <m>           the length m in bits of r\n");
+    " <m>      the length m in bits of r\n");
   fprintf(file,
-    " <l>           the parameter l\n");
-
-  fprintf(file, "\n");
-  fprintf(file, "Upper bound on delta: -- defaults to 20\n");
+    " <sigma>  the padding length sigma \n");
   fprintf(file,
-    " -bound-delta  explicitly set the upper bound to <bound>\n");
+    " <s>      the tradeoff factor s; used to set l = ceil((m + sigma) / s)\n");
+  fprintf(file,
+    " <l>      the parameter l\n");
 
   fprintf(file, "\n");
   fprintf(file, "Dimension: -- defaults to 2048\n");
   fprintf(file,
-    " -dim          explicitly set the slice dimension to <dimension>\n");
+    " -dim     explicitly set the slice dimension to <dimension>\n");
 
   fprintf(file,
     "\nNote: If -rnd is specified and m is kept constant for consecutive "
       "tuples\n");
   fprintf(file,
-    "<m> <l>, the same values of d and r will be re-used.\n");
+    "<m> <sigma> <s> or <l>, the same values of d and r will be re-used.\n");
 
   fprintf(file,
-    "\nNote: This implementation is optimized for small to medium kappa. If ");
+    "\nNote: This implementation is optimized for small to medium kappa_r. If");
   fprintf(file,
-    "\nkappa is very large, it may fail to capture the probability mass.\n");
+    "\nkappa_r is very large, it may fail to capture the probability mass.\n");
 }
 
 /*!

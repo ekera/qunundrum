@@ -92,19 +92,6 @@ static void plot_linear_distribution(
       m,
       (0 != s) ? 's' : 'l',
       (0 != s) ?  s  :  l);
-  } else if (0 != ((distribution->flags) &
-    LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL))
-  {
-    /* Sanity check. */
-    if (0 != s) {
-      critical("plot_linear_distribution(): "
-        "Expected s to be zero for diagonal distributions.");
-    }
- 
-    safe_snprintf(path, MAX_SIZE_PATH_BUFFER,
-      "%s/plot-collapsed-diagonal-distribution-m-%u-l-%u.tex",
-      PLOTS_DIRECTORY,
-      m, l);
   } else {
     safe_snprintf(path, MAX_SIZE_PATH_BUFFER,
       "%s/plot-linear-distribution-%c-m-%u-%c-%u.tex",

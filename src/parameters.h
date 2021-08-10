@@ -3,15 +3,16 @@
  * \ingroup parameters
  *
  * \brief   The definition of data structures representing parameters for
- *          probability distributions, and the declarations of functions for
- *          manipulating such parameters.
+ *          linear and two-dimensional probability distributions, and the 
+ *          declarations of functions for manipulating such parameters.
  */
 
 /*!
  * \defgroup parameters Parameters
  * \ingroup  distribution
  *
- * \brief    A module for parameters for probability distributions.
+ * \brief    A module for parameters for linear and two-dimensional probability 
+ *           distributions.
  */
 
 #ifndef PARAMETERS_H
@@ -26,8 +27,8 @@
 #include <stdint.h>
 
 /*!
- * \brief   A data structure that holds the parameters for probability
- *          distributions.
+ * \brief   A data structure that holds the parameters for linear and
+ *          two-dimensional probability distributions.
  * \ingroup parameters
  */
 typedef struct {

@@ -20,6 +20,7 @@
 #include "lattice.h"
 
 #include "parameters.h"
+#include "diagonal_parameters.h"
 #include "random.h"
 
 #include <fplll/fplll.h>
@@ -41,16 +42,13 @@
 
 /*!
  * \brief   Given n integers k, and a reduced basis A for a lattice L, this
- *          function attempts to recover d as the last component of an unknown
- *          vector u in L, by finding the vector in L closest to a vector v
- *          that may be constructed from k and that is known to be close to u.
- *
- * For further details, see the paper.
- *
- * This function sets up the basis for the lattice, reduces the basis and
- * solves a CVP in L using Babai's nearest plane algorithm, returning status
- * information. This function checks if the vector thus obtained yields d by
- * testing against d stored in the parameters data structure.
+ *          function attempts to recover d by solving a closest vector problem 
+ *          in L.
+ * 
+ * More specifically, d is the last component of an unknown vector u in L. The
+ * unknown vector u is close to a known vector v that may be constructed from k.
+ * This function finds the closest vector to v in L, with the aim of recovering 
+ * u and by extension d. For further details, see the paper.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of d.
@@ -58,7 +56,7 @@
  *                            the lattice L.
  * \param[in] G               The Gram-Schmidt (n + 1) x (n + 1) orthogonalized
  *                            basis matrix G for the matrix A.
- * \param[in] ks              The n samples of the k entry in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution. These
  *                            parameters in particular contain d.
@@ -83,16 +81,12 @@ void lattice_solve_reduced_basis_for_d(
   const bool detect_smooth_r);
 
 /*!
- * \brief   Given n integers k, and a reduced basis A for a lattice L, this
- *          function attempts to recover d as the last component of an unknown
- *          short vector u in L, by computing the shortest non-zero vector in L.
+ * \brief   Given a reduced basis A for a lattice L, this function attempts to 
+ *          recover r by solving a shortest non-zero vector problem in L.
  *
- * For further details, see the paper.
- *
- * This function sets up the basis for the lattice, reduces the basis and solves
- * the SVP in L, returning status information. This function checks if the
- * vector thus obtained yields r by testing against r stored in the parameters
- * data structure.
+ * More specifically, r is the last component of an unknown short vector u in L.
+ * This function finds the shortest non-zero vector in L,  with the aim of 
+ * recovering u and by extension r. For further details, see the paper.
  *
  * \param[out] status_r       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of r.
@@ -116,6 +110,25 @@ void lattice_solve_reduced_basis_for_r(
   const bool detect_smooth_r = TRUE);
 
 /*!
+ * \brief   Given r, n integers k, and a reduced basis A for the lattice L, this 
+ *          function attempts to recover d by solving a closest vector problem 
+ *          in L.
+ * 
+ * More specifically, dr is the last component of an unknown vector u in L. The
+ * unknown vector u is close to a known vector v that may be constructed from k.
+ * This function finds the closest vector to v in L, with the aim of recovering 
+ * u and by extension dr, where r is given. For further details, see the paper.
+ */
+void lattice_solve_reduced_basis_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const fplll::ZZ_mat<mpz_t> &A,
+  const fplll::FP_mat<mpfr_t> &G,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  const uint32_t precision);
+
+/*!
  * \}
  */
 
@@ -125,20 +138,18 @@ void lattice_solve_reduced_basis_for_r(
  */
 
 /*!
- * \brief   Given n pairs (j, k) this function attempts to recover d by
- *          constructing and reducing a lattice L, and solving a CVP in L.
+ * \brief   Given n pairs (j, k), this function attempts to recover d by
+ *          using j to construct a basis for a lattice L, reducing the basis, 
+ *          and solving a closest vector problem in L.
  *
- * For further details, see the paper.
- *
- * This function sets up the basis for the lattice, reduces the basis and
- * solves a CVP in L using Babai's nearest plane algorithm, returning status
- * information. This function checks if the vector thus obtained yields d by
- * testing against d stored in the parameters data structure.
+ * This function calls lattice_compute_reduced_basis() to setup and reduce the 
+ * basis. It then calls lattice_solve_reduced_basis_for_d() to solve for d. For
+ * further details, see the documentation for said functions, and the paper.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of d.
- * \param[in] js              The n samples of the j entry in the (j, k) pairs.
- * \param[in] ks              The n samples of the k entry in the (j, k) pairs.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution from which the
  *                            (j, k) pairs were sampled. These parameters in
@@ -168,16 +179,14 @@ void lattice_solve_for_d(
   const bool detect_smooth_r = FALSE);
 
 /*!
- * \brief   Given n integers j, this function attempts to recover r by
- *          constructing and reducing a lattice L, and solving the SVP in L.
- *
- * For further details, see the paper.
- *
- * This function sets up the basis for the lattice, reduces the basis and
- * solves the SVP in L, returning status information. This function checks if
- * the vector thus obtained yields r by testing against r stored in the
- * parameters data structure.
- *
+ * \brief   Given n integers j, this function attempts to recover d by using j 
+ *          to construct a basis for a lattice L, reducing the basis, and 
+ *          solving a shortest non-zero vector problem in L.
+ * 
+ * This function calls lattice_compute_reduced_basis() to setup and reduce the 
+ * basis. It then calls lattice_solve_reduced_basis_for_r() to solve for r. For
+ * further details, see the documentation for said functions, and the paper.
+ * 
  * \param[out] status_r       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of r.
  * \param[in] js              The n samples of integers j.
@@ -204,24 +213,22 @@ void lattice_solve_for_r(
   const bool detect_smooth_r = TRUE);
 
 /*!
- * \brief   Given n pairs (j, k) this function attempts to recover d and r by
- *          constructing and reducing a lattice L, and solving a CVP and the
- *          SVP, respectively, in L.
+ * \brief   Given n pairs (j, k), this function attempts to recover d and r by
+ *          using j to construct a basis for a lattice L, reducing the basis, 
+ *          and solving both a shortest non-zero vector and a closest vector 
+ *          problem in L.
  *
- * For further details, see the paper.
- *
- * This function sets up the basis for the lattice, reduces the basis and
- * solves the SVP, and a CVP using Babai's nearest plane algorithm, in L,
- * returning status information. This function checks if the vectors thus
- * obtained yield r or d, respectively, by testing against r or d stored in the
- * parameters data structure.
+ * This function calls lattice_compute_reduced_basis() to setup and reduce the 
+ * basis. It then calls the functions lattice_solve_reduced_basis_for_d() and
+ * lattice_solve_reduced_basis_for_r() to solve for d and r, respectively. For
+ * further details, see the documentation for said functions, and the paper.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of d.
  * \param[out] status_r       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of r.
- * \param[in] js              The n samples of the j entry in the (j, k) pairs.
- * \param[in] ks              The n samples of the k entry in the (j, k) pairs.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution from which the
  *                            (j, k) pairs were sampled. These parameters in
@@ -250,6 +257,39 @@ void lattice_solve_for_d_r(
   Lattice_Reduction_Algorithm algorithm,
   const uint32_t precision,
   const bool detect_smooth_r = TRUE);
+
+/*!
+ * \brief   Given r, and n pairs (j, k), this function attempts to recover d by
+ *          using r and j to construct a basis for a lattice L, reducing the 
+ *          basis, and solving a closest vector problem in L.
+ *
+ * This function calls lattice_compute_reduced_diagonal_basis() to setup and 
+ * reduce the basis. It then calls lattice_solve_reduced_basis_for_d_given_r() 
+ * to solve for d given r. For further details, see the documentation for said 
+ * functions, and the paper.
+ *
+ * \param[out] status_d       A pointer to an enumeration entry in which to
+ *                            store status information on the recovery of d.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
+ * \param[in] n               The integer n.
+ * \param[in] parameters      The parameters of the distribution from which the
+ *                            (j, k) pairs were sampled. These parameters in
+ *                            particular contain d and r.
+ * \param[in] algorithm       An enumeration entry that specifies the lattice
+ *                            basis reduction algorithm, or combination of such
+ *                            algorithms, to use when attempting recovery.
+ * \param[in] precision       The precision to use when performing Gram-Schmidt
+ *                            orthogonalization and executing Babai's algorithm.
+ */
+void lattice_solve_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const mpz_t * const js,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  Lattice_Reduction_Algorithm algorithm,
+  const uint32_t precision);
 
 /*!
  * \}

@@ -10,7 +10,9 @@
 #include "lattice.h"
 #include "lattice_gso.h"
 #include "parameters.h"
+#include "diagonal_parameters.h"
 #include "errors.h"
+#include "math.h"
 
 #include <fplll/fplll.h>
 
@@ -184,4 +186,129 @@ void lattice_compute_reduced_basis(
 
   /* Clear memory. */
   mpz_clear(pow2lm);
+}
+
+void lattice_compute_reduced_diagonal_basis(
+  ZZ_mat<mpz_t> &A,
+  const mpz_t * const js,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  Lattice_Reduction_Algorithm algorithm,
+  const uint32_t red_precision)
+{
+  /* Setup variables. */
+  mpz_t alpha;
+  mpz_init(alpha);
+
+  /* Setup constants. */
+  mpz_t pow2msigma;
+  mpz_init(pow2msigma);
+  mpz_set_ui(pow2msigma, 0);
+  mpz_setbit(pow2msigma, parameters->m + parameters->sigma);
+
+  mpz_t pow2lsigma;
+  mpz_init(pow2lsigma);
+  mpz_set_ui(pow2lsigma, 0);
+  mpz_setbit(pow2lsigma, parameters->l - parameters->sigma);
+
+  /* Setup the A matrix. */
+  A.resize(n + 1, n + 1);
+
+  for (uint32_t j = 0; j < n; j++) {
+    mpz_mul(alpha, parameters->r, js[j]); /* alpha = rj */
+
+    mpz_set(A[0][j].get_data(), alpha); /* alpha = rj */
+
+    mod_reduce(alpha, pow2msigma);
+
+    mpz_sub(A[0][j].get_data(), A[0][j].get_data(), alpha);
+
+    mpz_mul(A[0][j].get_data(), A[0][j].get_data(), pow2lsigma);
+  }
+
+  mpz_set(A[0][n].get_data(), parameters->r);
+
+  for (uint32_t i = 1; i <= n; i++) {
+    for (uint32_t j = 0; j <= n; j++) {
+      mpz_set_ui(A[i][j].get_data(), 0);
+    }
+
+    mpz_set(A[i][i - 1].get_data(), pow2msigma);
+    mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), parameters->r);
+    mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), pow2lsigma);
+  }
+
+  /* Reduce the matrix. */
+  int status;
+
+  if (REDUCTION_ALGORITHM_LLL == algorithm) {
+    /* Reduce the matrix using Lenstra-Lenstra-Lovász reduction. */
+    status = lll_reduction(
+                A,
+                LLL_DEF_DELTA, /* delta */
+                LLL_DEF_ETA, /* eta */
+                LM_WRAPPER, /* method */
+                FT_DEFAULT, /* floating point */
+                0, /* precision */
+                LLL_DEFAULT); /* flags */
+    if (RED_SUCCESS != status) {
+      critical("lattice_compute_reduced_diagonal_basis(): "
+        "Failed to reduce matrix A using LLL.");
+    }
+  } else if (REDUCTION_ALGORITHM_BKZ == algorithm) {
+    /* Reduce the matrix using block Korkin-Zolotarev reduction. */
+
+    int old_precision = FP_NR<mpfr_t>::set_prec(red_precision);
+
+    #ifndef BKZ_FPLLL
+    ZZ_mat<mpz_t> empty_mat;
+
+    ZZ_mat<mpz_t> &u = empty_mat;
+    ZZ_mat<mpz_t> &u_inv = empty_mat;
+
+    /* Setup a simple BKZ reduction strategy. */
+    vector<Strategy> strategies;
+    BKZParam param(((n + 1) > LATTICE_MAX_BLOCK_SIZE_BKZ) ?
+      LATTICE_MAX_BLOCK_SIZE_BKZ : n + 1, strategies);
+
+    status = conservative_bkz_reduction(
+              A,
+              param,
+              LLL_DEF_DELTA,
+              u,
+              u_inv);
+
+    empty_mat.clear();
+    #else
+    status = bkz_reduction(
+                A,
+                ((n + 1) > LATTICE_MAX_BLOCK_SIZE_BKZ) ?
+                  LATTICE_MAX_BLOCK_SIZE_BKZ : n + 1, /* block size */
+                BKZ_DEFAULT, /* flags */
+                FT_MPFR, /* float type */
+                red_precision); /* float precision */
+    #endif
+
+    FP_NR<mpfr_t>::set_prec(old_precision);
+
+    if (RED_SUCCESS != status) {
+      critical("lattice_compute_reduced_diagonal_basis(): "
+        "Failed to reduce matrix A using BKZ.");
+    }
+  } else if (REDUCTION_ALGORITHM_HKZ == algorithm) {
+    /* Reduce the matrix using Hermite Korkin-Zolotarev reduction. */
+    status = hkz_reduction(A, HKZ_DEFAULT, FT_MPFR, red_precision);
+    if (RED_SUCCESS != status) {
+      critical("lattice_compute_reduced_diagonal_basis(): "
+        "Failed to reduce matrix A using HKZ.");
+    }
+  } else {
+    critical("lattice_compute_reduced_diagonal_basis(): "
+      "Unknown reduction algorithm.");
+  }
+
+  /* Clear memory. */
+  mpz_clear(alpha);
+  mpz_clear(pow2msigma);
+  mpz_clear(pow2lsigma);
 }

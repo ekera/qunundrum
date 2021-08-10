@@ -558,7 +558,14 @@ static void main_server(
 
   /* Setup a solution status data structure. */
   Solution_Status solution_status;
-  solution_status_init(&solution_status, &(distribution->parameters), entry->n);
+  solution_status_init(
+    &solution_status,
+    distribution->parameters.m,
+    0, /* = sigma */
+    distribution->parameters.s,
+    distribution->parameters.l,
+    entry->n,
+    FALSE); /* = has_sigma */
 
   /* The number of currently running client nodes. */
   int nodes = mpi_size - 1;

@@ -359,7 +359,14 @@ static void main_server(
 
   /* Setup a solution status data structure. */
   Solution_Status solution_status;
-  solution_status_init(&solution_status, &(distribution->parameters), 1);
+  solution_status_init(
+    &solution_status,
+    distribution->parameters.m,
+    distribution->parameters.sigma,
+    distribution->parameters.s,
+    distribution->parameters.l,
+    1,
+    TRUE); /* = has_sigma */
 
   /* The number of currently running client nodes. */
   int nodes = mpi_size - 1;
@@ -583,18 +590,22 @@ static void main_client(
   const uint32_t search_bound = arguments->search_bound;
 
   /* Declare constants. */
-  mpz_t pow2_lm;
-  mpz_init(pow2_lm);
-  mpz_set_ui(pow2_lm, 0);
-  mpz_setbit(pow2_lm, distribution.parameters.l + distribution.parameters.m);
+  mpz_t pow2_msigma;
+  mpz_init(pow2_msigma);
+  mpz_set_ui(pow2_msigma, 0);
+  mpz_setbit(pow2_msigma,
+    distribution.parameters.m + distribution.parameters.sigma);
 
   /* Declare variables. */
+  const uint32_t precision =
+    2 * (max_ui(distribution.parameters.m + 
+      distribution.parameters.sigma, PRECISION));
+
   mpz_t tmp;
   mpz_init(tmp);
 
   mpfr_t tmp_f;
-  mpfr_init2(tmp_f,
-      2 * (distribution.parameters.l + distribution.parameters.m));
+  mpfr_init2(tmp_f, precision);
 
   mpz_t j;
   mpz_init(j);
@@ -716,9 +727,10 @@ static void main_client(
     /* Set z = (rj - {rj}_{2^(m + l)}) / 2^(m + l). */
     mpz_mul(z, distribution.parameters.r, j); /* z = rj */
     mpz_set(tmp, z); /* tmp = z = rj */
-    mod_reduce(tmp, pow2_lm); /* tmp = {rj}_{2^(m + l)} */
-    mpz_sub(z, z, tmp); /* z = rj - {rj}_{2^(m + l)} */
-    mpz_div(z, z, pow2_lm); /* z = (rj - {rj}_{2^(m + l)}) / 2^(m + l) */
+    mod_reduce(tmp, pow2_msigma); /* tmp = {rj}_{2^(m + sigma)} */
+    mpz_sub(z, z, tmp); /* z = rj - {rj}_{2^(m + sigma)} */
+    mpz_div(z, z, pow2_msigma);
+      /* z = (rj - {rj}_{2^(m + sigma)}) / 2^(m + sigma) */
   
     /* Compute r' = r / tau for the smallest tau such that gcd(r', z) = 1. */
     mpz_set(rp, distribution.parameters.r);
@@ -745,10 +757,10 @@ static void main_client(
 
     mpfr_set_z(tmp_f, distribution.parameters.r, MPFR_RNDN);
     mpfr_mul_z(tmp_f, tmp_f, k, MPFR_RNDN);
-    mpfr_div_z(tmp_f, tmp_f, pow2_lm, MPFR_RNDN);
+    mpfr_div_z(tmp_f, tmp_f, pow2_msigma, MPFR_RNDN);
     mpfr_round(tmp_f, tmp_f);
     mpfr_get_z(tmp, tmp_f, MPFR_RNDN);
-    mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + l)) */
+    mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + sigma)) */
   
     /* Search for the candidate d. */
     bool found = FALSE;
@@ -825,7 +837,7 @@ static void main_client(
 
   mpz_clear(tmp);
   mpfr_clear(tmp_f);
-  mpz_clear(pow2_lm);
+  mpz_clear(pow2_msigma);
   mpz_clear(z);
   mpz_clear(rp);
   mpz_clear(tau);
@@ -853,7 +865,7 @@ static void print_synopsis(
   fprintf(file, "Search bound: -- defaults to zero\n");
   fprintf(file,
     " -search-bound     sets the search <bound> on |t| related to the\n"
-    "                   maximum offset in alpha_d searched\n");
+    "                   maximum offset in alpha_d\n");
 }
 
 /*!

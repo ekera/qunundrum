@@ -19,6 +19,7 @@
 
 #include "lattice.h"
 
+#include "diagonal_parameters.h"
 #include "parameters.h"
 #include "random.h"
 
@@ -35,17 +36,17 @@
  */
 
 /*!
- * \brief   Given n integers k, and a reduced basis A for a lattice L, this
- *          function attempts to recover d as the last component of an unknown
- *          vector u in L, by enumerating all vectors in L within a ball
- *          centered on a vector v that may be constructed from k and that is
- *          known to be close to u.
+ * \brief   Given n integers k, and a reduced basis A for the lattice L, this
+ *          function attempts to recover d by enumerating vectors in L.
  *
- * For further details, see the paper.
+ * More specifically, d is the last component of an unknown vector u in L. The
+ * unknown vector u is close to a known vector v that may be constructed from k.
+ * This function enumerates all vectors in L in a ball centered on v, with the 
+ * aim of recovering u and by extension d. For further details, see the paper.
  *
- * This function enumerates the lattice using an algorithm derived from Kannan,
- * returning status information. For each vector enumerated, it checks if the
- * vector yields d by testing against d stored in the parameters data structure.
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks whether the vector 
+ * yields d by testing against d as stored in the parameters.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of d.
@@ -84,15 +85,17 @@ void lattice_enumerate_reduced_basis_for_d(
   const uint64_t timeout = 0);
 
 /*!
- * \brief   Given n integers k, and a reduced basis A for a lattice L, this
- *          function attempts to recover r as the last component of an unknown
- *          short vector u in L, by enumerating short vectors in L.
+ * \brief   Given a reduced basis A for the attice L, this function attempts to 
+ *          recover r by enumerating vectors in L.
  *
- * For further details, see the paper for details.
+ * More specifically, r is the last component of an unknown short vector u in L.
+ * This function enumerates all vectors in L in a ball centered on the origin, 
+ * with the aim of recovering u and by extension r. For further details, see 
+ * the paper.
  *
- * This function enumerates the lattice using an algorithm derived from Kannan,
- * returning status information. For each vector enumerated, it checks if the
- * vector yields r by testing against r stored in the parameters data structure.
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks whether the vector 
+ * yields r by testing against r as stored in the parameters.
  *
  * \param[out] status_r       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of r.
@@ -129,6 +132,48 @@ void lattice_enumerate_reduced_basis_for_r(
   const uint64_t timeout = 0);
 
 /*!
+ * \brief   Given n integers k, and a reduced basis A for the lattice L, this
+ *          function attempts to recover d given r by enumerating vectors in L.
+ *
+ * More specifically, dr is the last component of an unknown vector u in L. The
+ * unknown vector u is close to a known vector v that may be constructed from k.
+ * This function enumerates all vectors in L in a ball centered on v, with the 
+ * aim of recovering u and by extension d. For further details, see the paper.
+ *
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks whether the vector 
+ * yields dr by testing against d and r as stored in the parameters.
+ *
+ * \param[out] status_d       A pointer to an enumeration entry in which to 
+ *                            store status information on the recovery of d.
+ * \param[in] A               The (n + 1) x (n + 1) reduced basis matrix A for
+ *                            the lattice L.
+ * \param[in] G               The Gram-Schmidt (n + 1) x (n + 1) orthogonalized
+ *                            basis matrix G for the matrix A.
+ * \param[in] M               The (n + 1) x (n + 1) triangular matrix M of
+ *                            Gram-Schmidt projection factors for the matrix A.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
+ * \param[in] n               The integer n.
+ * \param[in] parameters      The parameters of the distribution from which the
+ *                            (j, k) pairs were sampled. These parameters in
+ *                            particular contain r.
+ * \param[in] precision       The precision to use when enumerating.
+ * \param[in] timeout         A timeout in seconds after which the enumeration
+ *                            will be aborted if d has not been recovered. May 
+ *                            be set to zero to disable the timeout.
+ */
+void lattice_enumerate_reduced_basis_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const fplll::ZZ_mat<mpz_t> &A,
+  const fplll::FP_mat<mpfr_t> &G,
+  const fplll::FP_mat<mpfr_t> &M,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  const uint32_t precision,
+  const uint64_t timeout);
+
+/*!
  * \}
  */
 
@@ -138,17 +183,18 @@ void lattice_enumerate_reduced_basis_for_r(
  */
 
 /*!
- * \brief   Given n pairs (j, k) this function attempts to recover d by
- *          constructing, reducing and enumerating a lattice.
+ * \brief   Given n pairs (j, k), this function attempts to recover d by
+ *          constructing a basis A for the lattice L given j, reducing A, and 
+ *          enumerating L given A and k.
  *
- * This function enumerates the lattice using an algorithm derived from Kannan,
- * returning status information. For each vector enumerated, it checks if the
- * vector yields d by testing against d stored in the parameters data structure.
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks if the vector 
+ * yields d by testing against d as stored in the parameters.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of d.
- * \param[in] js              The n samples of the j entry in the (j, k) pairs.
- * \param[in] ks              The n samples of the k entry in the (j, k) pairs.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution from which the
  *                            (j, k) pairs were sampled. These parameters in
@@ -183,11 +229,12 @@ void lattice_enumerate_for_d(
 
 /*!
  * \brief   Given n integers j, this function attempts to recover r by
- *          constructing, reducing and enumerating a lattice.
+ *          constructing a basis A for the lattice L given j, reducing A, and 
+ *          enumerating L given A.
  *
- * This function enumerates the lattice using an algorithm derived from Kannan,
- * returning status information. For each vector enumerated, it checks if the
- * vector yields r by testing against r stored in the parameters data structure.
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks if the vector 
+ * yields r by testing against r as stored in the parameters.
  *
  * \param[out] status_r       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of r.
@@ -222,20 +269,21 @@ void lattice_enumerate_for_r(
   const uint64_t timeout = 0);
 
 /*!
- * \brief   Given n pairs (j, k) this function attempts to recover d and r by
- *          constructing, reducing and enumerating a lattice.
+ * \brief   Given n pairs (j, k), this function attempts to recover d and r by
+ *          constructing a basis A for the lattice L given j, reducing A, and 
+ *          enumerating L given A given k.
  *
- * This function enumerates the lattice using an algorithm derived from Kannan,
- * returning status information. For each vector enumerated, it checks if the
- * vector yields d or r, respectively, by testing against d or r stored in the
- * parameters data structure.
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks if the vector 
+ * yields d or r, respectively, by testing against d or r as stored in the
+ * parameters.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of d.
  * \param[out] status_r       A pointer to an enumeration entry in which to 
  *                            store status information on the recovery of r.
- * \param[in] js              The n samples of the j entry in the (j, k) pairs.
- * \param[in] ks              The n samples of the k entry in the (j, k) pairs.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution from which the
  *                            (j, k) pairs were sampled. These parameters in
@@ -269,6 +317,43 @@ void lattice_enumerate_for_d_r(
   const uint32_t precision,
   const bool detect_smooth_r = TRUE,
   const uint64_t timeout = 0);
+
+
+/*!
+ * \brief   Given n pairs (j, k), this function attempts to recover d by
+ *          constructing a basis A for the lattice L given j and r, reducing A, 
+ *          and enumerating L given A and k.
+ *
+ * This function enumerates L using an algorithm derived from Kannan, returning 
+ * status information. For each vector enumerated, it checks if the vector 
+ * yields dr by testing against d and r as stored in the parameters.
+ *
+ * \param[out] status_d       A pointer to an enumeration entry in which to 
+ *                            store status information on the recovery of d.
+ * \param[in] js              The n entries for j in the (j, k) pairs.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
+ * \param[in] n               The integer n.
+ * \param[in] parameters      The parameters of the distribution from which the
+ *                            (j, k) pairs were sampled. These parameters in
+ *                            particular contain d and r.
+ * \param[in] algorithm       An enumeration entry that specifies the lattice 
+ *                            basis reduction algorithm, or combination of such
+ *                            algorithms, to use when attempting recovery.
+ * \param[in] precision       The precision to use when performing Gram-Schmidt
+ *                            orthogonalization and executing Babai's algorithm.
+ * \param[in] timeout         A timeout in seconds after which the enumeration 
+ *                            will be aborted if d has not been recovered. May 
+ *                            be set to zero to disable the timeout.
+ */
+void lattice_enumerate_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const mpz_t * const js,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  Lattice_Reduction_Algorithm algorithm,
+  const uint32_t precision,
+  const uint64_t timeout);
 
 /*!
  * \}

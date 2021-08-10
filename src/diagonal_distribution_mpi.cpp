@@ -9,7 +9,7 @@
 #include "diagonal_distribution.h"
 
 #include "diagonal_distribution_slice.h"
-#include "parameters.h"
+#include "diagonal_parameters.h"
 #include "errors.h"
 
 #include <mpi.h>
@@ -21,8 +21,8 @@ void diagonal_distribution_init_bcast_recv(
   const int root)
 {
   /* Broadcast the parameters. */
-  parameters_init(&(distribution->parameters));
-  parameters_bcast_recv(&(distribution->parameters), root);
+  diagonal_parameters_init(&(distribution->parameters));
+  diagonal_parameters_bcast_recv(&(distribution->parameters), root);
 
   /* Broadcast the precision. */
   if (MPI_SUCCESS != MPI_Bcast(
@@ -114,7 +114,7 @@ void diagonal_distribution_bcast_send(
   const int root)
 {
   /* Broadcast the parameters. */
-  parameters_bcast_send(&(distribution->parameters), root);
+  diagonal_parameters_bcast_send(&(distribution->parameters), root);
 
   /* Broadcast the precision. */
   uint32_t precision = distribution->precision;
