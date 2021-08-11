@@ -117,7 +117,7 @@
 #define MPI_TAG_SLICE_NORM_MATRIX                 17022
 
 /*!
- * \brief   An MPI tag used to send and receive the total error in a slice.
+ * \brief   An MPI tag used to send and receive the total error for a slice.
  */
 #define MPI_TAG_SLICE_TOTAL_ERROR                 17026
 
@@ -133,7 +133,7 @@
 
 /*!
  * \brief   An MPI tag used to send and receive the number of samples n that
- *          are to be generated and used to setup the problem instance to solve.
+ *          are to be used to setup the problem instance.
  */
 #define MPI_TAG_SAMPLE_COUNT                      17025
 
