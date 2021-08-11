@@ -15,12 +15,12 @@
 #ifndef PLOT_DISTRIBUTION_H
 #define PLOT_DISTRIBUTION_H
 
+#include "common.h"
+#include "diagonal_distribution.h"
 #include "distribution.h"
 #include "linear_distribution.h"
-#include "diagonal_distribution.h"
 
 #include <stdio.h>
-#include <stdint.h>
 
 /*!
  * \name Two-dimensional distributions

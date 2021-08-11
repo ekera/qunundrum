@@ -9,8 +9,6 @@
 #ifndef PARAMETERS_SELECTION_H
 #define PARAMETERS_SELECTION_H
 
-#include "random.h"
-
 #include <gmp.h>
 
 #include <stdint.h>

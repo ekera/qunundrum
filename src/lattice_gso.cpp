@@ -8,13 +8,13 @@
 
 #include "lattice_gso.h"
 
-#include "lattice.h"
 #include "errors.h"
-
-#include <fplll/fplll.h>
+#include "lattice.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 #include <stdint.h>
 

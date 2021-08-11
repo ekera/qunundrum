@@ -9,10 +9,10 @@
 #include "diagonal_distribution.h"
 
 #include "diagonal_distribution_slice.h"
-#include "diagonal_parameters.h"
 #include "errors.h"
 
 #include <mpi.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 

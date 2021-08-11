@@ -10,9 +10,10 @@
 
 #include "common.h"
 
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
+#include <stddef.h>
 #include <stdint.h>
 
 bool tau_volume_quotient(

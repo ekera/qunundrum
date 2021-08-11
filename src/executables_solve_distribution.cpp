@@ -8,8 +8,8 @@
 
 #include "executables_solve_distribution.h"
 
-#include "timer.h"
 #include "common.h"
+#include "timer.h"
 
 #include <stdint.h>
 #include <stdio.h>

@@ -7,20 +7,16 @@
 
 #include "plot_distribution.h"
 
+#include "common.h"
+#include "diagonal_distribution.h"
+#include "diagonal_distribution_slice.h"
+#include "errors.h"
+#include "math.h"
 #include "plot_distribution_axis.h"
 #include "plot_distribution_common.h"
 
-#include "distribution.h"
-#include "distribution_slice.h"
-#include "diagonal_distribution.h"
-#include "diagonal_distribution_slice.h"
-#include "common.h"
-#include "errors.h"
-
-#include "math.h"
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \name Diagonal distributions

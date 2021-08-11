@@ -15,27 +15,25 @@
 
 #include "executables.h"
 
-#include "string_utilities.h"
+#include "common.h"
+#include "errors.h"
 #include "gmp_mpi.h"
 #include "random.h"
-#include "errors.h"
-#include "common.h"
 #include "rsa.h"
+#include "string_utilities.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <mpi.h>
 
-#include <mpfr.h>
-#include <gmp.h>
-
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   The maximum tau for which to collect statistics.

@@ -18,8 +18,10 @@
 #define DIAGONAL_DISTRIBUTION_SLICE_H
 
 #include "diagonal_parameters.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   A data structure representing slices in diagonal probability

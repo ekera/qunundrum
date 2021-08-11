@@ -17,16 +17,17 @@
 #include "executables.h"
 #include "executables_filter_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
 #include "errors.h"
 #include "string_utilities.h"
 
+#include <mpfr.h>
+
 #include <stdio.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Prints the command line synopsis.

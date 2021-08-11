@@ -8,16 +8,12 @@
 
 #include "linear_distribution_slice.h"
 
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 static void linear_distribution_slice_import_common(
   Linear_Distribution_Slice * const slice,

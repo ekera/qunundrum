@@ -34,14 +34,17 @@
 #ifndef DISTRIBUTION_H
 #define DISTRIBUTION_H
 
+#include "common.h"
 #include "distribution_slice.h"
 #include "lattice_sample.h"
-#include "random.h"
 #include "parameters.h"
-#include "common.h"
+#include "random.h"
 
+#include <gmp.h>
 #include <mpfr.h>
+
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   A data structure representing a two-dimensional probability

@@ -21,9 +21,9 @@
 #include "linear_distribution.h"
 #include "thread_pool.h"
 
-#include <pthread.h>
-
 #include <stdint.h>
+
+#include <sys/types.h>
 
 /*!
  * \brief   The maximum number of loaded linear distributions to simultaneously 

@@ -8,18 +8,20 @@
 
 #include "linear_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
-#include "distribution_slice.h"
-#include "linear_distribution_slice.h"
-#include "linear_distribution.h"
-#include "parameters.h"
-#include "probability.h"
-#include "random.h"
 #include "errors.h"
-#include "sample.h"
+#include "linear_distribution_slice.h"
 #include "math.h"
+#include "parameters.h"
+#include "random.h"
+#include "sample.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

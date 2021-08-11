@@ -8,11 +8,11 @@
 
 #include "linear_distribution.h"
 
-#include "linear_distribution_slice.h"
-#include "parameters.h"
 #include "errors.h"
+#include "linear_distribution_slice.h"
 
 #include <mpi.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 

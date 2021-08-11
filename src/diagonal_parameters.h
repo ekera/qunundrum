@@ -17,13 +17,12 @@
 #ifndef DIAGONAL_PARAMETERS_H
 #define DIAGONAL_PARAMETERS_H
 
-#include "random.h"
 #include "common.h"
 
 #include <gmp.h>
-#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   A data structure that holds the parameters for diagonal probability

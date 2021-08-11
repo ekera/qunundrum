@@ -8,19 +8,15 @@
 
 #include "tau_estimate.h"
 
+#include "common.h"
 #include "distribution.h"
 #include "linear_distribution.h"
 #include "random.h"
-#include "errors.h"
-#include "common.h"
 
 #include <mpfr.h>
-#include <gmp.h>
 
 #include <float.h>
-
 #include <stdint.h>
-#include <stdlib.h>
 
 bool tau_estimate(
   const Distribution * const distribution,

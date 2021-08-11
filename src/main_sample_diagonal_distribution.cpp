@@ -14,25 +14,20 @@
  * \brief    A module for the sample_diagonal_distribution executable.
  */
 
-#include "diagonal_distribution.h"
-#include "sample.h"
-#include "random.h"
-#include "math.h"
 #include "common.h"
+#include "diagonal_distribution.h"
+#include "math.h"
+#include "random.h"
+#include "sample.h"
 
-#include "errors.h"
-
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <unistd.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Prints the command line synopsis.

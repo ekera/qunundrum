@@ -7,16 +7,17 @@
 
 #include "lattice_reduce.h"
 
-#include "lattice.h"
-#include "lattice_gso.h"
-#include "parameters.h"
 #include "diagonal_parameters.h"
 #include "errors.h"
+#include "lattice.h"
+#include "lattice_gso.h"
 #include "math.h"
-
-#include <fplll/fplll.h>
+#include "parameters.h"
 
 #include <gmp.h>
+#include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 #include <stdint.h>
 

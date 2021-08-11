@@ -8,18 +8,16 @@
 
 #include "linear_distribution_slice.h"
 
-#include "linear_probability.h"
-#include "parameters.h"
-#include "errors.h"
-#include "math.h"
 #include "common.h"
+#include "errors.h"
+#include "linear_probability.h"
+#include "math.h"
+#include "parameters.h"
 
 #include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 /* Note that the implementation of this function is fairly explicit. Performance 
  * and memory is sacrificed for explicitness and ease of verification.

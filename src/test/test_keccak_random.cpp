@@ -9,13 +9,14 @@
 
 #include "test_keccak.h"
 
-#include "../keccak_random.h"
-#include "../keccak.h"
 #include "../errors.h"
+#include "../keccak.h"
+#include "../keccak_random.h"
 
-#include <string.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 void test_keccak_random() {
   printf("Testing keccak_random...\n");

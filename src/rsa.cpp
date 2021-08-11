@@ -7,9 +7,9 @@
 
 #include "rsa.h"
 
-#include "random.h"
-#include "errors.h"
 #include "common.h"
+#include "errors.h"
+#include "random.h"
 
 #include <gmp.h>
 

@@ -8,11 +8,9 @@
 
 #include "diagonal_probability.h"
 
-#include "parameters.h"
-#include "errors.h"
+#include "diagonal_parameters.h"
 #include "math.h"
 
-#include <gmp.h>
 #include <mpfr.h>
 
 #include <stdint.h>

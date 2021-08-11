@@ -19,14 +19,14 @@
 
 #include "lattice.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "diagonal_parameters.h"
-#include "random.h"
-
-#include <fplll/fplll.h>
+#include "parameters.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 #include <stdint.h>
 

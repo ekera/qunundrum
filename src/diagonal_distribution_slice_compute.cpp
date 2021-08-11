@@ -8,18 +8,16 @@
 
 #include "diagonal_distribution_slice.h"
 
-#include "diagonal_probability.h"
+#include "common.h"
 #include "diagonal_parameters.h"
+#include "diagonal_probability.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
 
 #include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 /* Note that the implementation of this function is fairly explicit. Performance 
  * and memory is sacrificed for explicitness and ease of verification.

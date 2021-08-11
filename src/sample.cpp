@@ -7,18 +7,17 @@
 
 #include "sample.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "diagonal_parameters.h"
-#include "random.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
+#include "parameters.h"
+#include "random.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
 #include <math.h>
-
 #include <stdint.h>
 
 void sample_approximate_alpha_from_region(

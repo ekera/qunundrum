@@ -8,18 +8,14 @@
 
 #include "distribution_slice.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
 
-#include <mpfr.h>
-#include <gmp.h>
 #include <mpi.h>
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 static void distribution_slice_recv_common(
   Distribution_Slice * const slice,

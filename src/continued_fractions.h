@@ -19,7 +19,6 @@
 
 #include "parameters.h"
 
-#include <mpfr.h>
 #include <gmp.h>
 
 #include <stdint.h>

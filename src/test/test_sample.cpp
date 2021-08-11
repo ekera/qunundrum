@@ -8,22 +8,20 @@
 
 #include "test_sample.h"
 
-#include "../sample.h"
-#include "../random.h"
-#include "../lattice.h"
+#include "../common.h"
+#include "../diagonal_parameters.h"
 #include "../distribution.h"
+#include "../errors.h"
+#include "../lattice.h"
+#include "../math.h"
 #include "../parameters.h"
 #include "../parameters_selection.h"
-#include "../diagonal_parameters.h"
-#include "../math.h"
-#include "../errors.h"
-#include "../common.h"
+#include "../random.h"
+#include "../sample.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 

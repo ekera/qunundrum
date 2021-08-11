@@ -9,18 +9,16 @@
 
 #include "parameters.h"
 
-#include "gmp_mpi.h"
 #include "errors.h"
+#include "gmp_mpi.h"
 
 #include <gmp.h>
-#include <mpfr.h>
 
 #include <mpi.h>
 
 #include <math.h>
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 /*!

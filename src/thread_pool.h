@@ -16,9 +16,9 @@
 #ifndef THREAD_POOL_H
 #define THREAD_POOL_H
 
-#include <pthread.h>
-
 #include <stdint.h>
+
+#include <sys/types.h>
 
 /*!
  * \brief   The maximum capacity of the thread pool in threads.

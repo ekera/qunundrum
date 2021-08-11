@@ -13,10 +13,10 @@
 
 #include <mpi.h>
 
-#include <stdio.h>
-#include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*!
  * \brief   An MPI tag used to send the item count for an ordered list.

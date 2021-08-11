@@ -15,7 +15,7 @@
 #ifndef STRING_UTILITIES_H
 #define STRING_UTILITIES_H
 
-#include <stdio.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {

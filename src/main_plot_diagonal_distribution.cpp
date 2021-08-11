@@ -17,30 +17,24 @@
 #include "executables.h"
 #include "executables_plot_distribution.h"
 
-#include "diagonal_distribution.h"
-#include "diagonal_distribution_slice.h"
-#include "diagonal_distribution_enumerator.h"
-#include "random.h"
 #include "common.h"
-#include "string_utilities.h"
-
-#include "plot_distribution.h"
-#include "plot_distribution_common.h"
-#include "plot_distribution_axis.h"
-
+#include "diagonal_distribution.h"
 #include "errors.h"
 #include "math.h"
+#include "plot_distribution.h"
+#include "plot_distribution_axis.h"
+#include "plot_distribution_common.h"
+#include "string_utilities.h"
 
+#include <gmp.h>
 #include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 static void plot_diagonal_distribution(
   Diagonal_Distribution * const distribution,

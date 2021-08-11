@@ -14,24 +14,18 @@
  * \brief    A module for the sample_linear_distribution executable.
  */
 
+#include "common.h"
 #include "linear_distribution.h"
 #include "sample.h"
-#include "random.h"
-#include "common.h"
 
-#include "errors.h"
-
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <unistd.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Prints the command line synopsis.

@@ -10,11 +10,11 @@
 
 #include "linear_probability.h"
 
-#include "parameters.h"
 #include "math.h"
+#include "parameters.h"
 
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
 

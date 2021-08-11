@@ -10,16 +10,14 @@
 
 #include "test_common.h"
 
-#include "../linear_probability.h"
-#include "../parameters_selection.h"
-#include "../parameters.h"
 #include "../errors.h"
+#include "../linear_probability.h"
+#include "../parameters.h"
+#include "../parameters_selection.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 

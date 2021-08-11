@@ -9,8 +9,8 @@
 #include "parameters_selection.h"
 
 #include "common.h"
-#include "random.h"
 #include "errors.h"
+#include "random.h"
 #include "rsa.h"
 
 #include <gmp.h>

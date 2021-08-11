@@ -18,8 +18,10 @@
 #define LINEAR_DISTRIBUTION_SLICE_H
 
 #include "parameters.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of targets when computing slices in linear 

@@ -8,10 +8,10 @@
 
 #include "distribution_enumerator.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
+#include "parameters.h"
 
 #include <stdint.h>
 #include <stdlib.h>

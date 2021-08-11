@@ -8,11 +8,13 @@
 
 #include "probability.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "math.h"
+#include "parameters.h"
 
 #include <mpfr.h>
 
+#include <stdint.h>
 #include <stdlib.h>
 
 bool probability_approx_adjust_sigma(

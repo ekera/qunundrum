@@ -8,6 +8,7 @@
 
 #include "diagonal_distribution_enumerator.h"
 
+#include "common.h"
 #include "diagonal_parameters.h"
 #include "errors.h"
 #include "math.h"

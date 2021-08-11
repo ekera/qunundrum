@@ -15,8 +15,8 @@
 #ifndef SAMPLE_H
 #define SAMPLE_H
 
-#include "parameters.h"
 #include "diagonal_parameters.h"
+#include "parameters.h"
 #include "random.h"
 
 #include <gmp.h>

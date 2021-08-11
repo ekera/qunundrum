@@ -9,10 +9,10 @@
 #ifndef LATTICE_GSO_H
 #define LATTICE_GSO_H
 
-#include <fplll/fplll.h>
-
 #include <gmp.h>
 #include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 #include <stdint.h>
 

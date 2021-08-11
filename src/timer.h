@@ -17,9 +17,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
-#include <time.h>
-
 #include <stdint.h>
+#include <time.h>
 
 /*!
  * \brief   A data structure for a high resolution timer.

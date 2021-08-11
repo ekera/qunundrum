@@ -21,9 +21,9 @@
 #include "diagonal_distribution.h"
 #include "thread_pool.h"
 
-#include <pthread.h>
-
 #include <stdint.h>
+
+#include <sys/types.h>
 
 /*!
  * \brief   The maximum number of loaded diagonal distributions to 

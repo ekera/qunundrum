@@ -8,10 +8,10 @@
 #ifndef PLOT_DISTRIBUTION_AXIS_H
 #define PLOT_DISTRIBUTION_AXIS_H
 
-#include <stdio.h>
-#include <stdint.h>
-
 #include "common.h"
+
+#include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief Plots a vertical axis at x.

@@ -8,15 +8,14 @@
 
 #include "distribution_slice.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
+#include "parameters.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

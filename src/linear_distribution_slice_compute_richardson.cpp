@@ -8,17 +8,11 @@
 
 #include "linear_distribution_slice.h"
 
-#include "parameters.h"
-#include "errors.h"
-#include "math.h"
 #include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
+#include "math.h"
+#include "parameters.h"
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 void linear_distribution_slice_compute_richardson(
   Linear_Distribution_Slice * const slice,

@@ -15,14 +15,12 @@
  * \brief    A module for the compare_diagonal_distributions executable.
  */
 
+#include "common.h"
 #include "diagonal_distribution.h"
-#include "errors.h"
 #include "math.h"
 
-#include <mpfr.h>
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   Prints the command line synopsis.

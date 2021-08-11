@@ -17,30 +17,25 @@
 #include "executables.h"
 #include "executables_plot_distribution.h"
 
+#include "common.h"
+#include "errors.h"
 #include "linear_distribution.h"
 #include "linear_distribution_slice.h"
-#include "linear_distribution_enumerator.h"
-#include "random.h"
-#include "common.h"
+#include "math.h"
+#include "plot_distribution.h"
+#include "plot_distribution_axis.h"
+#include "plot_distribution_common.h"
 #include "string_utilities.h"
 
-#include "plot_distribution.h"
-#include "plot_distribution_common.h"
-#include "plot_distribution_axis.h"
-
-#include "errors.h"
-#include "math.h"
-
+#include <gmp.h>
 #include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 static void plot_linear_distribution(
   Linear_Distribution * const distribution,

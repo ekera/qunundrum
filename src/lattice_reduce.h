@@ -8,14 +8,13 @@
 #ifndef LATTICE_REDUCE_H
 #define LATTICE_REDUCE_H
 
+#include "diagonal_parameters.h"
 #include "lattice.h"
 #include "parameters.h"
-#include "diagonal_parameters.h"
-#include "errors.h"
-
-#include <fplll/fplll.h>
 
 #include <gmp.h>
+
+#include <fplll/fplll.h>
 
 #include <stdint.h>
 

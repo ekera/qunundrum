@@ -92,14 +92,17 @@
 #ifndef LINEAR_DISTRIBUTION_H
 #define LINEAR_DISTRIBUTION_H
 
-#include "linear_distribution_slice.h"
-#include "distribution.h"
-#include "random.h"
-#include "parameters.h"
 #include "common.h"
+#include "distribution.h"
+#include "linear_distribution_slice.h"
+#include "parameters.h"
+#include "random.h"
 
+#include <gmp.h>
 #include <mpfr.h>
+
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of flags indicating if the distribution if for a

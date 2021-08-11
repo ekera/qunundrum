@@ -16,9 +16,6 @@
 #ifndef LATTICE_H
 #define LATTICE_H
 
-#include "parameters.h"
-#include "random.h"
-
 /*!
  * \brief   The default precision to use when performing Gram-Schmidt
  *          orthogonalization and executing Babai's algorithm.

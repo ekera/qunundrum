@@ -14,18 +14,14 @@
  * \brief    A module for the info_linear_distribution executable.
  */
 
-#include "linear_distribution.h"
-#include "random.h"
 #include "common.h"
-
 #include "errors.h"
+#include "linear_distribution.h"
 #include "math.h"
 
 #include <mpfr.h>
 
 #include <stdio.h>
-#include <string.h>
-#include <stdint.h>
 
 /*!
  * \brief   Prints the command line synopsis.

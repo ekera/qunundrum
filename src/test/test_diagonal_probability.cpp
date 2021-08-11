@@ -10,17 +10,15 @@
 
 #include "test_common.h"
 
-#include "../diagonal_probability.h"
-#include "../parameters_selection.h"
 #include "../diagonal_parameters.h"
-#include "../math.h"
+#include "../diagonal_probability.h"
 #include "../errors.h"
+#include "../math.h"
+#include "../parameters_selection.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>

@@ -8,11 +8,12 @@
 
 #include "test_math.h"
 
-#include "../math.h"
 #include "../errors.h"
+#include "../math.h"
+
+#include <gmp.h>
 
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
 
 void test_math_mod_reduce() {

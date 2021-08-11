@@ -8,22 +8,20 @@
 
 #include "lattice_sample.h"
 
-#include "lattice_gso.h"
+#include "errors.h"
 #include "lattice_babai.h"
-
+#include "lattice_gso.h"
+#include "math.h"
 #include "parameters.h"
 
-#include "math.h"
-#include "errors.h"
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <fplll/fplll.h>
 
-#include <mpfr.h>
-#include <gmp.h>
+#include <stdint.h>
 
 #include <vector>
-
-#include <stdint.h>
 
 using namespace fplll;
 using namespace std;

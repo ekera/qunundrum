@@ -28,8 +28,6 @@
 
 #include "parameters.h"
 
-#include <mpfr.h>
-
 #include <stdint.h>
 
 /*!

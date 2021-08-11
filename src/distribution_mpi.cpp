@@ -9,9 +9,8 @@
 #include "distribution.h"
 
 #include "distribution_slice.h"
-#include "lattice_sample.h"
-#include "parameters.h"
 #include "errors.h"
+#include "lattice_sample.h"
 
 #include <mpi.h>
 

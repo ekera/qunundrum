@@ -18,30 +18,29 @@
 #include "executables.h"
 #include "executables_solve_distribution.h"
 
+#include "common.h"
+#include "continued_fractions.h"
+#include "errors.h"
 #include "linear_distribution.h"
 #include "linear_distribution_loader.h"
-#include "continued_fractions.h"
-#include "random.h"
-#include "common.h"
-#include "sample.h"
-#include "timer.h"
 #include "math.h"
-#include "errors.h"
+#include "random.h"
+#include "sample.h"
 #include "string_utilities.h"
+#include "timer.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing parsed command line arguments.

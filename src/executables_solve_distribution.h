@@ -16,8 +16,9 @@
 #ifndef EXECUTABLES_SOLVE_DISTRIBUTION_H
 #define EXECUTABLES_SOLVE_DISTRIBUTION_H
 
-#include "timer.h"
 #include "common.h"
+#include "parameters.h"
+#include "timer.h"
 
 #include <stdint.h>
 #include <stdio.h>

@@ -21,10 +21,10 @@
 
 #include "parameters.h"
 
-#include <fplll/fplll.h>
-
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 /*!
  * \brief   A data structure representing the alpha lattice.

@@ -22,6 +22,8 @@
 
 #include <mpfr.h>
 
+#include <stdint.h>
+
 /*!
  * \brief   Computes the approximate probability of observing a pair (j, k)
  *          with angle pair (theta_d, theta_r) for fixed sigma, and an upper

@@ -7,12 +7,12 @@
 
 #include "test_keccak.h"
 
-#include "../keccak.h"
 #include "../errors.h"
+#include "../keccak.h"
 
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 void test_keccak_f() {
   printf("Testing keccak...\n");

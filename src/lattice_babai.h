@@ -10,14 +10,14 @@
 #ifndef LATTICE_BABAI_H
 #define LATTICE_BABAI_H
 
-#include <fplll/fplll.h>
-
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 /*!
  * \brief Applies Babai's nearest plane algorithm to find the closest vector to

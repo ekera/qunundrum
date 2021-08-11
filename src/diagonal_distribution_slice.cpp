@@ -8,16 +8,15 @@
 
 #include "diagonal_distribution_slice.h"
 
+#include "common.h"
 #include "diagonal_parameters.h"
 #include "errors.h"
-#include "common.h"
-#include "sample.h"
 #include "math.h"
-
-#include <mpfr.h>
-#include <gmp.h>
+#include "random.h"
+#include "sample.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

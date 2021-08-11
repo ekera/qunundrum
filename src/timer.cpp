@@ -8,12 +8,9 @@
 
 #include "timer.h"
 
-#include "errors.h"
-
-#include <time.h>
-
 #include <stdint.h>
 #include <string.h>
+#include <time.h>
 
 void timer_start(
   Timer * const timer)

@@ -8,17 +8,11 @@
 
 #include "diagonal_distribution_slice.h"
 
-#include "diagonal_parameters.h"
-#include "errors.h"
-#include "math.h"
 #include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
+#include "diagonal_parameters.h"
+#include "math.h"
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 void diagonal_distribution_slice_compute_richardson(
   Diagonal_Distribution_Slice * const slice,

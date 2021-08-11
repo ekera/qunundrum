@@ -7,15 +7,16 @@
 
 #include "test_random.h"
 
+#include "../errors.h"
 #include "../keccak_random.h"
 #include "../random.h"
-#include "../errors.h"
 
 #include <gmp.h>
 
-#include <string.h>
-#include <stdlib.h>
+#include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*!
  * \brief   The path to a temporary file used to hold random data.

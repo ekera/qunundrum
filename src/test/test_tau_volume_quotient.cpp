@@ -10,19 +10,16 @@
 
 #include "test_common.h"
 
-#include "../tau_volume_quotient.h"
-#include "../parameters_selection.h"
 #include "../common.h"
 #include "../errors.h"
 #include "../math.h"
+#include "../parameters_selection.h"
+#include "../tau_volume_quotient.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
 #include <math.h>
-
-#include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 

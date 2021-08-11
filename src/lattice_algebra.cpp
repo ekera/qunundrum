@@ -7,17 +7,17 @@
 
 #include "lattice_algebra.h"
 
-#include "lattice.h"
 #include "errors.h"
-
-#include <fplll/fplll.h>
+#include "lattice.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace std;
 using namespace fplll;

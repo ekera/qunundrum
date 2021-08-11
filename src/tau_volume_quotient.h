@@ -16,8 +16,8 @@
 #ifndef TAU_VOLUME_QUOTIENT_H
 #define TAU_VOLUME_QUOTIENT_H
 
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
 

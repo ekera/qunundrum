@@ -7,20 +7,15 @@
 
 #include "plot_distribution.h"
 
+#include "common.h"
+#include "distribution.h"
+#include "distribution_slice.h"
+#include "math.h"
 #include "plot_distribution_axis.h"
 #include "plot_distribution_common.h"
 
-#include "distribution.h"
-#include "distribution_slice.h"
-#include "linear_distribution.h"
-#include "linear_distribution_slice.h"
-#include "common.h"
-#include "errors.h"
-
-#include "math.h"
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 void plot_detailed_distribution(
   Distribution * const distribution,

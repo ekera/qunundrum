@@ -9,14 +9,13 @@
 
 #include "continued_fractions.h"
 
+#include "common.h"
 #include "parameters.h"
-#include "errors.h"
 
+#include <gmp.h>
 #include <mpfr.h>
-#include <gmp.h>  
 
 #include <stdint.h>
-#include <stdlib.h>
 
 bool continued_fractions_solve(
   const mpz_t j,

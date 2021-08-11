@@ -18,35 +18,30 @@
 #include "executables.h"
 #include "executables_generate_distribution.h"
 
+#include "common.h"
 #include "diagonal_distribution.h"
-#include "diagonal_distribution_slice.h"
 #include "diagonal_distribution_enumerator.h"
-#include "probability.h"
+#include "diagonal_distribution_slice.h"
 #include "diagonal_parameters.h"
-#include "parameters_selection.h"
-#include "thread_pool.h"
-#include "math.h"
 #include "errors.h"
-#include "random.h"
+#include "math.h"
+#include "parameters_selection.h"
 #include "string_utilities.h"
+#include "thread_pool.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <pthread.h>
-
-#include <memory.h>
-
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing argument entries in the form of parsed

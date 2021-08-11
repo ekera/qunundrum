@@ -17,30 +17,27 @@
 #include "executables.h"
 #include "executables_estimate_runs_distribution.h"
 
-#include "tau_ordered_list.h"
-#include "tau_volume_quotient.h"
-#include "tau_estimate.h"
+#include "common.h"
 #include "distribution.h"
 #include "distribution_loader.h"
-#include "string_utilities.h"
-#include "random.h"
 #include "errors.h"
-#include "common.h"
+#include "random.h"
+#include "string_utilities.h"
+#include "tau_estimate.h"
+#include "tau_ordered_list.h"
+#include "tau_volume_quotient.h"
 
-#include <float.h>
-
-#include <gmp.h>
 #include <mpfr.h>
 
 #include <mpi.h>
+
+#include <float.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing parsed command line arguments.

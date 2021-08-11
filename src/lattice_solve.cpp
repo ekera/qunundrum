@@ -8,28 +8,28 @@
 
 #include "lattice_solve.h"
 
+#include "common.h"
+#include "diagonal_parameters.h"
+#include "errors.h"
 #include "lattice.h"
-#include "lattice_gso.h"
-#include "lattice_babai.h"
 #include "lattice_algebra.h"
+#include "lattice_babai.h"
+#include "lattice_gso.h"
 #include "lattice_reduce.h"
 #include "lattice_smoothness.h"
-
-#include "diagonal_parameters.h"
+#include "math.h"
 #include "parameters.h"
 #include "sample.h"
-#include "errors.h"
 #include "timer.h"
-#include "math.h"
-
-#include <fplll/fplll.h>
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace std;
 using namespace fplll;

@@ -17,35 +17,30 @@
 #include "executables.h"
 #include "executables_generate_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
-#include "distribution_slice.h"
 #include "distribution_enumerator.h"
+#include "distribution_slice.h"
+#include "errors.h"
 #include "linear_distribution.h"
+#include "math.h"
 #include "parameters.h"
 #include "parameters_selection.h"
-#include "thread_pool.h"
-#include "probability.h"
-#include "math.h"
-#include "errors.h"
-#include "random.h"
 #include "string_utilities.h"
+#include "thread_pool.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <pthread.h>
-
-#include <memory.h>
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   The minimum probability mass in a slice for it to be kept.

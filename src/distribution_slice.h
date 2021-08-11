@@ -19,9 +19,10 @@
 #define DISTRIBUTION_SLICE_H
 
 #include "parameters.h"
-#include "common.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of methods used to compute slices in two-dimensional

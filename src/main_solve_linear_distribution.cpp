@@ -17,32 +17,31 @@
 #include "executables.h"
 #include "executables_solve_distribution.h"
 
+#include "common.h"
+#include "errors.h"
+#include "lattice.h"
+#include "lattice_enumerate.h"
+#include "lattice_solve.h"
 #include "linear_distribution.h"
 #include "linear_distribution_loader.h"
-#include "lattice.h"
-#include "lattice_solve.h"
-#include "lattice_enumerate.h"
-#include "random.h"
-#include "common.h"
-#include "sample.h"
-#include "timer.h"
 #include "math.h"
-#include "errors.h"
+#include "random.h"
+#include "sample.h"
 #include "string_utilities.h"
+#include "timer.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing argument entries in the form of

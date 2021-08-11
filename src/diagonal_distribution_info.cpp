@@ -8,13 +8,14 @@
 
 #include "diagonal_distribution.h"
 
-#include "common.h"
 #include "errors.h"
 #include "math.h"
 
+#include <gmp.h>
+
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 /*!
  * \brief   The maximum supported slice dimension when exporting information

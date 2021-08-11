@@ -13,14 +13,14 @@
  * \brief    A module for the test executable.
  */
 
-#include "test/test_math.h"
+#include "test/test_diagonal_probability.h"
 #include "test/test_keccak.h"
 #include "test/test_keccak_random.h"
+#include "test/test_linear_probability.h"
+#include "test/test_math.h"
+#include "test/test_probability.h"
 #include "test/test_random.h"
 #include "test/test_sample.h"
-#include "test/test_diagonal_probability.h"
-#include "test/test_linear_probability.h"
-#include "test/test_probability.h"
 #include "test/test_tau_volume_quotient.h"
 
 #include "common.h"

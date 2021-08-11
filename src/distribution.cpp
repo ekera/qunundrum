@@ -8,17 +8,20 @@
 
 #include "distribution.h"
 
-#include "distribution_enumerator.h"
+#include "common.h"
 #include "distribution_slice.h"
-#include "parameters.h"
-#include "probability.h"
-#include "sample.h"
-#include "lattice_sample.h"
-#include "random.h"
 #include "errors.h"
+#include "lattice_sample.h"
 #include "math.h"
+#include "parameters.h"
+#include "random.h"
+#include "sample.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 

@@ -38,15 +38,15 @@
 #ifndef DIAGONAL_DISTRIBUTION_H
 #define DIAGONAL_DISTRIBUTION_H
 
-#include "diagonal_distribution_slice.h"
-#include "random.h"
-#include "diagonal_parameters.h"
 #include "common.h"
+#include "diagonal_distribution_slice.h"
+#include "diagonal_parameters.h"
+#include "random.h"
 
-#include <mpfr.h>
+#include <gmp.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of flags indicating how the logarithm d or order r

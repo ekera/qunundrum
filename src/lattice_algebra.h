@@ -8,14 +8,14 @@
 #ifndef LATTICE_ALGEBRA_H
 #define LATTICE_ALGEBRA_H
 
-#include <fplll/fplll.h>
-
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace fplll;
 
