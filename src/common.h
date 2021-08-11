@@ -119,7 +119,7 @@
 /*!
  * \brief   An MPI tag used to send and receive the total error in a slice.
  */
-#define MPI_TAG_SLICE_TOTAL_ERROR                 17022
+#define MPI_TAG_SLICE_TOTAL_ERROR                 17026
 
 /*!
  * \brief   An MPI tag used to send and receive the flags for a slice.
