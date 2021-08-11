@@ -33,7 +33,7 @@ static void diagonal_distribution_slice_recv_common(
       1, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_MIN_LOG_ALPHA_R,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD,
       &status))
   {
@@ -174,7 +174,7 @@ void diagonal_distribution_slice_send(
       1, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_MIN_LOG_ALPHA_R,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_slice_send(): "

@@ -35,7 +35,7 @@ static void distribution_slice_recv_common(
       2, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_ALPHAS,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD,
       &status))
   {
@@ -183,7 +183,7 @@ void distribution_slice_send(
       2, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_ALPHAS,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD))
   {
     critical("distribution_slice_send(): "

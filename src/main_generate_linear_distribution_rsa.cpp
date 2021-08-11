@@ -699,10 +699,10 @@ void main_server(
             1, /* count */
             MPI_INT,
             status.MPI_SOURCE, /* destination */
-            MPI_TAG_SLICE_ALPHAS,
+            MPI_TAG_SLICE_MIN_LOG_ALPHA,
             MPI_COMM_WORLD))
         {
-          critical("main_server(): Failed to send MPI_TAG_SLICE_ALPHAS.");
+          critical("main_server(): Failed to send min_log_alpha.");
         }
       } else {
         uint32_t job = MPI_JOB_STOP;
@@ -850,11 +850,11 @@ void main_client()
         1, /* count */
         MPI_INT,
         MPI_RANK_ROOT,
-        MPI_TAG_SLICE_ALPHAS,
+        MPI_TAG_SLICE_MIN_LOG_ALPHA,
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_client(): Failed to receive MPI_TAG_SLICE_ALPHAS.");
+      critical("main_client(): Failed to receive min_log_alpha.");
     }
 
     const int32_t max_alpha = abs_i(min_log_alpha);

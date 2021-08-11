@@ -33,7 +33,7 @@ static void linear_distribution_slice_recv_common(
       1, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_ALPHAS,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD,
       &status))
   {
@@ -173,11 +173,10 @@ void linear_distribution_slice_send(
       1, /* count */
       MPI_INT,
       rank,
-      MPI_TAG_SLICE_ALPHAS,
+      MPI_TAG_SLICE_MIN_LOG_ALPHA,
       MPI_COMM_WORLD))
   {
-    critical("linear_distribution_slice_send(): "
-      "Failed to send min_log_alpha.");
+    critical("linear_distribution_slice_send(): Failed to send min_log_alpha.");
   }
 
   /* Send the flags. */

@@ -106,10 +106,10 @@
  */
 
 /*!
- * \brief   An MPI tag used to send and receive an arbitrary signed logarithmic
- *          argument interval.
+ * \brief   An MPI tag used to send and receive min_log_alpha_d, min_log_alpha_r
+ *          or the pair (min_log_alpha_d, min_log_alpha_r) for a slice.
  */
-#define MPI_TAG_SLICE_ALPHAS                      17021
+#define MPI_TAG_SLICE_MIN_LOG_ALPHA               17021
 
 /*!
  * \brief   An MPI tag used to send and receive slice norm vectors or matrices.
@@ -142,13 +142,6 @@
  *          of a problem instance.
  */
 #define MPI_TAG_SOLUTION                          17027
-
-/*!
- * \brief   An MPI tag used to send and receive the low end of a signed
- *          logarithmic argument interval in alpha_r when processing diagonal
- *          distributions.
- */
-#define MPI_TAG_SLICE_MIN_LOG_ALPHA_R             17028
 
 /*!
  * \}
