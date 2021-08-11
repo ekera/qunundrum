@@ -3,7 +3,8 @@
  * \ingroup sample_diagonal_distribution_exe
  *
  * \brief   The definition of the main entry point to the
- *          sample_diagonal_distribution executable, and of associated functions.
+ *          sample_diagonal_distribution executable, and of associated 
+ *          functions.
  */
 
 /*!

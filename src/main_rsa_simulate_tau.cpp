@@ -594,7 +594,8 @@ static void print_synopsis(
     "<modulus_length>/2. You must \n");
   fprintf(file, "specify an even value for <modulus_length>. A total of "
     "%u * <records>\n", SAMPLES_PER_RECORD);
-  fprintf(file, "random moduli N are generated when statistics is collected.\n");
+  fprintf(file, "random moduli N are generated when statistics is "
+    "collected.\n");
 }
 
 /*!

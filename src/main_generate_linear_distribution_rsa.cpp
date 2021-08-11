@@ -858,7 +858,7 @@ void main_client()
 
     const int32_t m = (int32_t)(parameters.m);
 
-    /* Note that it is technically only necessary to skip in the two-dimensional 
+    /* Note that it is technically only necessary to skip in the two-dimensional
      * case, as the error otherwise grows to great. We could remove the below 
      * restriction with a small gain in probability mass, and obtain a more 
      * symmetric distribution. */

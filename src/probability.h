@@ -75,7 +75,7 @@ bool probability_approx(
  * the parameter sigma that enters into the approximation must be explicitly 
  * specified as an argument to this function. This function computes the 
  * probability and an associated error bound by calling probability_approx().
- * It then checks, recursively, if increasing or decreasing sigma would yields a 
+ * It then checks, recursively, if increasing or decreasing sigma would yields a
  * better error bound. If this is the case, sigma is updated in place and the 
  * probability and error bound for this sigma returned.
  * 

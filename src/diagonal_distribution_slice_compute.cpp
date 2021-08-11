@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/* Note that the implementation of this function is fairly explicit. Performance 
+/* Note that the implementation of this function is fairly explicit. Performance
  * and memory is sacrificed for explicitness and ease of verification.
  * 
  * For instance, we first compute norms and store them in a vector to explicitly

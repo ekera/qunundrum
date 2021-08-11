@@ -110,7 +110,7 @@ void lattice_solve_reduced_basis_for_r(
   const bool detect_smooth_r = TRUE);
 
 /*!
- * \brief   Given r, n integers k, and a reduced basis A for the lattice L, this 
+ * \brief   Given r, n integers k, and a reduced basis A for the lattice L, this
  *          function attempts to recover d by solving a closest vector problem 
  *          in L.
  * 

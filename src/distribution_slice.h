@@ -358,7 +358,7 @@ void distribution_slice_bcast_send(
  *                              for more information on the available options.
  * \param[in] min_log_alpha_d   The signed logarithmic alpha_d-coordinate of the
  *                              slice to compute.
- * \param[in] min_log_alpha_r   The signed logarithmic alpha_r-coordinate of the 
+ * \param[in] min_log_alpha_r   The signed logarithmic alpha_r-coordinate of the
  *                              slice to compute.
  */
 void distribution_slice_compute(

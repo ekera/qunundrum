@@ -19,7 +19,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-/* Note that the implementation of this function is fairly explicit. Performance 
+/* Note that the implementation of this function is fairly explicit. Performance
  * and memory is sacrificed for explicitness and ease of verification.
  * 
  * For instance, we first compute norms and store them in a vector to explicitly
@@ -188,7 +188,7 @@ void linear_distribution_slice_compute(
     
     if (LINEAR_DISTRIBUTION_SLICE_COMPUTE_TARGET_D == target) {
       /* There are 2^(l + kappa) pairs (j, k) that yield each admissible 
-       * argument alpha. Only the arguments alpha that are multiples of 2^kappa  
+       * argument alpha. Only the arguments alpha that are multiples of 2^kappa 
        * are admissible. Hence we have a multiplicity of 2^(l+kappa), and a 
        * density of 2^kappa, so we have to multiply by 2^l to compensate below.
        * 
@@ -197,7 +197,7 @@ void linear_distribution_slice_compute(
       mpfr_mul(avg_norm, avg_norm, pow_2l, MPFR_RNDN);
     }
     
-    /* Note that when performing order-finding, there are 2^(m+l-kappa) integers 
+    /* Note that when performing order-finding, there are 2^(m+l-kappa) integers
      * j that yield each admissible argument alpha. Only the arguments alpha 
      * that are multiples of 2^kappa are admissible. Hence we have a 
      * multiplicity of 2^kappa, and a density of 2^kappa, and these two factors
@@ -211,7 +211,7 @@ void linear_distribution_slice_compute(
      * some bins will become unavailable, requiring us to compute the histogram 
      * in a slightly different way. This is explained in the papers. 
      * 
-     * Artificially large kappa is a special case. It does not occur in practice 
+     * Artificially large kappa is a special case. It does not occur in practice
      * in cryptographic applications, as d may be presumed to be random in such 
      * applications, and as the order r may in general be assumed to be prime.
      * Also d may be randomized if necessary. */

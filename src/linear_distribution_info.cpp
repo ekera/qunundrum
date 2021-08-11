@@ -87,7 +87,8 @@ void linear_distribution_export_info(
       i - 1,
       region_probability);
 
-    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++) {
+    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++)
+    {
       if (dimensions[dimension] != 0) {
         fprintf(file, "  Dimension %u: %u slice(s)\n",
           dimension,
