@@ -67,11 +67,11 @@ void test_linear_probability_d_kat() {
       parameters_init(&parameters);
       parameters_explicit_m_s(&parameters, d, r, m, s, t);
 
-      mpfr_t norm;
-      mpfr_init2(norm, PRECISION);
-
       mpfr_t theta_d;
       mpfr_init2(theta_d, PRECISION);
+
+      mpfr_t norm;
+      mpfr_init2(norm, PRECISION);
 
       mpfr_t exp_norm;
       mpfr_init2(exp_norm, PRECISION);

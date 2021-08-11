@@ -478,7 +478,6 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
  *
  * \param[in] distribution        The distribution to sample.
  * \param[in, out] random_state   The random state to use when sampling.
- *
  * \param[in, out] min_log_alpha  The minimum signed logarithmic alpha.
  * \param[in, out] max_log_alpha  The maximum signed logarithmic alpha.
  *
