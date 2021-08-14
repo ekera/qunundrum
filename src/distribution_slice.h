@@ -41,7 +41,7 @@ typedef enum {
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
    * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
    * 
-   * Sigma is selected using the heuristic in [Ekerå18] for fixed tau = 11.
+   * Sigma is selected using the heuristic in [1] for fixed tau = 11.
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_HEURISTIC_SIGMA = 0,
 
@@ -66,13 +66,13 @@ typedef enum {
    * \brief Computes the slice with the quick and dirty heuristic approximation 
    *        by Ekerå that lacks an error bound.
    * 
-   * The heuristic approximation in the paper [1] by Ekerå on revisiting Shor's 
-   * algorithm for general discrete logarithms is used to compute the 
+   * The heuristic approximation in the paper by Ekerå [1] on computing general
+   * discrete logarithms and orders with tradeoffs is used to compute the 
    * distribution slices. Note that there is currently no error bound available 
    * for this approximation.
    * 
-   * [1] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
-   * discrete logarithms. In: ArXiv Pre-Print 1905.09084.
+   * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_QUICK = 2
 } Distribution_Slice_Compute_Method;
