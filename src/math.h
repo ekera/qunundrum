@@ -91,7 +91,56 @@ int32_t sgn_ld(const long double x);
  */
 
 /*!
- * \name Maximum
+ * \name Minima
+ * \{
+ */
+
+/*!
+ * \brief Returns the minimum of two signed 32 bit integers.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The minimum of the values a and b.
+ */
+int32_t min_i(const int32_t a, const int32_t b);
+
+/*!
+ * \brief Returns the minimum of two unsigned 32 bit integers.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The minimum of the values a and b.
+ */
+uint32_t min_ui(const uint32_t a, const uint32_t b);
+
+/*!
+ * \brief Returns the minimum of two doubles.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The minimum of the values a and b.
+ */
+double min_d(const double a, const double b);
+
+/*!
+ * \brief Returns the minimum of two long doubles.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The minimum of the values a and b.
+ */
+long double min_ld(const long double a, const long double b);
+
+/*!
+ * \}
+ */
+
+/*!
+ * \name Maxima
  * \{
  */
 
@@ -116,11 +165,31 @@ int32_t max_i(const int32_t a, const int32_t b);
 uint32_t max_ui(const uint32_t a, const uint32_t b);
 
 /*!
+ * \brief Returns the maximum of two doubles.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The maximum of the values a and b.
+ */
+double max_d(const double a, const double b);
+
+/*!
+ * \brief Returns the maximum of two long doubles.
+ *
+ * \param[in] a   The value a.
+ * \param[in] b   The value b.
+ *
+ * \return The maximum of the values a and b.
+ */
+long double max_ld(const long double a, const long double b);
+
+/*!
  * \}
  */
 
 /*!
- * \name Problem-specific
+ * \name Domain-specific
  * \{
  */
 

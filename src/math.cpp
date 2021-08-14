@@ -37,11 +37,35 @@ int32_t sgn_ld(const long double x) {
   return (x < 0) ? -1 : 1;
 }
 
+int32_t min_i(const int32_t a, const int32_t b) {
+  return (a < b) ? a : b;
+}
+
+uint32_t min_ui(const uint32_t a, const uint32_t b) {
+  return (a < b) ? a : b;
+}
+
+double min_d(const double a, const double b) {
+  return (a < b) ? a : b;
+}
+
+long double min_ld(const long double a, const long double b) {
+  return (a < b) ? a : b;
+}
+
 int32_t max_i(const int32_t a, const int32_t b) {
   return (a > b) ? a : b;
 }
 
 uint32_t max_ui(const uint32_t a, const uint32_t b) {
+  return (a > b) ? a : b;
+}
+
+double max_d(const double a, const double b) {
+  return (a > b) ? a : b;
+}
+
+long double max_ld(const long double a, const long double b) {
   return (a > b) ? a : b;
 }
 
