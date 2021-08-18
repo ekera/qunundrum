@@ -556,7 +556,7 @@ static void main_server(
   /* Print a warning if the -detect-smooth-order flag is used with distributions
    * for short discrete logarithms as it then has no effect. */
   if (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) {
-    if ((distribution->flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
+    if ((distribution->flags & LINEAR_DISTRIBUTION_FLAG_R) == 0) {
       printf("Warning: The -detect-smooth-order flag has no effect for this "
         "distribution.\n");
     }
