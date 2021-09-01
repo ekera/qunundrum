@@ -2,8 +2,9 @@
  * \file    lattice_solve.cpp
  * \ingroup lattice_solve
  *
- * \brief   The definition of functions for solving for d and r using Babai's
- *          nearest plane algorithm and lattice basis reduction techniques.
+ * \brief   The definition of functions for recovering d and r by using nearest
+ *          plane solvers, and similar techniques, that do not require
+ *          enumerating vectors in the lattice L.
  */
 
 #include "lattice_solve.h"
@@ -35,12 +36,13 @@ using namespace std;
 using namespace fplll;
 
 /*!
- * \brief A bound on the largest multiple of the last component of the 
- *        shortest vector in the reduced basis matrix of the lattice to be 
- *        added to or subtracted from the candidate for d.
- * 
- * The last component of the shortest vector in the reduced basis matrix of 
- * the lattice is expected to be a divisor of r.
+ * \brief   A bound on the largest multiple of the last component of the
+ *          shortest non-zero vector in the reduced basis to be added to or 
+ *          subtracted from the candidate for d.
+ *
+ * Note that the last component of the shortest non-zero vector in the reduced 
+ * lattice basis is expected to be a divisor of r when solving for an order, or
+ * for a general discrete logarithm.
  */
 #define SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE 256
 

@@ -2,7 +2,7 @@
  * \file    lattice_reduce.cpp
  * \ingroup lattice
  *
- * \brief   The definition of functions for reducing lattice bases.
+ * \brief   The definition of functions for constructing reduced lattice bases.
  */
 
 #include "lattice_reduce.h"

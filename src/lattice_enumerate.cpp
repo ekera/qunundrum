@@ -2,8 +2,8 @@
  * \file    lattice_enumerate.cpp
  * \ingroup lattice_enumerate
  *
- * \brief   The definition of functions for solving for d and r using Kannan's
- *          enumeration algorithm and lattice basis reduction techniques.
+ * \brief   The definition of functions for recovering d and r by attempting to
+ *          enumerate all vectors within a ball in the lattice L.
  */
 
 #include "lattice_enumerate.h"
@@ -38,8 +38,8 @@ using namespace fplll;
  * \brief   The factor by which the estimated square norm of the shortest 
  *          vector in the lattice should be reduced.
  *
- * This reduction is performed so as to ensure that we do not accidently miss
- * the shortest vector in the lattice.
+ * This reduction is performed so as to attempt to ensure that we do not miss
+ * the shortest non-zero vector in the lattice.
  */
 #define INITIAL_RADIUS_REDUCTION_FACTOR 1024
 
@@ -47,8 +47,8 @@ using namespace fplll;
  * \brief   The maximum number of radius doublings.
  * 
  * Enumeration is performed in balls of increasingly greater radius. The initial
- * radius is given by the reduced estimated norm of the shortest vector in the 
- * lattice. This norm is then doubled repeatedly.
+ * radius is given by the reduced estimated norm of the shortest non-zero vector
+ * in the reduced lattice basis. This norm is then doubled repeatedly.
  */
 #define MAX_RADIUS_DOUBLINGS 128
 
