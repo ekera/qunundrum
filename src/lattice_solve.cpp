@@ -159,11 +159,17 @@ void lattice_solve_reduced_basis_for_d(
 
     /* Extract the candidate r. */
     mpz_abs(candidate_r, A[0][n].get_data());
+
+    /* Test if r is a multiple of the candidate r. */
     mpz_mod(test_r, parameters->r, candidate_r);
 
     if (mpz_cmp_ui(test_r, 0) == 0) { /* candidate_r divides r */
-      mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
-      
+      /* Let test_r be the multiple of the candidate r required to form r. */
+      mpz_div(test_r, parameters->r, candidate_r);
+        /* test_r = r / candidate_r */
+
+      /* If the multiple is greater than one but smooth, check if we have 
+       * recovered d modulo the non-smooth part of r. */
       if (mpz_cmp_ui(test_r, 1) > 0) {
         if (lattice_smoothness_is_smooth(
               test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
@@ -225,23 +231,31 @@ void lattice_solve_reduced_basis_for_r(
 
   /* Extract the candidate r. */
   mpz_abs(candidate_r, A[0][n].get_data());
+
+  /* Test if r is a multiple of the candidate r. */
   mpz_mod(test_r, parameters->r, candidate_r);
 
   if (mpz_cmp_ui(test_r, 0) != 0) {
+    /* If not, we fail to recover r. */
     (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
   } else {
-    mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
+    /* Let test_r be the multiple of the candidate r required to form r. */
+    mpz_div(test_r, parameters->r, candidate_r); /* test_r = r / candidate_r */
 
     if (mpz_cmp_ui(test_r, 1) == 0) {
+      /* If the multiple is one, we recover r immediately. */
       (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
     } else if (mpz_cmp_ui(test_r, SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE) <= 0) {
+      /* If the multiple is small, we recover r by performing a small search. */
       (*status_r) = LATTICE_STATUS_RECOVERED_SEARCH;
     } else if (detect_smooth_r && 
                 lattice_smoothness_is_smooth(
                   test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
     {
+      /* If the multiple is smooth, we recover by exponentiating to powers. */
       (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH;
     } else {
+      /* Otherwise, we fail to recover r. */
       (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
     }
   }

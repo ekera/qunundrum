@@ -212,28 +212,31 @@ void lattice_compute_reduced_diagonal_basis(
   mpz_init(pow2msigma);
   mpz_set_ui(pow2msigma, 0);
   mpz_setbit(pow2msigma, parameters->m + parameters->sigma);
+    /* = 2^{m + sigma} */
 
   mpz_t pow2lsigma;
   mpz_init(pow2lsigma);
   mpz_set_ui(pow2lsigma, 0);
   mpz_setbit(pow2lsigma, parameters->l - parameters->sigma);
+    /* = 2^{l - sigma} */
 
   /* Setup the A matrix. */
   A.resize(n + 1, n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
     mpz_mul(alpha, parameters->r, js[j]); /* alpha = rj */
+    mpz_set(A[0][j].get_data(), alpha); /* A[0][j] = rj */
 
-    mpz_set(A[0][j].get_data(), alpha); /* alpha = rj */
-
-    mod_reduce(alpha, pow2msigma);
+    mod_reduce(alpha, pow2msigma); /* alpha = {rj}_{2^{m+sigma}} */
 
     mpz_sub(A[0][j].get_data(), A[0][j].get_data(), alpha);
+      /* A[0][j] = rj - alpha */
 
     mpz_mul(A[0][j].get_data(), A[0][j].get_data(), pow2lsigma);
+      /* A[0][j] = 2^{l - sigma} (rj - alpha) */
   }
 
-  mpz_set(A[0][n].get_data(), parameters->r);
+  mpz_set(A[0][n].get_data(), parameters->r); /* A[0][n] = r */
 
   for (uint32_t i = 1; i <= n; i++) {
     for (uint32_t j = 0; j <= n; j++) {
@@ -241,8 +244,11 @@ void lattice_compute_reduced_diagonal_basis(
     }
 
     mpz_set(A[i][i - 1].get_data(), pow2msigma);
+      /* A[i][i - 1] = 2^{m + sigma} */
     mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), parameters->r);
+      /* A[i][i - 1] = 2^{m + sigma} r */
     mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), pow2lsigma);
+      /* A[i][i - 1] = 2^{m + sigma} 2^{l - sigma} r = 2^{m + l} r */
   }
 
   /* Reduce the matrix. */
