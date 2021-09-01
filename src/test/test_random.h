@@ -1,7 +1,7 @@
 /*!
  * \file    test/test_random.h
  * \ingroup unit_tests_random
- * 
+ *
  * \brief   The declaration of unit tests for the \ref random module.
  */
 
@@ -9,7 +9,7 @@
  * \defgroup unit_tests_random Unit tests for random number generation
  * \ingroup  unit_tests
  * \ingroup  random
- * 
+ *
  * \brief    A module for unit tests for random number generation.
  */
 

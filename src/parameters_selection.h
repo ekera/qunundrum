@@ -14,9 +14,9 @@
 #include <stdint.h>
 
 /*!
- * \brief   Deterministically selects the logarithm d and the order r as m bit 
+ * \brief   Deterministically selects the logarithm d and the order r as m bit
  *          integers by reading digits from Catalan's constant
- * 
+ *
  * \param[in, out] d    The logarithm d.
  * \param[in, out] r    The order r.
  * \param[in] m         The bit length of d and r.
@@ -76,7 +76,7 @@ void parameters_selection_explicit_rsa(
  *
  * This function requires that n is even and that n >= 16.
  *
- * This conveniency function calls rsa_generate_modulus() to generate p and q, 
+ * This conveniency function calls rsa_generate_modulus() to generate p and q,
  * and parameters_selection_explicit_rsa() to select the logarithm from p and q.
  *
  * \param[in, out] d        The logarithm d.

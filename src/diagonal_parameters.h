@@ -43,7 +43,7 @@ typedef struct {
   /*!
    * \brief The parameter l.
    *
-   * If s is explicitly specified, the parameter l is set to 
+   * If s is explicitly specified, the parameter l is set to
    * ceil((m + sigma) / s).
    */
   uint32_t l;

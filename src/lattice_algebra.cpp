@@ -90,9 +90,9 @@ void solve_left_coordinates(
         if (0 != mpfr_cmp_ui(A_tmp[j][i].get_data(), 0)) {
           /* Add row j to row i to make the coefficient non-zero.. */
           for (uint32_t k = i; k <= n; k++) {
-            mpfr_add(A_tmp[i][k].get_data(), A_tmp[i][k].get_data(), 
+            mpfr_add(A_tmp[i][k].get_data(), A_tmp[i][k].get_data(),
               A_tmp[j][k].get_data(), MPFR_RNDN);
-            mpfr_add(A_inv[i][k].get_data(), A_inv[i][k].get_data(), 
+            mpfr_add(A_inv[i][k].get_data(), A_inv[i][k].get_data(),
               A_inv[j][k].get_data(), MPFR_RNDN);
           }
 

@@ -61,7 +61,7 @@ void babai_closest_vector(
 
   mpfr_t factor_f;
   mpfr_init2(factor_f, precision);
-  
+
   mpz_t tmp_z;
   mpz_init(tmp_z);
 

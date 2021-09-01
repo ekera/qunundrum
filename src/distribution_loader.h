@@ -27,12 +27,12 @@
 #include <sys/types.h>
 
 /*!
- * \brief   The maximum number of loaded two-dimensional distributions to 
+ * \brief   The maximum number of loaded two-dimensional distributions to
  *          simultaneously reside in primary memory at any one time.
- * 
+ *
  * This cap primarily serves to prevent excessive use of primary memory.
- * 
- * Note that popped distributions also reside in primary memory until they are 
+ *
+ * Note that popped distributions also reside in primary memory until they are
  * deallocated. They do not count in this context.
  */
 #define DISTRIBUTION_LOADER_MAX_SIMULTANEOUSLY_LOADED_DISTRIBUTIONS 3

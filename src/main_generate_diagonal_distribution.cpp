@@ -45,7 +45,7 @@
 
 /*!
  * \brief   A data structure representing argument entries in the form of parsed
- *          \<m\> \<sigma\> \<s\> or \<m\> \<sigma\> \<l\> tuples from the 
+ *          \<m\> \<sigma\> \<s\> or \<m\> \<sigma\> \<l\> tuples from the
  *          command line arguments.
  *
  * \ingroup generate_diagonal_distribution_exe
@@ -394,7 +394,7 @@ static bool arguments_init_parse_command_line(
       }
 
       arguments->entries[j].s = (uint32_t)s;
-      arguments->entries[j].l = 
+      arguments->entries[j].l =
         (uint32_t)ceil((double)(m + sigma) / (double)s);
     } else {
       const int l = atoi(argv[i + 2]);
@@ -507,7 +507,7 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -521,7 +521,7 @@ static void arguments_clear(
       mpz_clear(arguments->entries[i].d);
       mpz_clear(arguments->entries[i].r);
     }
-          
+
     free(arguments->entries);
     arguments->entries = NULL;
   }
@@ -543,7 +543,7 @@ static void arguments_clear(
 static void * main_server_export_distribution(void * ptr)
 {
   /* Map the input to data structures. */
-  Diagonal_Distribution_Export_Job * job = 
+  Diagonal_Distribution_Export_Job * job =
     (Diagonal_Distribution_Export_Job *)ptr;
 
   Diagonal_Distribution * distribution = job->distribution;
@@ -969,7 +969,7 @@ static void print_synopsis(
 }
 
 /*!
- * \brief   The main entry point to the generate_diagonal_distribution 
+ * \brief   The main entry point to the generate_diagonal_distribution
  *          executable.
  *
  * \param[in, out] argc   The arguments count.
@@ -1033,7 +1033,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

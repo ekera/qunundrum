@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_linear_probability.h
  * \ingroup unit_tests_linear_distribution_probability
- * 
- * \brief   The declaration of unit tests for the probability functions in the 
+ *
+ * \brief   The declaration of unit tests for the probability functions in the
  *          \ref linear_distribution_probability module.
  */
 
@@ -11,7 +11,7 @@
  *              Unit tests for linear probability functions
  * \ingroup  unit_tests
  * \ingroup  linear_distribution_probability
- * 
+ *
  * \brief    A module for unit tests for linear probability functions.
  */
 

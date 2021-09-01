@@ -41,7 +41,7 @@ void diagonal_probability_approx_f(
   mpfr_init2(tmp2, precision);
 
 
-  mpfr_set_ui_2exp(tmp, 1, 
+  mpfr_set_ui_2exp(tmp, 1,
     (mpfr_exp_t)(parameters->m + parameters->sigma), MPFR_RNDN);
       /* tmp = 2^(m + sigma) */
 
@@ -70,7 +70,7 @@ void diagonal_probability_approx_f(
   mpfr_mul_z(tmp, tmp, parameters->r, MPFR_RNDN);
     /* tmp = r * 2 (1 - cos((2^(m + sigma) / r) theta_r)) / theta_r^2 */
 
-  mpfr_set_ui_2exp(tmp2, 1, 
+  mpfr_set_ui_2exp(tmp2, 1,
     (mpfr_exp_t)(2 * (parameters->m + parameters->sigma)), MPFR_RNDN);
       /* tmp2 = 2^(2 (m + sigma)) */
   mpfr_div(norm, tmp, tmp2, MPFR_RNDN);

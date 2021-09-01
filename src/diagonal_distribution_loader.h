@@ -26,12 +26,12 @@
 #include <sys/types.h>
 
 /*!
- * \brief   The maximum number of loaded diagonal distributions to 
+ * \brief   The maximum number of loaded diagonal distributions to
  *          simultaneously reside in primary memory at any one time.
- * 
+ *
  * This cap primarily serves to prevent excessive use of primary memory.
- * 
- * Note that popped distributions also reside in primary memory until they are 
+ *
+ * Note that popped distributions also reside in primary memory until they are
  * deallocated. They do not count in this context.
  */
 #define DIAGONAL_DISTRIBUTION_LOADER_MAX_SIMULTANEOUSLY_LOADED_DISTRIBUTIONS 8

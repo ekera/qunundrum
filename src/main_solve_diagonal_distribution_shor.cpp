@@ -114,7 +114,7 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound.\n");
         return FALSE;
       }
@@ -155,7 +155,7 @@ static bool arguments_init_parse_command_line(
   for (uint32_t j = 0; j < arguments->count; j++) {
     arguments->paths[j] = NULL;
   }
-  
+
   /* Iterate over the distributions. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
     /* Parse the path. */
@@ -292,7 +292,7 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -575,7 +575,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments     The parsed command line arguments.
  */
 static void main_client(
@@ -597,7 +597,7 @@ static void main_client(
 
   /* Declare variables. */
   const uint32_t precision =
-    2 * (max_ui(distribution.parameters.m + 
+    2 * (max_ui(distribution.parameters.m +
       distribution.parameters.sigma, PRECISION));
 
   mpz_t tmp;
@@ -730,7 +730,7 @@ static void main_client(
     mpz_sub(z, z, tmp); /* z = rj - {rj}_{2^(m + sigma)} */
     mpz_div(z, z, pow2_msigma);
       /* z = (rj - {rj}_{2^(m + sigma)}) / 2^(m + sigma) */
-  
+
     /* Compute r' = r / tau for the smallest tau such that gcd(r', z) = 1. */
     mpz_set(rp, distribution.parameters.r);
     mpz_set_ui(tau, 1);
@@ -744,7 +744,7 @@ static void main_client(
         mpz_mul(tau, tau, tmp);
         mpz_div(rp, rp, tmp);
     }
-  
+
     /* Set z = z^-1 (mod r'). */
     if (0 == mpz_invert(z, z, rp)) {
       /* Note: This should never occur given how we select r'. */
@@ -760,7 +760,7 @@ static void main_client(
     mpfr_round(tmp_f, tmp_f);
     mpfr_get_z(tmp, tmp_f, MPFR_RNDN);
     mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + sigma)) */
-  
+
     /* Search for the candidate d. */
     bool found = FALSE;
 
@@ -872,7 +872,7 @@ static void print_synopsis(
  */
 
 /*!
- * \brief The main entry point to the solve_diagonal_distribution_shor 
+ * \brief The main entry point to the solve_diagonal_distribution_shor
  *        executable.
  *
  * \param[in, out] argc   The arguments count.
@@ -937,7 +937,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "
@@ -1007,7 +1007,7 @@ int main(int argc, char ** argv) {
     }
 
     diagonal_distribution_loader_clear(&loader);
-  
+
     arguments_clear(&arguments);
   } else {
     /* Broadcast the command line arguments. */

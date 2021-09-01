@@ -1,7 +1,7 @@
 /*!
  * \file    test/test_keccak_random.h
  * \ingroup unit_tests_keccak_random
- * 
+ *
  * \brief   The declaration of unit tests for the \ref keccak_random module.
  */
 
@@ -10,7 +10,7 @@
  *              Unit tests for Keccak-based random number generation
  * \ingroup  unit_tests_random
  * \ingroup  keccak_random
- * 
+ *
  * \brief    A module for unit tests for Keccak-based random number generation.
  */
 

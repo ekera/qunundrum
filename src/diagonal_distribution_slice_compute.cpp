@@ -21,11 +21,11 @@
 
 /* Note that the implementation of this function is fairly explicit. Performance
  * and memory is sacrificed for explicitness and ease of verification.
- * 
+ *
  * For instance, we first compute norms and store them in a vector to explicitly
  * iterate over sub-vectors when performing Simpson's method. It would be enough
- * to keep the current two endpoints and the midpoint in temporary registers, 
- * but we have kept this design for now to keep everything analogous with the 
+ * to keep the current two endpoints and the midpoint in temporary registers,
+ * but we have kept this design for now to keep everything analogous with the
  * two-dimensional implementation in distribution_slice_compute(). */
 void diagonal_distribution_slice_compute(
   Diagonal_Distribution_Slice * const slice,
@@ -51,7 +51,7 @@ void diagonal_distribution_slice_compute(
   /* Constants. */
   mpfr_t scale_factor_theta;
   mpfr_init2(scale_factor_theta, precision);
-  
+
   {
     /* Setup the scale factor when mapping alpha to theta. */
     mpfr_t tmp;
@@ -60,7 +60,7 @@ void diagonal_distribution_slice_compute(
     mpfr_const_pi(scale_factor_theta, MPFR_RNDN);
     mpfr_mul_ui(scale_factor_theta, scale_factor_theta, 2, MPFR_RNDN);
 
-    mpfr_set_ui_2exp(tmp, 1, 
+    mpfr_set_ui_2exp(tmp, 1,
       (mpfr_exp_t)(parameters->m + parameters->sigma), MPFR_RNDN);
     mpfr_div(scale_factor_theta, scale_factor_theta, tmp, MPFR_RNDN);
 
@@ -90,24 +90,24 @@ void diagonal_distribution_slice_compute(
   mpfr_init2(max_alpha_r, precision);
 
   /* Evaluate the norm in the dimension + 1 main points given by
-   * 
+   *
    *   alpha_r = sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + i * step),
-   * 
+   *
    * where 0 <= i <= dimension and step = 1 / dimension. Also evaluate the norm
    * in the average points inbetween the main points, given by
-   * 
-   *   alpha_r = sgn(min_log_alpha_r) * 
+   *
+   *   alpha_r = sgn(min_log_alpha_r) *
    *               (2^(abs(min_log_alpha_r) + i * step) + \
    *                2^(abs(min_log_alpha_r) + (i + 1) * step)) / 2
-   * 
-   * and store the results in an interleaved fashion in the norm vector. For X 
+   *
+   * and store the results in an interleaved fashion in the norm vector. For X
    * the main points, and A the averages inbetween, store as:
-   * 
+   *
    *   X A X A X : X.
-   * 
+   *
    * Note: To interleave we let i run through 0 <= i <= 2 * dimension below,
    * and use for the main points that
-   * 
+   *
    *  alpha_r = sgn(min_log_alpha_r) 2^(abs(min_log_alpha_r) + (i / 2) * step).
    */
 
@@ -146,15 +146,15 @@ void diagonal_distribution_slice_compute(
   mpfr_set_prec(alpha_r, PRECISION);
   mpfr_set_prec(min_alpha_r, PRECISION);
   mpfr_set_prec(max_alpha_r, PRECISION);
-  
-  /* Apply Simpson's method to each 3 element sub-vector, with main points X at 
+
+  /* Apply Simpson's method to each 3 element sub-vector, with main points X at
    * the edges, to sum up the probabilities in the norm vector.
-   * 
+   *
    * This is easy as we have stored the points in an interleaved fashion
-   * 
+   *
    *   X A X A X : X.
-   * 
-   * For each sub-vector X A X, we apply weights 1 4 1, sum up the results, and 
+   *
+   * For each sub-vector X A X, we apply weights 1 4 1, sum up the results, and
    * divide by 2 * 1 + 4 = 6. */
 
   slice->total_probability = 0;
@@ -177,7 +177,7 @@ void diagonal_distribution_slice_compute(
 
     /* Account for the number of alpha_r-values in this region. */
     mpfr_mul(avg_norm, avg_norm, alpha_r, MPFR_RNDN);
-    
+
     const long double norm = mpfr_get_ld(avg_norm, MPFR_RNDN);
     slice->norm_vector[i / 2] = norm;
     slice->total_probability += norm;

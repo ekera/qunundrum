@@ -6,9 +6,9 @@
  *          probability distributions, and of functions for manipulating such
  *          distributions.
  *
- * Two-dimensional probability distributions in the signed 
- * (alpha_d, alpha_r)-plane are used to represent the probability distribution 
- * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
+ * Two-dimensional probability distributions in the signed
+ * (alpha_d, alpha_r)-plane are used to represent the probability distribution
+ * induced by Ekerå's algorithm [1] for computing general discrete logarithms
  * and orders with tradeoffs.
  *
  * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
@@ -22,9 +22,9 @@
  *
  * \brief   A module for two-dimensional probability distributions.
  *
- * Two-dimensional probability distributions in the signed 
- * (alpha_d, alpha_r)-plane are used to represent the probability distribution 
- * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
+ * Two-dimensional probability distributions in the signed
+ * (alpha_d, alpha_r)-plane are used to represent the probability distribution
+ * induced by Ekerå's algorithm [1] for computing general discrete logarithms
  * and orders with tradeoffs.
  *
  * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
@@ -322,10 +322,10 @@ void distribution_sort_slices(
 
 /*!
  * \brief   Filters the slices in the distribution by removing all slices such
- *          that p = 0 or e / p > 0.01, for p the total probability and e the 
+ *          that p = 0 or e / p > 0.01, for p the total probability and e the
  *          total error in the slice.
- * 
- * \param[in, out] distribution   The distribution in which to filter the 
+ *
+ * \param[in, out] distribution   The distribution in which to filter the
  *                                slices.
  */
 void distribution_filter_slices(
@@ -333,11 +333,11 @@ void distribution_filter_slices(
 
 /*!
  * \brief   Tests if filtering the distribution would leave it intact.
- * 
- * \param[in] distribution        The distribution for which to test if 
+ *
+ * \param[in] distribution        The distribution for which to test if
  *                                filtering would leave it intact.
- * 
- * \return  Returns #TRUE if filtering the distribution would not remove any 
+ *
+ * \return  Returns #TRUE if filtering the distribution would not remove any
  *          slices, #FALSE otherwise.
  */
 bool distribution_is_filtered(
@@ -417,7 +417,7 @@ bool distribution_sample_approximate_alpha_d_r(
  *
  * The pair is sampled with high resolution, and is guaranteed to be admissible.
  *
- * To map outputs from this function to pairs (j, k), see the function 
+ * To map outputs from this function to pairs (j, k), see the function
  * sample_j_k_from_alpha_d_r(). See also the conveniency function
  * distribution_sample_pair_j_k() in this module.
  *

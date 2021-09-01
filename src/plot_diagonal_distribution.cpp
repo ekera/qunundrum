@@ -37,7 +37,7 @@ void plot_diagonal_distribution_horizontal(
 
   plot_diagonal_distribution_detailed_horizontal(
     distribution,
-    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file,
     absolute);

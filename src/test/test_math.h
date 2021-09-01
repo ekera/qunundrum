@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_math.h
  * \ingroup unit_tests_math
- * 
- * \brief   The declaration of unit tests for the basic mathematical functions 
+ *
+ * \brief   The declaration of unit tests for the basic mathematical functions
  *          in the \ref math module.
  */
 
@@ -10,7 +10,7 @@
  * \defgroup unit_tests_math Unit tests for mathematical functions
  * \ingroup  unit_tests
  * \ingroup  math
- * 
+ *
  * \brief    A module for unit tests for mathematical functions.
  */
 

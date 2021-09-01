@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_tau_volume_quotient.cpp
  * \ingroup unit_tests_estimating_volume_quotients
- * 
- * \brief   The definition of unit tests for the 
+ *
+ * \brief   The definition of unit tests for the
  *          \ref estimating_volume_quotients module.
  */
 
@@ -56,7 +56,7 @@ void test_tau_volume_quotient_kat() {
   if (1 != fscanf(file, "%u\n", &count)) {
     critical("test_tau_volume_quotient_kat(): Failed to parse count.");
   }
-  
+
   for (uint32_t i = 0; i < count; i++) {
     /* Read parameters. */
     if (4 != fscanf(file, "%u %u %u %Lf\n", &m, &s, &n, &tau)) {
@@ -67,7 +67,7 @@ void test_tau_volume_quotient_kat() {
     /* Read the expected volume quotient. */
     test_mpfr_load(exp_v, file);
 
-    /* Setup parameters. */   
+    /* Setup parameters. */
     parameters_selection_deterministic_d_r(d, r, m);
     const uint32_t l = ceil(((double)m) / ((double)s));
 
@@ -75,7 +75,7 @@ void test_tau_volume_quotient_kat() {
     tau_volume_quotient(m, l, n, d, tau, v);
 
     /* Verify v by comparing it to v_exp. */
-    if (!test_cmp_tol_ld(mpfr_get_ld(v, MPFR_RNDN), 
+    if (!test_cmp_tol_ld(mpfr_get_ld(v, MPFR_RNDN),
                          mpfr_get_ld(exp_v, MPFR_RNDN),
                          1e-3))
     {
@@ -92,7 +92,7 @@ void test_tau_volume_quotient_kat() {
   /* Clear memory. */
   mpz_clear(d);
   mpz_clear(r);
-  
+
   mpfr_clear(v);
   mpfr_clear(exp_v);
 }

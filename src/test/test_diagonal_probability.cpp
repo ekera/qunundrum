@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_diagonal_probability.cpp
  * \ingroup unit_tests_diagonal_distribution_probability
- * 
- * \brief   The definition of unit tests for the probability functions in the 
+ *
+ * \brief   The definition of unit tests for the probability functions in the
  *          \ref diagonal_distribution_probability module.
  */
 
@@ -39,7 +39,7 @@ void test_diagonal_probability_approx_kat() {
     { 128, 10}, { 256, 20}, { 512, 30},
     {1024, 40}, {2048, 50}, {4096, 80}, {8192, 80}
   };
-  
+
   const uint32_t s_entries[16] = {
     1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 60, 70, 80
   };
@@ -51,7 +51,7 @@ void test_diagonal_probability_approx_kat() {
   for (uint32_t i = 0; i < 7; i++) {
     const uint32_t m = m_s_entries[i][0];
     const uint32_t s_max = m_s_entries[i][1];
-    
+
     for (uint32_t j = 0; j < 16; j++) {
       const uint32_t s = s_entries[j];
       if (s > s_max) {

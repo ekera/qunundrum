@@ -17,27 +17,27 @@
 #include <stdlib.h>
 
 /*!
- * \brief Compares two diagonal distribution slice coordinates with respect to 
- *        their distance, for the purpose of enabling coordinates to be sorted 
+ * \brief Compares two diagonal distribution slice coordinates with respect to
+ *        their distance, for the purpose of enabling coordinates to be sorted
  *        with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first coordinate.
  * \param[in] b   A pointer to a pointer to the second coordinate.
- * 
+ *
  * \return Returns -1 if the the distance for the first coordinate is greater
- *         than that of the second coordinate, -1 if the inverse is true and 
+ *         than that of the second coordinate, -1 if the inverse is true and
  *         0 if the distances are equal.
  */
 static int diagonal_distribution_enumerator_sort_coordinates_cmp(
   const void * const a,
   const void * const b)
 {
-  const Diagonal_Distribution_Coordinate * const coordinate_a = 
+  const Diagonal_Distribution_Coordinate * const coordinate_a =
     *((const Diagonal_Distribution_Coordinate * const *)a);
 
-  const Diagonal_Distribution_Coordinate * const coordinate_b = 
+  const Diagonal_Distribution_Coordinate * const coordinate_b =
     *((const Diagonal_Distribution_Coordinate * const *)b);
-  
+
   if ((coordinate_a->distance) > (coordinate_b->distance)) {
     return 1;
   } else if ((coordinate_a->distance) < (coordinate_b->distance)) {
@@ -111,16 +111,16 @@ void diagonal_distribution_enumerator_init(
       }
     }
 
-    /* Compute and store the distance. For more information on the distance, 
+    /* Compute and store the distance. For more information on the distance,
      * see documentation for Diagonal_Distribution_Coordinate::distance. */
     enumerator->coordinates[i]->distance =
-      abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha_r) - 
+      abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha_r) -
         (int32_t)parameters->m);
   }
 
   /* Sort the coordinates. */
   qsort(
-    enumerator->coordinates, 
+    enumerator->coordinates,
     enumerator->count,
     sizeof(Diagonal_Distribution_Coordinate *),
     diagonal_distribution_enumerator_sort_coordinates_cmp);

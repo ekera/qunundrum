@@ -12,7 +12,7 @@
  * \ingroup  lattice
  * \ingroup  sample_distribution
  *
- * \brief    A module for using lattice-based techniques to sample 
+ * \brief    A module for using lattice-based techniques to sample
  *           two-dimensional probability distributions.
  */
 

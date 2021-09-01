@@ -29,7 +29,7 @@ bool continued_fractions_solve(
   mpfr_t one;
   mpfr_init2(one, precision);
   mpfr_set_ui(one, 1, MPFR_RNDN);
-  
+
   mpz_t pow2m;
   mpz_init_set_ui(pow2m, 0);
   mpz_setbit(pow2m, parameters->m);
@@ -58,19 +58,19 @@ bool continued_fractions_solve(
   mpz_t tmp;
   mpz_init(tmp);
 
-  /* We recursively compute the continued fractions coefficients 
-   * 
+  /* We recursively compute the continued fractions coefficients
+   *
    *          fraction = [ a_0; a_1, a_2, .. ]
-   * 
+   *
    * below by letting f_0 = fraction, a_i = floor(f_i), and recursively letting
-   * f_{i+1} = 1 / (f_i - floor(f_i)) = 1 / (f_i - a_i) provided f_i ≠ a_i. If 
+   * f_{i+1} = 1 / (f_i - floor(f_i)) = 1 / (f_i - a_i) provided f_i ≠ a_i. If
    * it is the case that f_i = a_i we have obtained the best approximation.
-   * 
+   *
    * From the coefficients we can construct increasingly good quotients that
    * approximate the fraction. The first quotient is a_0, the second a_0 + 1/a_1
    * and so forth, recursively, as we have that
-   * 
-   * 
+   *
+   *
    *                                         1
    *           fraction = a_0 + ---------------------------
    *                                            1
@@ -80,18 +80,18 @@ bool continued_fractions_solve(
    *                                                  1
    *                                        a_3 + --------- .
    *                                              a_4 + ...
-   * 
-   * We may however compute these quotients, called convergents, considerably 
+   *
+   * We may however compute these quotients, called convergents, considerably
    * more efficiently than by using the above formula. Specifically:
-   * 
+   *
    * Let h_{-1} = 1, h_{-2} = 0 and recursively h_i = a_n h_{i-1} + h_{i-2}.
-   * 
+   *
    * Let k_{-1} = 0, k_{-2} = 1 and recursively k_i = a_n k_{i-1} + k_{i-2}.
-   * 
+   *
    * Then the i:th convergent is given by the quotient h_i / k_i for i >= 0.
-   * 
+   *
    * Now, since we are only interested in the denominator, not the numerator, it
-   * suffices to recursively compute a_0, k_0, a_1, k_1, .. keeping a_{i-1}, 
+   * suffices to recursively compute a_0, k_0, a_1, k_1, .. keeping a_{i-1},
    * k_{i-1} and k_{i-2} in memory when computing a_i and k_i. */
 
   bool found = FALSE;
@@ -103,16 +103,16 @@ bool continued_fractions_solve(
     mpfr_get_z(denominator, integer_part, MPFR_RNDN);
     mpz_mul(denominator, denominator, km1);
     mpz_add(denominator, denominator, km2);
-    
+
     if (mpz_cmp(denominator, pow2m) >= 0) {
       break; /* The denominator is larger than r. */
     }
 
     /* Test if the denominator is r, or a multiple of r, before proceeding.
-     * 
-     * As was originally pointed out by Odlyzko, we need to check multiples, 
-     * since we could have z / r, where z and r share a common factor z, 
-     * leading us to obtain (z / c) / (r / c). We solve this by checking if 
+     *
+     * As was originally pointed out by Odlyzko, we need to check multiples,
+     * since we could have z / r, where z and r share a common factor z,
+     * leading us to obtain (z / c) / (r / c). We solve this by checking if
      * this holds for c within the search bound on the cofactor. */
     mpz_mod(tmp, parameters->r, denominator);
     if (mpz_cmp_ui(tmp, 0) == 0) {

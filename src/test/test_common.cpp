@@ -15,7 +15,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/*! 
+/*!
  * \brief   The maximum buffer size in bytes.
  */
 #define MAX_BUFFER_SIZE 32768
@@ -77,7 +77,7 @@ bool test_cmp_ld(
   if (a == b) {
     return true;
   }
-  
+
   printf("  Warning: Equating %.20Lg to %.20Lg\n", a, b);
 
   if ((0 == a) && (0 == b)) {
@@ -103,7 +103,7 @@ bool test_cmp_tol_ld(
   if (a == b) {
     return true;
   }
-  
+
   if ((0 == a) && (0 == b)) {
     printf("  Warning: Both values are zero.\n");
   }

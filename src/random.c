@@ -42,7 +42,7 @@ void random_init(
   state->random_device = NULL;
 
   state->canary = RANDOM_CANARY;
-  
+
   #ifdef DEBUG_TRACE_RNG
   printf("random_init(): Debug: Finished initializing state: %p\n", state);
   #endif
@@ -61,7 +61,7 @@ void random_init_device(
   }
 
   state->canary = RANDOM_CANARY;
-    
+
   #ifdef DEBUG_TRACE_RNG
   printf("random_init_device(): "
     "Debug: Initialized state (with device \"%s\"): %p\n", path, state);
@@ -119,9 +119,9 @@ long double random_generate_pivot_inclusive(
   uint64_t value = 0;
 
   random_generate(&value, sizeof(uint64_t), state);
-  
+
   long double result;
-  
+
   result  = (long double)(value); /* on [0, 2^64) */
   result /= (long double)(0xffffffffffffffffLLU); /* divide by 2^64 - 1 */
 
@@ -142,7 +142,7 @@ long double random_generate_pivot_exclusive(
   random_generate(&value, sizeof(uint64_t), state);
 
   long double result;
-  
+
   result  = (long double)(value & 0x7fffffffffffffffLLU); /* on [0, 2^63) */
   result /= (long double)(0x8000000000000000LLU); /* divide by 2^63 */
 

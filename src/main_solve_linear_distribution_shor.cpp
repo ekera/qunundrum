@@ -121,7 +121,7 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound-j.\n");
         return FALSE;
       }
@@ -151,14 +151,14 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound-cofactors.\n");
         return FALSE;
       }
 
       const int x = atoi(argv[i+1]);
       if (x <= 0) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: The search bound on cofactors must be positive.\n");
         return FALSE;
       }
@@ -171,7 +171,7 @@ static bool arguments_init_parse_command_line(
 
       continue;
     }
-  
+
     /* Stop parsing. */
     break;
   }
@@ -193,7 +193,7 @@ static bool arguments_init_parse_command_line(
   for (uint32_t j = 0; j < arguments->count; j++) {
     arguments->paths[j] = NULL;
   }
-  
+
   /* Iterate over the distributions. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
     /* Parse the path. */
@@ -333,7 +333,7 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -621,7 +621,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments     The parsed command line arguments.
  */
 static void main_client(
@@ -748,7 +748,7 @@ static void main_client(
 
     mpz_t candidate_j;
     mpz_init(candidate_j);
-    
+
     for (uint32_t t = 0; t <= arguments->search_bound_j; t++) {
       mpz_add_ui(candidate_j, j, t);
 
@@ -921,7 +921,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "
@@ -991,7 +991,7 @@ int main(int argc, char ** argv) {
     }
 
     linear_distribution_loader_clear(&loader);
-  
+
     arguments_clear(&arguments);
   } else {
     /* Broadcast the command line arguments. */

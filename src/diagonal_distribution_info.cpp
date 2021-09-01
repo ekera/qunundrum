@@ -111,7 +111,7 @@ void diagonal_distribution_export_info(
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
 
-      fprintf(file, 
+      fprintf(file,
         "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
           i, alpha_r, dimension, probability);
     }
@@ -127,7 +127,7 @@ void diagonal_distribution_export_info(
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
 
-      fprintf(file, 
+      fprintf(file,
         "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
           i, alpha_r, dimension, probability);
 

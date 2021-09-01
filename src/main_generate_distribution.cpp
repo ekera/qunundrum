@@ -647,7 +647,7 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -661,7 +661,7 @@ static void arguments_clear(
       mpz_clear(arguments->entries[i].d);
       mpz_clear(arguments->entries[i].r);
     }
-          
+
     free(arguments->entries);
     arguments->entries = NULL;
   }
@@ -798,7 +798,7 @@ static void * main_server_export_distribution(void * ptr)
   if (NULL == file) {
     critical("main_server_export_distribution(): Failed to open \"%s\".", path);
   }
-  
+
   if (distribution_is_filtered(distribution)) {
     distribution_export_clear_dealloc(distribution, file);
     printf("Finished exporting the distribution to \"%s\".\n", path);
@@ -815,7 +815,7 @@ static void * main_server_export_distribution(void * ptr)
 
     printf("Sorting the slices in the distribution...\n");
     distribution_sort_slices(distribution); /* Not strictly necessary. */
-  
+
     /* Setup the name of the filtered distribution. */
     char filtered_name[MAX_SIZE_PATH_BUFFER];
     safe_snprintf(filtered_name, MAX_SIZE_PATH_BUFFER, "filtered-%s", name);
@@ -1095,7 +1095,7 @@ static void main_client_compute_slice(
   const Probability_Estimate probability_estimate,
   const Sigma_Selection_Method sigma_method)
 {
-  Distribution_Slice_Compute_Method method = 
+  Distribution_Slice_Compute_Method method =
     DISTRIBUTION_SLICE_COMPUTE_METHOD_QUICK;
 
   if (PROBABILITY_ESTIMATE_BOUNDED_ERROR == probability_estimate) {
@@ -1239,7 +1239,7 @@ static void main_client(
         }
       }
 
-      /* Compute the slice for the selected dimension. Note that we divide the 
+      /* Compute the slice for the selected dimension. Note that we divide the
        * dimension by two below as it will be doubled in the Richardson
        * extrapolation when the slice is computed. */
       distribution_slice_init(&slice, required_dimension / 2);
@@ -1256,11 +1256,11 @@ static void main_client(
 
       /* To eliminate noise in the tail we need high resolution not only for
        * the tail itself but also the low probability area around it; otherwise
-       * these areas will erroneously sum to a significant probability. The 
+       * these areas will erroneously sum to a significant probability. The
        * below inferred and fairly coarse heuristic fixes such problems. */
-      
+
       bool dimension_updated = FALSE;
-  
+
       if (slice.total_probability >= 1e-7) {
         if (max_alpha >= m) {
           if (required_dimension < 512) {
@@ -1513,7 +1513,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

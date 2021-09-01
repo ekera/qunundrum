@@ -8,12 +8,12 @@
  * Diagonal probability distributions are used to represent the probability
  * distribution induced by Shor's algorithm for computing general discrete
  * logarithms [1] when modified as in [2] to start with a uniform superposition.
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
  * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
  */
 
@@ -26,12 +26,12 @@
  * Diagonal probability distributions are used to represent the probability
  * distribution induced by Shor's algorithm for computing general discrete
  * logarithms [1] when modified as in [2] to start with a uniform superposition.
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
  * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
  */
 
@@ -64,7 +64,7 @@ enum {
   /*!
    * \brief   A flag indicating that the distribution was constructed by
    *          setting a minimal r = 2^(m - 1) + 1 and random d.
-   * 
+   *
    * \note    This flag is currently not used.
    */
   DIAGONAL_DISTRIBUTION_FLAG_MINIMAL = 4,
@@ -72,7 +72,7 @@ enum {
   /*!
    * \brief   A flag indicating that the distribution was constructed by
    *          setting a maximal r = 2^m - 1 and random d.
-   * 
+   *
    * \note    This flag is currently not used.
    */
   DIAGONAL_DISTRIBUTION_FLAG_MAXIMAL = 8,
@@ -367,13 +367,13 @@ bool diagonal_distribution_sample_region(
 
 /*!
  * \brief   Samples an argument alpha_r from the probability distribution.
- * 
+ *
  * The argument alpha_r is sampled with high resolution, and is guaranteed to be
  * admissible.
  *
  * \param[in] distribution        The distribution to sample.
  * \param[in, out] random_state   The random state to use when sampling.
- * 
+ *
  * \param[in, out] alpha_r        The argument alpha_r.
  *
  * \return  Returns #TRUE if the argument alpha was successfully sampled, #FALSE
@@ -390,7 +390,7 @@ bool diagonal_distribution_sample_alpha_r(
  *
  * \param[in] distribution        The distribution to sample.
  * \param[in, out] random_state   The random state to use when sampling.
- * 
+ *
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.
  */

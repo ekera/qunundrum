@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_math.cpp
  * \ingroup unit_tests_math
- * 
- * \brief   The definition of unit tests for the basic mathematical functions 
+ *
+ * \brief   The definition of unit tests for the basic mathematical functions
  *          in the \ref math module.
  */
 
@@ -163,7 +163,7 @@ void test_math_mod_reduce() {
   const int32_t expected_7[7] = {0, 1, 2, 3, -3, -2, -1};
 
   mpz_set_ui(n, 7);
-  
+
   for (int32_t i = -3 * 7; i <= 3 * 7; i++) {
     mpz_set_si(x, i);
     mod_reduce(x, n);
@@ -181,7 +181,7 @@ void test_math_mod_reduce() {
 
   /* Tests for n = 8. */
   const int32_t expected_8[8] = {0, 1, 2, 3, -4, -3, -2, -1};
-  
+
   mpz_set_ui(n, 8);
 
   for (int32_t i = -3 * 8; i <= 3 * 8; i++) {

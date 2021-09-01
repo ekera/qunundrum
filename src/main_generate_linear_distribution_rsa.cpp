@@ -271,7 +271,7 @@ static bool arguments_init_parse_command_line(
         int result;
 
         result = mpz_probab_prime_p(arguments->p, RSA_MILLER_RABIN_ITERATIONS);
-        /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
+        /* Note: Returns 2 if n is prime, return 1 if n is probably prime
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {
           fprintf(stderr,
@@ -280,7 +280,7 @@ static bool arguments_init_parse_command_line(
         }
 
         result = mpz_probab_prime_p(arguments->q, RSA_MILLER_RABIN_ITERATIONS);
-        /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
+        /* Note: Returns 2 if n is prime, return 1 if n is probably prime
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {
           fprintf(stderr,
@@ -499,7 +499,7 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -859,8 +859,8 @@ void main_client()
     const int32_t m = (int32_t)(parameters.m);
 
     /* Note that it is technically only necessary to skip in the two-dimensional
-     * case, as the error otherwise grows to great. We could remove the below 
-     * restriction with a small gain in probability mass, and obtain a more 
+     * case, as the error otherwise grows to great. We could remove the below
+     * restriction with a small gain in probability mass, and obtain a more
      * symmetric distribution. */
 
     if (max_alpha > m + 10) {
@@ -1024,7 +1024,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

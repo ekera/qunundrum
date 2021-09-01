@@ -491,7 +491,7 @@ static bool arguments_init_parse_command_line(
         mpz_set_ui(arguments->entries[j].value, 0);
         mpz_setbit(arguments->entries[j].value, arguments->entries[j].m - 1);
 
-        if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value) 
+        if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value)
           <= 0)
         {
           fprintf(stderr, "Error: The explicitly specified value with -exp is "
@@ -526,7 +526,7 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -942,8 +942,8 @@ static void main_client()
     const int32_t m = (int32_t)(parameters.m);
 
     /* Note that it is technically only necessary to skip in the two-dimensional
-     * case, as the error otherwise grows to great. We could remove the below 
-     * restriction with a small gain in probability mass, and obtain a more 
+     * case, as the error otherwise grows to great. We could remove the below
+     * restriction with a small gain in probability mass, and obtain a more
      * symmetric distribution. */
 
     /* Skip this slice if the region is out of bounds. */
@@ -969,7 +969,7 @@ static void main_client()
     Linear_Distribution_Slice slice;
     linear_distribution_slice_init(&slice, dimension);
 
-    Linear_Distribution_Slice_Compute_Target target = 
+    Linear_Distribution_Slice_Compute_Target target =
       LINEAR_DISTRIBUTION_SLICE_COMPUTE_TARGET_D;
 
     if (DISTRIBUTION_TYPE_ORDER == distribution_type) {
@@ -1133,7 +1133,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

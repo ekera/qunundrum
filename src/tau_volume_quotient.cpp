@@ -36,38 +36,38 @@ bool tau_volume_quotient(
 
   /*
    * Given
-   * 
-   *    tau = log_( (1 / n) \sum_{i = 1}^{n} alpha^2_i ) / 2 - m 
-   * 
+   *
+   *    tau = log_( (1 / n) \sum_{i = 1}^{n} alpha^2_i ) / 2 - m
+   *
    * we first compute the radius
-   * 
+   *
    *    R = sqrt( \sum_{i = 1}^{n} alpha^2_i + ( d^2 or r^2 ) ),
-   * 
+   *
    * and then the volume quotient
-   * 
+   *
    *    v = pi^(D / 2) R^D / Gamma(D / 2 + 1) / 2^((l + m) n),
-   * 
+   *
    * where D = n + 1 is the dimension of the lattice.
-   * 
+   *
    * Below, R is computed from tau in in the following steps:
-   * 
+   *
    * 1. 2^(2 (tau + m)) = (1 / n) \sum_{i = 1}^{n} alpha^2_i
-   * 
+   *
    * 2. n 2^(2 (tau + m)) = \sum_{i = 1}^{n} alpha^2_i
-   * 
+   *
    * 3. n 2^(2 (tau + m)) + d^2 = \sum_{i = 1}^{n} alpha^2_i + d^2
-   * 
+   *
    * 4. sqrt(n 2^(2 (tau + m))) + d^2 = sqrt( \sum_{i = 1}^{n} alpha^2_i + d^2 )
-   * 
+   *
    * The steps required to compute v given R are rather self-explanatory.
    */
-  
+
   mpfr_set_ld(radius, 2.0f * (tau + m), MPFR_RNDN); /* radius = 2 (tau + m) */
   mpfr_exp2(radius, radius, MPFR_RNDN);
     /* radius = 2^(2 (tau + m)) = (1 / n) \sum_{i = 1}^{n} alpha^2_i */
-  mpfr_mul_ui(radius, radius, n, MPFR_RNDN); 
+  mpfr_mul_ui(radius, radius, n, MPFR_RNDN);
     /* radius = \sum_{i = 1}^{n} alpha^2_i */
-  
+
   if (NULL == d_or_r) {
     mpfr_set_ui_2exp(tmp, 1, (mpfr_exp_t)m, MPFR_RNDN); /* tmp = 2^m */
   } else {
@@ -75,7 +75,7 @@ bool tau_volume_quotient(
   }
 
   mpfr_sqr(tmp, tmp, MPFR_RNDN); /* tmp = d^2 or r^2 */
-  mpfr_add(radius, radius, tmp, MPFR_RNDN); 
+  mpfr_add(radius, radius, tmp, MPFR_RNDN);
     /* radius = \sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2) */
   mpfr_sqrt(radius, radius, MPFR_RNDN);
     /* radius = sqrt(\sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2)) */

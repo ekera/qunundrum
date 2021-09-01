@@ -37,7 +37,7 @@ static void diagonal_parameters_setup_regions(
   }
 
   if (parameters->t >= parameters->sigma) {
-    /* The maximum alpha is 2^(m+sigma-1) - 1. Hence this maximum is 
+    /* The maximum alpha is 2^(m+sigma-1) - 1. Hence this maximum is
      * 2^(m+sigma-2), as we add up to one to the exponent during the search. */
     parameters->max_alpha_r = parameters->m + parameters->sigma - 2;
   } else {

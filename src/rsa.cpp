@@ -71,7 +71,7 @@ void rsa_generate_modulus(
         continue;
       }
     }
-  
+
     break;
   }
 

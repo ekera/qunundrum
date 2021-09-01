@@ -213,7 +213,7 @@ static bool arguments_init_parse_command_line(
     }
 
     /* Parse the reduction algorithm. */
-    Lattice_Reduction_Algorithm reduction_algorithm = 
+    Lattice_Reduction_Algorithm reduction_algorithm =
       REDUCTION_ALGORITHM_DEFAULT;
 
     if (0 == strcmp(argv[i], "-lll")) {
@@ -488,7 +488,7 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
+ *
  * \param[in, out] arguments   The argument data structure to clear.
  */
 static void arguments_clear(
@@ -923,7 +923,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments    The parsed command line arguments.
  */
 static void main_client(
@@ -1094,10 +1094,10 @@ static void main_client(
     Lattice_Status_Recovery recovery_status_d;
     Lattice_Status_Recovery recovery_status_r;
 
-    /* If the flag for detecting smooth orders has been set, pass TRUE for 
+    /* If the flag for detecting smooth orders has been set, pass TRUE for
      * the detect_smooth_r argument, otherwise pass FALSE. */
-    const bool detect_smooth_r = 
-      (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) ? 
+    const bool detect_smooth_r =
+      (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) ?
         TRUE : FALSE;
 
     if (SOLUTION_METHOD_CLOSEST == arguments->solution_method) {
@@ -1308,7 +1308,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

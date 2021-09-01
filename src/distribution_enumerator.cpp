@@ -17,27 +17,27 @@
 #include <stdlib.h>
 
 /*!
- * \brief Compares two distribution slice coordinates with respect to their 
- *        distance from (abs(alpha_d), abs(alpha_r)) = (m, m), for the 
+ * \brief Compares two distribution slice coordinates with respect to their
+ *        distance from (abs(alpha_d), abs(alpha_r)) = (m, m), for the
  *        purpose of enabling coordinates to be sorted with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first coordinate.
  * \param[in] b   A pointer to a pointer to the second coordinate.
- * 
+ *
  * \return Returns -1 if the the distance for the first coordinate is greater
- *         than that of the second coordinate, -1 if the inverse is true and 
+ *         than that of the second coordinate, -1 if the inverse is true and
  *         0 if the distances are equal.
  */
 static int distribution_enumerator_sort_coordinates_cmp(
   const void * const a,
   const void * const b)
 {
-  const Distribution_Coordinate * const coordinate_a = 
+  const Distribution_Coordinate * const coordinate_a =
     *((const Distribution_Coordinate * const *)a);
 
-  const Distribution_Coordinate * const coordinate_b = 
+  const Distribution_Coordinate * const coordinate_b =
     *((const Distribution_Coordinate * const *)b);
-  
+
   if ((coordinate_a->distance) > (coordinate_b->distance)) {
     return 1;
   } else if ((coordinate_a->distance) < (coordinate_b->distance)) {
@@ -127,21 +127,21 @@ void distribution_enumerator_init(
       coordinate->min_log_alpha_r *= -1;
     }
 
-    /* Compute and store the distance. For more information on the distance, 
+    /* Compute and store the distance. For more information on the distance,
      * see documentation for Distribution_Coordinate::distance. */
     uint32_t tmp;
 
-    tmp = abs_i((int32_t)abs_i(coordinate->min_log_alpha_d) - 
+    tmp = abs_i((int32_t)abs_i(coordinate->min_log_alpha_d) -
       (int32_t)parameters->m);
     coordinate->distance  = tmp * tmp;
-   
-    tmp = abs_i((int32_t)abs_i(coordinate->min_log_alpha_r) - 
+
+    tmp = abs_i((int32_t)abs_i(coordinate->min_log_alpha_r) -
       (int32_t)parameters->m);
     coordinate->distance += tmp * tmp;
 
     /* Zeroize the norms of elements on the diagonal to process these first. */
     if (abs_i(coordinate->min_log_alpha_d - coordinate->min_log_alpha_r) <= 1) {
-        if (sgn_i(coordinate->min_log_alpha_d) == 
+        if (sgn_i(coordinate->min_log_alpha_d) ==
           sgn_i(coordinate->min_log_alpha_r))
         {
           if (abs_i(coordinate->min_log_alpha_d) > parameters->m) {
@@ -156,7 +156,7 @@ void distribution_enumerator_init(
 
   /* Sort the coordinates. */
   qsort(
-    enumerator->coordinates, 
+    enumerator->coordinates,
     enumerator->count,
     sizeof(Distribution_Coordinate *),
     distribution_enumerator_sort_coordinates_cmp);
@@ -182,7 +182,7 @@ bool distribution_enumerator_next(
     return FALSE;
   }
 
-  (*min_log_alpha_d) = 
+  (*min_log_alpha_d) =
     enumerator->coordinates[enumerator->offset]->min_log_alpha_d;
   (*min_log_alpha_r) =
     enumerator->coordinates[enumerator->offset]->min_log_alpha_r;

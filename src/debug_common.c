@@ -1,7 +1,7 @@
 /*!
  * \file    debug_common.c
  * \ingroup debug_trace_print
- * 
+ *
  * \brief   The definition of functions used to generate debug trace printouts.
  */
 
@@ -23,6 +23,6 @@ void debug_print_buffer(
 
     printf("%.2x ", buffer[i]);
   }
-  
+
   printf("\n");
 }

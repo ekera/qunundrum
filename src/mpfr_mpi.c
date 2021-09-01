@@ -28,7 +28,7 @@
 #define MPI_MPFR_DATA_TAG                         11022
 
 /*!
- * \brief   The length in bytes of the buffer used to serialize arbitrary 
+ * \brief   The length in bytes of the buffer used to serialize arbitrary
  *          precision floating point integers.
  */
 #define MPFR_LENGTH_BUFFER                        32768

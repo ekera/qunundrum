@@ -46,16 +46,16 @@ typedef enum {
   LATTICE_STATUS_RECOVERED_IMMEDIATE = 1,
 
   /*!
-   * \brief   Indicates that the solution was recovered, either by extracting 
+   * \brief   Indicates that the solution was recovered, either by extracting
    *          the shortest non-zero vector from the reduced lattice basis, or by
    *          mapping a target vector to the closest vector in the lattice using
-   *          Babai's nearest plane algorithm, and then performing a small 
+   *          Babai's nearest plane algorithm, and then performing a small
    *          linear search in the last lattice component.
    */
   LATTICE_STATUS_RECOVERED_SEARCH = 2,
 
   /*!
-   * \brief   Indicates that the solution was recovered by enumerating the 
+   * \brief   Indicates that the solution was recovered by enumerating the
    *          lattice.
    */
   LATTICE_STATUS_RECOVERED_ENUMERATION = 3,
@@ -67,12 +67,12 @@ typedef enum {
 
   /*!
    * \brief   Indicates that the solution was recovered, except for a cm-smooth
-   *          factor that may be efficiently found in an additional classical 
-   *          post-processing step. */ 
+   *          factor that may be efficiently found in an additional classical
+   *          post-processing step. */
   LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH = 5,
 
   /*!
-   * \brief   Indicates that the discrete logarithm, reduced modulo (r / z) for 
+   * \brief   Indicates that the discrete logarithm, reduced modulo (r / z) for
    *          some smooth z > 1, was recovered by enumerating the lattice.
    */
   LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH = 6

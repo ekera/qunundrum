@@ -358,25 +358,25 @@ void linear_distribution_insert_slice(
 }
 
 /*!
- * \brief Compares two linear slices with respect to the total probability  
- *        they capture, for the purpose of enabling slices to be sorted in 
+ * \brief Compares two linear slices with respect to the total probability
+ *        they capture, for the purpose of enabling slices to be sorted in
  *        descending order with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first slice.
  * \param[in] b   A pointer to a pointer to the second slice.
- * 
- * \return Returns -1 if the total probability captured by the first slice is 
- *         greater than that captured by the second slice, 1 if the inverse is 
+ *
+ * \return Returns -1 if the total probability captured by the first slice is
+ *         greater than that captured by the second slice, 1 if the inverse is
  *         true, and 0 if the probabilities are equal.
  */
 static int linear_distribution_sort_slices_cmp(
   const void * const a,
   const void * const b)
 {
-  const Linear_Distribution_Slice * const slice_a = 
+  const Linear_Distribution_Slice * const slice_a =
     *((const Linear_Distribution_Slice * const *)a);
 
-  const Linear_Distribution_Slice * const slice_b = 
+  const Linear_Distribution_Slice * const slice_b =
     *((const Linear_Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
@@ -396,9 +396,9 @@ void linear_distribution_sort_slices(
   }
 
   qsort(
-    distribution->slices, 
-    distribution->count, 
-    sizeof(Linear_Distribution_Slice *), 
+    distribution->slices,
+    distribution->count,
+    sizeof(Linear_Distribution_Slice *),
     linear_distribution_sort_slices_cmp);
 }
 
@@ -437,12 +437,12 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
 
-  /* Normalize if the total probability exceeds one. Of course, this should 
+  /* Normalize if the total probability exceeds one. Of course, this should
    * never occur in practice, unless the dimension that controls the resolution
    * of the distribution is set very low. This check handles such cases. */
   if (distribution->total_probability > 1) {
     pivot *= distribution->total_probability;
-    
+
     #ifdef DEBUG_TRACE_SAMPLING
     printf("linear_distribution_sample_slice(): "
       "Debug: Warning: Scaled pivot: %Lf\n", pivot);
@@ -469,7 +469,7 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
       return slice;
     }
   }
-  
+
   #ifdef DEBUG_TRACE_SAMPLING
   printf("linear_distribution_sample_slice(): Debug: Out of bounds.\n");
   #endif

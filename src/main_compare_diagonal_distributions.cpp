@@ -100,7 +100,7 @@ int main(int argc, char ** argv) {
 
     for (uint32_t i = 0; i < distribution_a.count; i++) {
       if (distribution_a.slices[i]->min_log_alpha_r == t_a) {
-        total_slice_probability_a += 
+        total_slice_probability_a +=
           distribution_a.slices[i]->total_probability;
         found_slice_a = TRUE;
       }
@@ -111,7 +111,7 @@ int main(int argc, char ** argv) {
 
     for (uint32_t i = 0; i < distribution_b.count; i++) {
       if (distribution_b.slices[i]->min_log_alpha_r == t_b) {
-        total_slice_probability_b += 
+        total_slice_probability_b +=
           distribution_b.slices[i]->total_probability;
         found_slice_b = TRUE;
       }

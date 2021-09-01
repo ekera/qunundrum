@@ -1,7 +1,7 @@
 /*!
  * \file    test/test_keccak.cpp
  * \ingroup unit_tests_keccak
- * 
+ *
  * \brief   The definition of unit tests for \ref keccak module.
  */
 
@@ -19,7 +19,7 @@ void test_keccak_f() {
 
   uint64_t state[KECCAK_LANE_COUNT];
   memset(state, 0, sizeof(state));
-  
+
   keccak_f(state);
 
   for (uint32_t i = 0; i < KECCAK_LANE_COUNT; i++) {

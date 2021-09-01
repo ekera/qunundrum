@@ -35,7 +35,7 @@ using namespace std;
 using namespace fplll;
 
 /*!
- * \brief   The factor by which the estimated square norm of the shortest 
+ * \brief   The factor by which the estimated square norm of the shortest
  *          vector in the lattice should be reduced.
  *
  * This reduction is performed so as to attempt to ensure that we do not miss
@@ -45,7 +45,7 @@ using namespace fplll;
 
 /*!
  * \brief   The maximum number of radius doublings.
- * 
+ *
  * Enumeration is performed in balls of increasingly greater radius. The initial
  * radius is given by the reduced estimated norm of the shortest non-zero vector
  * in the reduced lattice basis. This norm is then doubled repeatedly.
@@ -55,57 +55,57 @@ using namespace fplll;
 /*!
  * \brief   Computes uhat, the optimum for the k:th entry in the cu_coordinates
  *          vector, and the minimum and maximum offsets in uhat.
- * 
+ *
  * Let A be the (n + 1) x (n + 1) basis matrix of the lattice L.
- * 
- * Let G be the Gram-Schmidt orthogonalized (GSO) basis matrix for A, and M the 
+ *
+ * Let G be the Gram-Schmidt orthogonalized (GSO) basis matrix for A, and M the
  * triangular matrix of Gram-Schmidt projection factors, so that A = M * G. Note
  * that gram_schmidt_orthogonalization() computes these matrices given A.
- * 
- * Let u = cu_coordinates * A and v = cu_coordinates * A, where cu_coordinates 
+ *
+ * Let u = cu_coordinates * A and v = cu_coordinates * A, where cu_coordinates
  * and cv_coordinates are row vectors.
- * 
+ *
  * Let k be an integer index on the interval between 1 and n + 1.
- * 
- * Assume that cv_coordinates is completely populated, and that the entries at 
+ *
+ * Assume that cv_coordinates is completely populated, and that the entries at
  * indices k, .., n + 1 of cu_coordinates are populated.
- * 
- * This function then computes minimum and maximum offset in the k:th entry in 
- * the cu_coordinates vector, such that 
- * 
- *   | \\pi_k(u - v) |^2 = 
+ *
+ * This function then computes minimum and maximum offset in the k:th entry in
+ * the cu_coordinates vector, such that
+ *
+ *   | \\pi_k(u - v) |^2 =
  *     | \\pi_k((cu_coordinates - cv_coordinates) * A) |^2 =
  *       | \\pi_k((cu_coordinates - cv_coordinates) * M * G) |^2 < R^2.
- * 
- * where R^2 is square_radius. This is accomplished using standard techniques 
+ *
+ * where R^2 is square_radius. This is accomplished using standard techniques
  * of looking at the Gram-Schmidt projection of u - v onto planes k, .., n + 1.
- * 
+ *
  * \internal
  *
- * \param[out]     uhat             An integer to set to the optimum for the 
+ * \param[out]     uhat             An integer to set to the optimum for the
  *                                  k:th entry in the cu_coordinates vector.
- * \param[out]     min_uhat_offset  An integer to set to the minimum offset in 
+ * \param[out]     min_uhat_offset  An integer to set to the minimum offset in
  *                                  the k:th entry in the cu_coordinates vector.
- * \param[out]     max_uhat_offset  An integer to set to the maximum offset in 
+ * \param[out]     max_uhat_offset  An integer to set to the maximum offset in
  *                                  the k:th entry in the cu_coordinates vector.
- * \param[in]      square_radius    The square radius R^2 of the ball to 
+ * \param[in]      square_radius    The square radius R^2 of the ball to
  *                                  enumerate.
- * \param[in, out] cu_coordinates   The coordinates of u in the A basis. The 
+ * \param[in, out] cu_coordinates   The coordinates of u in the A basis. The
  *                                  k:th entry will be set to uhat.
  * \param[in]      cv_coordinates   The coordinates of v in the A basis.
- * \param[in]      M                The triangular M matrix of Gram-Schmidt 
- *                                  projection factors, such that A = M * G for 
- *                                  G the Gram-Schmidt orthogonalized (GSO) 
+ * \param[in]      M                The triangular M matrix of Gram-Schmidt
+ *                                  projection factors, such that A = M * G for
+ *                                  G the Gram-Schmidt orthogonalized (GSO)
  *                                  basis matrix for the A basis.
  * \param[in]      G_square_norms   The square norms of the rows of G.
- * \param[in]      k                The index into the cu_coordinates vector. 
- *                                  Must  be on the interval [1, n + 1]. The 
- *                                  entries at indices k + 1, .., n + 1 of the 
+ * \param[in]      k                The index into the cu_coordinates vector.
+ *                                  Must  be on the interval [1, n + 1]. The
+ *                                  entries at indices k + 1, .., n + 1 of the
  *                                  cu_oordinates vector must be populated.
- * \param[in]      n                The number of runs used to setup the A 
+ * \param[in]      n                The number of runs used to setup the A
  *                                  matrix from which G and M are computed.
  * \param[in]      precision        The floating point precision.
- * 
+ *
  * \return Returns #TRUE if | \\pi_k(u - v) |^2 > R^2, and #FALSE otherwise.
  */
 static bool compute_uhat_offsets(
@@ -148,7 +148,7 @@ static bool compute_uhat_offsets(
 
   mpfr_round(tmp, tmp);
   mpfr_get_z(uhat, tmp, MPFR_RNDN);
-  
+
   /* 1.1 Store uhat in the k:th position in the cu_coordinates vector. */
   mpz_set(cu_coordinates[k - 1].get_data(), uhat);
     /* Note: k is indexed from one. */
@@ -265,17 +265,17 @@ static bool compute_uhat_offsets(
  *
  *   1. We use standard techniques from the literature, such as incremental
  *      Gram-Schmidt projections, to enumerate all vectors in within a ball of a
- *      given radius, see the internal function offset_uhat(). We test each 
- *      plausible candidate against the known solution d_or_r. (This explains 
+ *      given radius, see the internal function offset_uhat(). We test each
+ *      plausible candidate against the known solution d_or_r. (This explains
  *      why d_or_r must be passed to this function.)
  *
- *   2. We use that the last component is d or r, and hence on a restricted 
+ *   2. We use that the last component is d or r, and hence on a restricted
  *      known interval min_d_or_r <= d, r <= max_d_or_r.
  *
  *   3. We support detecting partially smooth r.
  *
- * [1] Kannan, R.: Improved algorithms for integer programming and related 
- * lattice problems. In: Proceedings of the 15th Symposium on the Theory of 
+ * [1] Kannan, R.: Improved algorithms for integer programming and related
+ * lattice problems. In: Proceedings of the 15th Symposium on the Theory of
  * Computing. STOC 1983. ACM Press, pp. 99—108 (1983).
  *
  * Note that this a fairly straightforward implementation of lattice enumeration
@@ -285,16 +285,16 @@ static bool compute_uhat_offsets(
  *
  * \internal
  *
- * \param[out]     status          An entry in the #Lattice_Status_Recovery 
- *                                 enumeration that is used to signal  
- *                                 information on whether d_or_r was 
+ * \param[out]     status          An entry in the #Lattice_Status_Recovery
+ *                                 enumeration that is used to signal
+ *                                 information on whether d_or_r was
  *                                 successfully recovered.
- * \param[in]      square_radius   The square radius R^2 of the ball to 
+ * \param[in]      square_radius   The square radius R^2 of the ball to
  *                                 enumerate.
  * \param[in, out] cu_coordinates  The coordinates of u in the A basis.
  * \param[in]      cv_coordinates  The coordinates of v in the A basis.
- * \param[in]      M               The triangular M matrix of Gram-Schmidt 
- *                                 projection factors, such that A = M * G for 
+ * \param[in]      M               The triangular M matrix of Gram-Schmidt
+ *                                 projection factors, such that A = M * G for
  *                                 G the Gram-Schmidt orthogonalized (GSO) basis
  *                                 matrix for the A basis.
  * \param[in]      G_square_norms  The square norms of the rows of G.
@@ -302,26 +302,26 @@ static bool compute_uhat_offsets(
  *                                 Specifies the depth in the enumeration tree.
  * \param[in]      n               The number of runs n used to setup A. Also A,
  *                                 G and M are all (n + 1) x (n + 1) matrices.
- * \param[in]      min_d_or_r      The minimum value of the correct solution. 
- *                                 Used to prune the enumeration at the last 
+ * \param[in]      min_d_or_r      The minimum value of the correct solution.
+ *                                 Used to prune the enumeration at the last
  *                                 level of the enumeration tree.
  * \param[in]      max_d_or_r      The maximum value of the correct solution.
- *                                 Used to prune the enumeration at the last 
+ *                                 Used to prune the enumeration at the last
  *                                 level of the enumeration tree.
- * \param[in]      d_or_r          The correct solution. Used only to test if 
+ * \param[in]      d_or_r          The correct solution. Used only to test if
  *                                 the candidate solutions found are correct.
- * \param[in]      m               The length m in bits of r. Used only when 
- *                                 solving of r, and detect_smooth is set to 
+ * \param[in]      m               The length m in bits of r. Used only when
+ *                                 solving of r, and detect_smooth is set to
  *                                 #TRUE.
  * \param[in]      precision       The floating point precision.
- * \param[in]      detect_smooth   A flag that should be set to #TRUE if the 
- *                                 function should return d_or_r' for 
- *                                 d_or_r = d_or_r' * z, where z is smooth. Set 
+ * \param[in]      detect_smooth   A flag that should be set to #TRUE if the
+ *                                 function should return d_or_r' for
+ *                                 d_or_r = d_or_r' * z, where z is smooth. Set
  *                                 to #FALSE otherwise.
- * \param[in]      timeout         The timeout after which the enumeration will 
+ * \param[in]      timeout         The timeout after which the enumeration will
  *                                 be aborted. Set to 0 to disable the timeout.
  * \param[in]      timer           A timer used to measure how much time has
- *                                 elapsed since the first call this this 
+ *                                 elapsed since the first call this this
  *                                 function. Must be initialized and started by
  *                                 the caller.
  */
@@ -618,7 +618,7 @@ lattice_enumerate_inner_clear:
   switch (*status) {
     case LATTICE_STATUS_NOT_RECOVERED:
     case LATTICE_STATUS_TIMEOUT:
-      /* Zeroize the k:th entry in the cu_coordinates vectors. This is not 
+      /* Zeroize the k:th entry in the cu_coordinates vectors. This is not
        * necessary, but avoids leaving data in the vector when backtracking. */
       mpz_set_ui(cu_coordinates[k - 1].get_data(), 0);
       break;
@@ -782,7 +782,7 @@ void lattice_enumerate_reduced_basis_for_d(
       mpz_set_ui(cu_coordinates[j].get_data(), 0);
     }
 
-    /* Compute the square norm of the shortest non-zero vector in the reduced 
+    /* Compute the square norm of the shortest non-zero vector in the reduced
      * lattice basis A. */
     mpfr_t square_radius;
     mpfr_init2(square_radius, precision);
@@ -794,7 +794,7 @@ void lattice_enumerate_reduced_basis_for_d(
       mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
     }
 
-    /* To attempt to ensure that we do not miss the shortest vector in the 
+    /* To attempt to ensure that we do not miss the shortest vector in the
      * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
     mpfr_div_ui(
       square_radius,
@@ -870,9 +870,9 @@ void lattice_enumerate_reduced_basis_for_d(
         &timer);
 
       /* Note that we set detect_smooth to FALSE above. If r is partially very
-       * smooth, there may be an artificially short vector in the lattice, 
-       * leading us to enumerate very many vectors. To handle this, however, 
-       * we reduce the upper interval for d, see the above code. The 
+       * smooth, there may be an artificially short vector in the lattice,
+       * leading us to enumerate very many vectors. To handle this, however,
+       * we reduce the upper interval for d, see the above code. The
        * detect_smooth flag is only relevant when enumerating for r. */
 
       if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
@@ -971,7 +971,7 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
 
   mpfr_t tmp;
   mpfr_init2(tmp, precision);
-  
+
   /* Compute the square norms of the rows of the G matrix. */
   vector<FP_NR<mpfr_t>> G_square_norms(n + 1);
 
@@ -1060,7 +1060,7 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
       mpz_set_ui(cu_coordinates[j].get_data(), 0);
     }
 
-    /* Compute the square norm of the shortest non-zero vector in the reduced 
+    /* Compute the square norm of the shortest non-zero vector in the reduced
      * lattice basis A. */
     mpfr_t square_radius;
     mpfr_init2(square_radius, precision);
@@ -1072,7 +1072,7 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
       mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
     }
 
-    /* To attempt to ensure that we do not miss the shortest vector in the 
+    /* To attempt to ensure that we do not miss the shortest vector in the
      * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
     mpfr_div_ui(
       square_radius,
@@ -1121,9 +1121,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
         &timer);
 
       /* Note that we set detect_smooth to FALSE above. If r is partially very
-       * smooth, there may be an artificially short vector in the lattice, 
-       * leading us to enumerate very many vectors. To handle this, however, 
-       * we reduce the upper interval for d, see the above code. The 
+       * smooth, there may be an artificially short vector in the lattice,
+       * leading us to enumerate very many vectors. To handle this, however,
+       * we reduce the upper interval for d, see the above code. The
        * detect_smooth flag is only relevant when enumerating for r. */
 
       if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
@@ -1220,7 +1220,7 @@ void lattice_enumerate_reduced_basis_for_r(
     mpz_set_ui(cu_coordinates[j].get_data(), 0);
   }
 
-  /* Compute the square norm of the shortest non-zero vector in the reduced 
+  /* Compute the square norm of the shortest non-zero vector in the reduced
    * lattice basis A. */
   mpfr_t square_radius;
   mpfr_init2(square_radius, precision);
@@ -1232,7 +1232,7 @@ void lattice_enumerate_reduced_basis_for_r(
     mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
   }
 
-  /* To attempt to ensure that we do not miss the shortest vector in the 
+  /* To attempt to ensure that we do not miss the shortest vector in the
    * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
     mpfr_div_ui(
       square_radius,

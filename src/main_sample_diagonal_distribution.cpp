@@ -3,7 +3,7 @@
  * \ingroup sample_diagonal_distribution_exe
  *
  * \brief   The definition of the main entry point to the
- *          sample_diagonal_distribution executable, and of associated 
+ *          sample_diagonal_distribution executable, and of associated
  *          functions.
  */
 
@@ -149,13 +149,13 @@ int main(int argc, char ** argv) {
     mpz_set_ui(tmp, 0);
     mpz_setbit(tmp, distribution.parameters.m + distribution.parameters.sigma);
     mod_reduce(alpha_r, tmp);
-  
+
     /* Compute alpha_d. */
     mpz_mul(alpha_d, distribution.parameters.d, j);
 
     mpz_set_ui(tmp, 0);
-    mpz_setbit(tmp, distribution.parameters.m + 
-                    distribution.parameters.sigma - 
+    mpz_setbit(tmp, distribution.parameters.m +
+                    distribution.parameters.sigma -
                     distribution.parameters.l);
     mpz_mul(tmp, tmp, k);
 
@@ -188,6 +188,6 @@ int main(int argc, char ** argv) {
   mpz_clear(tmp);
 
   diagonal_distribution_clear(&distribution);
-  
+
   return 0;
 }

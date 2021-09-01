@@ -179,7 +179,7 @@ void distribution_slice_sample_region(
   printf("distribution_slice_sample_region(): "
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
-  
+
   pivot *= slice->total_probability;
 
   #ifdef DEBUG_TRACE_SAMPLING

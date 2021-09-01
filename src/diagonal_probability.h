@@ -3,7 +3,7 @@
  * \ingroup diagonal_distribution_probability
  *
  * \brief   The declaration of functions for computing the probability of
- *          observing a pair (j, k) with angle pair (theta_d, theta_r) for 
+ *          observing a pair (j, k) with angle pair (theta_d, theta_r) for
  *          a general discrete logarithm.
  */
 

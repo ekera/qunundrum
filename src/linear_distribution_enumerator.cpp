@@ -17,27 +17,27 @@
 #include <stdlib.h>
 
 /*!
- * \brief Compares two linear distribution slice coordinates with respect to 
- *        their distance from abs(alpha_r) = m, for the purpose of enabling 
+ * \brief Compares two linear distribution slice coordinates with respect to
+ *        their distance from abs(alpha_r) = m, for the purpose of enabling
  *        coordinates to be sorted with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first coordinate.
  * \param[in] b   A pointer to a pointer to the second coordinate.
- * 
+ *
  * \return Returns -1 if the the distance for the first coordinate is greater
- *         than that of the second coordinate, -1 if the inverse is true and 
+ *         than that of the second coordinate, -1 if the inverse is true and
  *         0 if the distances are equal.
  */
 static int linear_distribution_enumerator_sort_coordinates_cmp(
   const void * const a,
   const void * const b)
 {
-  const Linear_Distribution_Coordinate * const coordinate_a = 
+  const Linear_Distribution_Coordinate * const coordinate_a =
     *((const Linear_Distribution_Coordinate * const *)a);
 
-  const Linear_Distribution_Coordinate * const coordinate_b = 
+  const Linear_Distribution_Coordinate * const coordinate_b =
     *((const Linear_Distribution_Coordinate * const *)b);
-  
+
   if ((coordinate_a->distance) > (coordinate_b->distance)) {
     return 1;
   } else if ((coordinate_a->distance) < (coordinate_b->distance)) {
@@ -112,16 +112,16 @@ void linear_distribution_enumerator_init(
       }
     }
 
-    /* Compute and store the distance. For more information on the distance, 
+    /* Compute and store the distance. For more information on the distance,
      * see documentation for Linear_Distribution_Coordinate::distance. */
     enumerator->coordinates[i]->distance =
-      abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha) - 
+      abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha) -
         (int32_t)parameters->m);
   }
 
   /* Sort the coordinates. */
   qsort(
-    enumerator->coordinates, 
+    enumerator->coordinates,
     enumerator->count,
     sizeof(Linear_Distribution_Coordinate *),
     linear_distribution_enumerator_sort_coordinates_cmp);

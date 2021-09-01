@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_sample.cpp
  * \ingroup unit_tests_sample_distribution
- * 
- * \brief   The definition of unit tests for the \ref sample_distribution 
+ *
+ * \brief   The definition of unit tests for the \ref sample_distribution
  *          module.
  */
 
@@ -38,7 +38,7 @@ void test_sample_approximate_alpha_from_region() {
     for (uint32_t j = 0; j < 10; j++) {
       double min_log_alpha = 10 * i + j;     min_log_alpha /= 10;
       double max_log_alpha = 10 * i + j + 1; max_log_alpha /= 10;
-      
+
       /* Positive. */
       sample_approximate_alpha_from_region(
         alpha, min_log_alpha, max_log_alpha, &random_state);
@@ -57,7 +57,7 @@ void test_sample_approximate_alpha_from_region() {
         critical("test_sample_approximate_alpha_from_region(): "
           "Failed to sample. Incorrect magnitude.");
       }
-  
+
       /* Negative. */
       sample_approximate_alpha_from_region(
         alpha, -min_log_alpha, -max_log_alpha, &random_state);
@@ -142,7 +142,7 @@ void test_sample_alpha_from_region() {
         }
 
         mpfr_set_z(alpha_f, alpha, MPFR_RNDN);
-        
+
         mpfr_abs(alpha_f, alpha_f, MPFR_RNDN);
         mpfr_log2(alpha_f, alpha_f, MPFR_RNDN);
 
@@ -199,7 +199,7 @@ void test_sample_j_from_alpha_r() {
   mpz_t pow2ml;
   mpz_init_set_ui(pow2ml, 0);
   mpz_setbit(pow2ml, m + l);
-  
+
   parameters_selection_random_d_or_r(r, m);
   mpz_set(d, r); /* by convention */
 
@@ -251,7 +251,7 @@ void test_sample_j_from_alpha_r() {
   mpz_clear(tmp);
 
   mpz_clear(pow2ml);
-  
+
   random_close(&random_state);
   parameters_clear(&parameters);
 }
@@ -298,7 +298,7 @@ void test_sample_j_k_from_alpha_d() {
   mpz_t pow2mlm1;
   mpz_init_set_ui(pow2mlm1, 0);
   mpz_setbit(pow2mlm1, m + l - 1);
-  
+
   parameters_selection_random_d_or_r(d, m);
   mpz_set(r, d); /* by convention */
 
@@ -357,14 +357,14 @@ void test_sample_j_k_from_alpha_d() {
   mpz_clear(alpha);
   mpz_clear(j);
   mpz_clear(k);
-  
+
   mpz_clear(tmp);
   mpz_clear(tmp2);
 
   mpz_clear(pow2m);
   mpz_clear(pow2ml);
   mpz_clear(pow2mlm1);
-  
+
   random_close(&random_state);
   parameters_clear(&parameters);
 }
@@ -427,7 +427,7 @@ void test_sample_j_k_from_alpha_d_r() {
 
   mpfr_t alpha_f;
   mpfr_init2(alpha_f, PRECISION);
-  
+
   parameters_selection_random_d_and_r(d, r, m);
 
   Parameters parameters;
@@ -442,11 +442,11 @@ void test_sample_j_k_from_alpha_d_r() {
   for (uint32_t id3 = 0; id3 <= 1; id3++) {
     double min_log_alpha_d = 10 * id + id2;     min_log_alpha_d /= 10;
     double max_log_alpha_d = 10 * id + id2 + 1; max_log_alpha_d /= 10;
-    
+
     if (1 == id3) {
       min_log_alpha_d *= -1; max_log_alpha_d *= -1;
     }
-    
+
     for (uint32_t ir = m - 30; ir < m + 30; ir++) {
     for (uint32_t ir2 = 0; ir2 < 10; ir2++) {
     for (uint32_t ir3 = 0; ir3 <= 1; ir3++) {
@@ -465,14 +465,14 @@ void test_sample_j_k_from_alpha_d_r() {
 
       mpz_set(original_alpha_d, alpha_d);
       mpz_set(original_alpha_r, alpha_r);
-      
+
       /* Map the argument pair to the closest admissible argument pair. */
       lattice_alpha_map(
         alpha_d,
         alpha_r,
         &(distribution.lattice_alpha),
         &parameters);
-      
+
       mpz_sub(tmp, original_alpha_d, alpha_d);
       mpz_abs(tmp, tmp);
       if (mpz_cmp(tmp, bound_diff_alpha) > 0) {
@@ -498,7 +498,7 @@ void test_sample_j_k_from_alpha_d_r() {
       if (mpz_cmp(tmp, pow2mlm1) >= 0) {
         mpz_sub(tmp, tmp, pow2ml);
       }
-      
+
       if (0 != mpz_cmp(tmp, alpha_d)) {
         critical("test_sample_j_k_from_alpha_d_r(): Failed to sample (j, k).");
       }
@@ -571,7 +571,7 @@ void test_sample_j_k_from_alpha_d_r() {
   mpz_clear(original_alpha_r);
   mpz_clear(j);
   mpz_clear(k);
-  
+
   mpz_clear(tmp);
   mpz_clear(tmp2);
 
@@ -582,7 +582,7 @@ void test_sample_j_k_from_alpha_d_r() {
   mpz_clear(bound_diff_alpha);
 
   mpfr_clear(alpha_f);
-  
+
   random_close(&random_state);
   parameters_clear(&parameters);
   distribution_clear(&distribution);
@@ -658,11 +658,11 @@ void test_sample_j_from_diagonal_alpha_r() {
   mpz_clear(r);
   mpz_clear(alpha_r);
   mpz_clear(j);
-  
+
   mpz_clear(tmp);
 
   mpz_clear(pow2msigma);
-  
+
   random_close(&random_state);
   diagonal_parameters_clear(&parameters);
 }

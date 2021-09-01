@@ -64,7 +64,7 @@ void lattice_alpha_init(
   mpz_set_ui(lattice->A[1][1].get_data(), 0);
 
   /* Reduce the basis matrix using LLL. We previously used HKZ for this purpose
-   * but the fpLLL implementation of HKZ sometimes seemingly hangs. Since the 
+   * but the fpLLL implementation of HKZ sometimes seemingly hangs. Since the
    * lattice is two-dimensional, the choice is not very significant. */
   int status = lll_reduction(
                 lattice->A,

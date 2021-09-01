@@ -37,10 +37,10 @@ using namespace fplll;
 
 /*!
  * \brief   A bound on the largest multiple of the last component of the
- *          shortest non-zero vector in the reduced basis to be added to or 
+ *          shortest non-zero vector in the reduced basis to be added to or
  *          subtracted from the candidate for d.
  *
- * Note that the last component of the shortest non-zero vector in the reduced 
+ * Note that the last component of the shortest non-zero vector in the reduced
  * lattice basis is expected to be a divisor of r when solving for an order, or
  * for a general discrete logarithm.
  */
@@ -168,7 +168,7 @@ void lattice_solve_reduced_basis_for_d(
       mpz_div(test_r, parameters->r, candidate_r);
         /* test_r = r / candidate_r */
 
-      /* If the multiple is greater than one but smooth, check if we have 
+      /* If the multiple is greater than one but smooth, check if we have
        * recovered d modulo the non-smooth part of r. */
       if (mpz_cmp_ui(test_r, 1) > 0) {
         if (lattice_smoothness_is_smooth(
@@ -248,7 +248,7 @@ void lattice_solve_reduced_basis_for_r(
     } else if (mpz_cmp_ui(test_r, SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE) <= 0) {
       /* If the multiple is small, we recover r by performing a small search. */
       (*status_r) = LATTICE_STATUS_RECOVERED_SEARCH;
-    } else if (detect_smooth_r && 
+    } else if (detect_smooth_r &&
                 lattice_smoothness_is_smooth(
                   test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
     {
@@ -428,7 +428,7 @@ void lattice_solve_for_d_r(
         detect_smooth_r);
     }
 
-    /* Check if both d and r have been recovered. Note that timeouts cannot 
+    /* Check if both d and r have been recovered. Note that timeouts cannot
      * occur when solving without enumerating, so the below check suffices. */
     if ((LATTICE_STATUS_NOT_RECOVERED != (*status_d)) &&
         (LATTICE_STATUS_NOT_RECOVERED != (*status_r)))
@@ -614,7 +614,7 @@ void lattice_solve_for_d_given_r(
         precision);
     }
 
-    /* Check if both d and r have been recovered. Note that timeouts cannot 
+    /* Check if both d and r have been recovered. Note that timeouts cannot
      * occur when solving without enumerating, so the below check suffices. */
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_d))
     {

@@ -36,11 +36,11 @@
  *
  * If the check_modulus_size flag is set to #TRUE this function also guarantees
  * that the modulus is of length n bit.
- * 
+ *
  * \param[in, out] p              The prime factor p.
  * \param[in, out] q              The prime factor q.
  * \param[in] n                   The length parameter n.
- * \param[in] check_modulus_size  A flag that should be set to #TRUE if the 
+ * \param[in] check_modulus_size  A flag that should be set to #TRUE if the
  *                                modulus must be of length exactly n bit, and
  *                                to #FALSE otherwise.
  * \param[in, out] random_state   The random state to use to generate p and q.

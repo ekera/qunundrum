@@ -41,9 +41,9 @@ typedef struct {
    * \brief   The minimum signed logarithmic alpha_r-coordinate of the slice.
    *
    * The slice covers the interval
-   * 
+   *
    *    [sgn abs(min_log_alpha_r), sgn (abs(min_log_alpha_r) + 1))
-   * 
+   *
    * where sgn = sgn(min_log_alpha_r).
    */
   int32_t min_log_alpha_r;
@@ -285,7 +285,7 @@ void diagonal_distribution_slice_bcast_send(
 
 /*!
  * \brief Computes a slice using Simpson's method of numerical integration.
- * 
+ *
  * \param[in, out] slice      The slice to compute.
  * \param[in] parameters      The parameters for which to compute the slice.
  * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the
@@ -297,12 +297,12 @@ void diagonal_distribution_slice_compute(
   const int32_t min_log_alpha_r);
 
 /*!
- * \brief Computes a slice using Simpson's method of numerical integration, 
+ * \brief Computes a slice using Simpson's method of numerical integration,
  *        followed by Richardson-extrapolation to cancel linear error terms.
  *
  * \param[in, out] slice      The slice to compute.
  * \param[in] parameters      The parameters for which to compute the slice.
- * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the 
+ * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the
  *                            slice to compute.
  */
 void diagonal_distribution_slice_compute_richardson(
@@ -324,9 +324,9 @@ void diagonal_distribution_slice_compute_richardson(
  *
  * \param[in] slice             The slice for which to return the coordinates.
  *
- * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
  */
 void diagonal_distribution_slice_coordinates(
@@ -343,9 +343,9 @@ void diagonal_distribution_slice_coordinates(
  *                              index in the norm vector stored in the data
  *                              structure for the slice.
  *
- * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
  */
 void diagonal_distribution_slice_region_coordinates(

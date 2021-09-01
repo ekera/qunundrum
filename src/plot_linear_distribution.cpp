@@ -32,7 +32,7 @@ void plot_linear_distribution_horizontal(
 
   plot_linear_distribution_detailed_horizontal(
     distribution,
-    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file,
     absolute);
@@ -324,7 +324,7 @@ void plot_linear_distribution_vertical(
 
   plot_linear_distribution_detailed_vertical(
     distribution,
-    offset_x - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+    offset_x - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file);
 
@@ -336,14 +336,14 @@ void plot_linear_distribution_vertical(
     fprintf(file, "\\draw (%f, %f) node[above]"
       "{\\tiny $\\text{sgn}(\\alpha_r) \\log_2(|\\alpha_r|)$};\n",
         offset_x -
-          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
             PLOT_DISTRIBUTION_SCALE / 2.0f,
         plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m));
   } else {
     fprintf(file, "\\draw (%f, %f) node[above]"
       "{\\tiny $\\text{sgn}(\\alpha_d) \\log_2(|\\alpha_d|)$};\n",
         offset_x-
-          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
             PLOT_DISTRIBUTION_SCALE / 2.0f,
         plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m));
   }

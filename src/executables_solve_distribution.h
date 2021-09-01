@@ -116,19 +116,19 @@ typedef enum {
  */
 typedef enum {
   /*!
-   * \brief   Indicates that smooth orders should be detected and leveraged to 
+   * \brief   Indicates that smooth orders should be detected and leveraged to
    *          faciliate solving when possible.
    */
   DETECT_SMOOTH_ORDER_TRUE = 1,
 
   /*!
-   * \brief   Indicates that smooth orders should not be detected, and hence 
+   * \brief   Indicates that smooth orders should not be detected, and hence
    *          not leveraged to faciliate solving.
    */
   DETECT_SMOOTH_ORDER_FALSE = 2,
 
   /*!
-   * \brief   Indicates that no option for detecting smooth orders has been 
+   * \brief   Indicates that no option for detecting smooth orders has been
    *          specified.
    */
   DETECT_SMOOTH_ORDER_DEFAULT = 0
@@ -170,7 +170,7 @@ typedef struct {
   uint32_t n;
 
   /*!
-   * \brief   A flag that is set to #TRUE if sigma is to be printed, and to 
+   * \brief   A flag that is set to #TRUE if sigma is to be printed, and to
    *          #FALSE otherwise.
    */
   bool has_sigma;
@@ -242,7 +242,7 @@ void solution_status_init(
  *
  * This function currently performs no operation. It is reserved for future
  * use, and should be called to ensure forward compatibility.
- * 
+ *
  * \param[in, out] status   The solution status data structure to clear.
  */
 void solution_status_clear(

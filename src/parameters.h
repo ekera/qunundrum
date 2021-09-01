@@ -3,7 +3,7 @@
  * \ingroup parameters
  *
  * \brief   The definition of data structures representing parameters for
- *          linear and two-dimensional probability distributions, and the 
+ *          linear and two-dimensional probability distributions, and the
  *          declarations of functions for manipulating such parameters.
  */
 
@@ -11,7 +11,7 @@
  * \defgroup parameters Parameters
  * \ingroup  distribution
  *
- * \brief    A module for parameters for linear and two-dimensional probability 
+ * \brief    A module for parameters for linear and two-dimensional probability
  *           distributions.
  */
 
@@ -144,7 +144,7 @@ void parameters_clear(
  */
 
 /*!
- * \brief   Sets up the parameters for an explicitly specified d or r, and 
+ * \brief   Sets up the parameters for an explicitly specified d or r, and
  *          explicitly specified values of m and s.
  *
  * This function sets l = ceil(m / s).
@@ -165,7 +165,7 @@ void parameters_explicit_m_s(
   const uint32_t t);
 
 /*!
- * \brief   Sets up the parameters for an explicitly specified d or r, and 
+ * \brief   Sets up the parameters for an explicitly specified d or r, and
  *          explicit specified values of m and l.
  *
  * This function sets s = 0.

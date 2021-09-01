@@ -1,6 +1,6 @@
 /*!
  * \file    common.h
- * 
+ *
  * \brief   The definition of various commonly used constants.
  */
 

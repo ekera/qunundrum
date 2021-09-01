@@ -133,12 +133,12 @@ static void main_client()
   }
 
   uint32_t primes_count = 0;
-  
+
   uint32_t * sieve = (uint32_t *)malloc(MAX_PRIME * sizeof(uint32_t));
   if (NULL == sieve) {
       critical("main_client(): Failed to allocate memory.");
   }
-  
+
   for (uint32_t i = 2; i < MAX_PRIME; i++) {
     sieve[i] = i;
   }
@@ -157,7 +157,7 @@ static void main_client()
 
   free(sieve);
   sieve = NULL;
-  
+
   while (TRUE) {
     /* Receive job. */
     uint32_t job;
@@ -191,7 +191,7 @@ static void main_client()
       rsa_generate_modulus(
         p, q, modulus_length, check_modulus_size, &random_state);
       mpz_mul(N, p, q);
-      
+
       /* Pick a generator. */
       while (TRUE) {
         random_generate_mpz(g, N, &random_state);
@@ -219,14 +219,14 @@ static void main_client()
 
         mpz_div_ui(tmp, r, primes[j]);
         mpz_powm(tmp, g, tmp, N);
-        
+
         if (0 == mpz_cmp_ui(tmp, 1)) {
           mpz_div_ui(r, r, primes[j]); /* Remove prime from r. */
         } else {
           j++; /* Process next prime. */
         }
       }
-  
+
       /* Test the size of the order. */
       mpz_sub_ui(d, p, 1);
       mpz_sub_ui(tmp, q, 1);
@@ -288,7 +288,7 @@ static void main_client()
  * This function is called once by main().
  *
  * \param[in] modulus_length      The modulus length in bits.
- * \param[in] check_modulus_size  A flag that should be set to #TRUE if the 
+ * \param[in] check_modulus_size  A flag that should be set to #TRUE if the
  *                                modulus must be of length exactly n bit, and
  *                                to #FALSE otherwise.
  * \param[in] records             The number of records to generate.
@@ -407,7 +407,7 @@ static void main_server(
     }
 
     if (count > 0) {
-      printf("Total Count: %u / %u\n", 
+      printf("Total Count: %u / %u\n",
         count * SAMPLES_PER_RECORD, records * SAMPLES_PER_RECORD);
 
       for (uint32_t tau = 0; tau <= MAX_TAU; tau++) {
@@ -507,7 +507,7 @@ static void main_server(
  *
  * \param[in, out] modulus_length     The modulus length in bits.
  * \param[in, out] check_modulus_size A flag that is set to #TRUE if the modulus
- *                                    must be of length exactly n bit, and to 
+ *                                    must be of length exactly n bit, and to
  *                                    #FALSE otherwise.
  * \param[in, out] records            The number of records.
  *
@@ -535,7 +535,7 @@ static bool parse_command_line(
     fprintf(stderr, "Error: Incorrect command line arguments.\n");
     return FALSE;
   }
-  
+
   uint32_t argv_offset = 1;
 
   if (4 == argc) {
@@ -665,7 +665,7 @@ int main(int argc, char ** argv) {
         &modulus_length, &check_modulus_size, &records, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

@@ -1,7 +1,7 @@
 /*!
  * \file    test/test_keccak.h
  * \ingroup unit_tests_keccak
- * 
+ *
  * \brief   The declaration of unit tests for \ref keccak module.
  */
 
@@ -9,7 +9,7 @@
  * \defgroup unit_tests_keccak Unit tests for the Keccak-f permutation
  * \ingroup  unit_tests
  * \ingroup  keccak
- * 
+ *
  * \brief    A module for unit tests for the Keccak-f permutation.
  */
 
@@ -22,7 +22,7 @@
 
 /*!
  * \brief  The state resulting from applying keccak_f() once to the zero state.
- * 
+ *
  * This KAT vector is copied from KeccakF-1600-IntermediateValues.txt.
  */
 static const uint64_t KECCAK_EXPECTED_FIRST[KECCAK_LANE_COUNT] = {
@@ -39,7 +39,7 @@ static const uint64_t KECCAK_EXPECTED_FIRST[KECCAK_LANE_COUNT] = {
 
 /*!
  * \brief  The state resulting from applying keccak_f() twice to the zero state.
- * 
+ *
  * This KAT vector is copied from KeccakF-1600-IntermediateValues.txt.
  */
 static const uint64_t KECCAK_EXPECTED_SECOND[KECCAK_LANE_COUNT] = {
