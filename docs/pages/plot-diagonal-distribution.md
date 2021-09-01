@@ -37,4 +37,4 @@ The plot generated is in the signed logarithm of the argument alpha_r:
 
 ![](./images/plot-diagonal-distribution-m-2048-sigma-5-s-1.png)
 
-Note that diagonal distributions store a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
+Note that diagonal distributions store a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.

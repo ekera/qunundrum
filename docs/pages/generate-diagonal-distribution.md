@@ -8,11 +8,11 @@ Synopsis: mpirun generate_diagonal_distribution \
           -l   <m> <sigma> <l> { <m> <sigma> <l> } )
 ```
 
-Computes a part of the distribution induced by Shor's algorithm for computing general discrete logarithms when modified as in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
+Computes a part of the distribution induced by Shor's algorithm for computing general discrete logarithms when modified as in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf).
 
 The full distribution is two-dimensional in (alpha_d, alpha_r), or equivalently, in(theta_d, theta_r).
 
-This executable computes and stores a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
+This executable computes and stores a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
 
 The distribution is said to be diagonal, since we expect interference on the diagonal in the argument plane where the angle phi is small.
 The executable is named accordingly.
@@ -41,4 +41,4 @@ Flags controlling the value of d and r (defaults to <code>-det</code>):
 Flags controlling the dimension (defaults to 2048):
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>
 
-The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in [[E19]](https://arxiv.org/pdf/1905.09084.pdf). See [[E19]](https://arxiv.org/pdf/1905.09084.pdf) for a complete description of how the histogram is constructed in two steps.
+The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). See [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) for a complete description of how the histogram is constructed in two steps.

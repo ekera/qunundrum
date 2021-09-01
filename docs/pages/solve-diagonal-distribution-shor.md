@@ -7,7 +7,7 @@ Synopsis: mpirun solve_diagonal_distribution_shor \
       <distribution> { <distribution> }
 ```
 
-Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for d given r using Shor's original post-processing algorithm modified to search over t as explained in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
+Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for d given r using Shor's original post-processing algorithm modified to search over t as explained in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf).
 
 In total 10^3 problem instances are consider to gather statistics.
 
@@ -24,8 +24,8 @@ Flags specifying the search bound (defaults to zero):
 - <code>-search-bound \<bound\></code> sets the search bound on |t| to <code>\<bound\></code>
 
 Note that alpha_d = round(alpha_r d/r) + Delta for some small Delta.
-The search bound on t is related to Delta, as is explained in detail in Section 5.1 of [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
-Searching over t as proposed in [[E19]](https://arxiv.org/pdf/1905.09084.pdf) increases the success probability.
+The search bound on t is related to Delta, as is explained in detail in Section 5.1 of [[E19p]](https://arxiv.org/pdf/1905.09084.pdf).
+Searching over t as proposed in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) increases the success probability.
 
 ## Interpreting the output
 The log file <code>logs/solve-diagonal-shor.txt</code> is on the format
