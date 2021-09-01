@@ -99,7 +99,7 @@ void lattice_solve_reduced_basis_for_d(
   const bool detect_smooth_r);
 
 /*!
- * \brief   Given a reduced basis A for the lattice L, this function attempts to 
+ * \brief   Given a reduced basis A for the lattice L, this function attempts to
  *          recover r by solving a shortest non-zero vector problem in L.
  *
  * More specifically, r is the last component of an unknown short vector u in L.
