@@ -28,7 +28,7 @@ $ pdflatex plot-distribution-m-2048-s-30.tex
 You may of course also use other versions of Latex such as <code>xelatex</code>. Note that the Latex source requires Tikz. Note furthermore that the source file is typically quite large for two-dimensional plots even though the resolution is scaled down automatically when plotting. You may therefore need to increase the amount of memory available to Latex. Another option is to use Lualatex which typically manages memory better. Note that if you use Lualatex, you may need to uncomment a line in the header of the Latex source file, see the comment in the source file for further details.
 
 ### Interpreting the plot
-Executing the above procedure produced plots similar to the below plot:
+Executing the above procedure produces plots similar to the below plot:
 
 ![](./images/plot-distribution-m-2048-s-30.png)
 
