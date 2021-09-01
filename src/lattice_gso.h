@@ -26,7 +26,7 @@
  * \param[in, out] M          The (n + 1) x (n + 1) triangular matrix M of
  *                            Gram-Schmidt projection factors.
  * \param[in] A               A full rank (n + 1) x (n + 1) basis matrix.
- * \param[in] n               The integer n.
+ * \param[in] n               The integer n.
  * \param[in] precision       The required floating point precision.
  */
 void gram_schmidt_orthogonalization(

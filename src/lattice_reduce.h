@@ -67,7 +67,7 @@ void lattice_compute_reduced_basis(
  *   [0                      ..  2^{m+\\varsigma}       0                   ]
  * 
  * prior to reduction, where \\alpha_{r,i} = {r j_i}_{2^{m+\\varsigma}}, and 
- * where \\ell and \\varsigma are denoted l and sigma, respectively, in the 
+ * where \\ell and \\varsigma are denoted l and sigma, respectively, in the 
  * source code. The scaling factor c = 2^{\\ell-\\varsigma} r so that all 
  * entries of the basis matrix are integers.
  *

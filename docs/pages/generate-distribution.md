@@ -3,8 +3,8 @@
 ## Synopsis
 ```console
 Synopsis: mpirun generate_distribution \
-   [ -det | -rnd | -exp <d> <r> ] [ -dim-heuristic | -dim <dimension> ] \
-      [ -approx-quick | [ -sigma-heuristic | -sigma-optimal ] ] \
+   [ -det | -rnd | -exp <d> <r> ] [ -dim-heuristic | -dim <dimension> ] \
+      [ -approx-quick | [ -sigma-heuristic | -sigma-optimal ] ] \
          ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 

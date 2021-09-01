@@ -5,7 +5,7 @@
 Synopsis: mpirun solve_diagonal_distribution \
    [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \
       [ -closest | -enumerate ] [ -timeout <timeout> ] \
-         [ -lll | -lll-then-bkz | -bkz | -hkz ] \
+         [ -lll | -lll-then-bkz | -bkz | -hkz ] \
             <distribution> <n> { <distribution> <n> }
 ```
 

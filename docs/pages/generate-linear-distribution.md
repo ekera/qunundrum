@@ -4,7 +4,7 @@
 ```console
 Synopsis: mpirun generate_linear_distribution \
    [ -d | -r ] [ -dim <dimension> ] \
-      [ -min | -max | -det | -rnd | -exp <value> ] \
+      [ -min | -max | -det | -rnd | -exp <value> ] \
          ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 

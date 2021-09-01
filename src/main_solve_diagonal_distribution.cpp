@@ -1137,7 +1137,7 @@ static void print_synopsis(
   fprintf(file, "Synopsis: mpirun solve_diagonal_distribution \\\n"
           "   [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
           "      [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
-          "         [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
+          "         [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
           "            <distribution> <n> { <distribution> <n> }\n");
 
   fprintf(file, "\n");

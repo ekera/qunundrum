@@ -1375,9 +1375,9 @@ static void print_synopsis(
 {
   fprintf(file, "Synopsis: mpirun generate_distribution \\\n"
           "   [ -det | -rnd | -exp <d> <r> ] "
-            "[ -dim-heuristic | -dim <dimension> ] \\\n"
+            "[ -dim-heuristic | -dim <dimension> ] \\\n"
           "      [ -approx-quick | "
-            "[ -sigma-heuristic | -sigma-optimal ] ] \\\n"
+            "[ -sigma-heuristic | -sigma-optimal ] ] \\\n"
           "         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
 
   fprintf(file, "\n");

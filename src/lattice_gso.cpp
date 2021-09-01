@@ -31,7 +31,7 @@ using namespace fplll;
  * \param[in] G               The Gram-Schmidt (n + 1) x (n + 1) orthogonalized
  *                            basis matrix G.
  * \param[in] row_G           The index of the row in the G matrix.
- * \param[in] n               The integer n.
+ * \param[in] n               The integer n.
  * \param[in] precision       The required floating point precision.
  */
 static void gram_schmidt_projection(

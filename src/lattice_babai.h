@@ -37,7 +37,7 @@
  * \param[in] A               An  LLL- or BKZ-reduced full rank basis matrix
  *                            of dimension (n + 1) x (n + 1) defining the
  *                            (n + 1) x (n + 1) dimensional integer lattice L.
- * \param[in] n               The integer n.
+ * \param[in] n               The integer n.
  * \param[in] precision       The required floating point precision.
  */
 void babai_closest_vector(

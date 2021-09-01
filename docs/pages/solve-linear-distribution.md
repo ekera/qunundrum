@@ -6,7 +6,7 @@ Synopsis: mpirun solve_linear_distribution \
    [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \
       [ -closest | -enumerate ] [ -timeout <timeout> ] \
          [ -detect-smooth-order ] \
-            [ -lll | -lll-then-bkz | -bkz | -hkz ] \
+            [ -lll | -lll-then-bkz | -bkz | -hkz ] \
                <distribution> <n> { <distribution> <n> }
 ```
 
