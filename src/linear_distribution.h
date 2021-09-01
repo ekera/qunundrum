@@ -5,14 +5,11 @@
  * \brief   The declaration of data structures representing linear probability
  *          distributions, and of functions for manipulating such distributions.
  *
- * Linear probability distributions are used to represent the probability
- * distributions induced by Shor's order-finding algorithm [1], by Seifert's
- * algorithm for computing order with tradeoffs [2], by Ekerå's algorithm for
- * computing short discrete logarithms [3], and by Ekerå-Håstad's algorithm for
- * computing short discrete logarithms with tradeoffs [4, 5]. The algorithm
- * of Ekerå and Håstad also factors RSA integers by classically reducing the RSA
- * integer factoring problem to a short discrete logarithm problem in a group of
- * unknown order and solving this problem quantumly. 
+ * Linear distributions are used to represent the probability distributions 
+ * induced by Shor's order-finding algorithm [1], by Seifert's algorithm for 
+ * computing orders with tradeoffs [2] [5, Appendix A], and by Ekerå's and 
+ * Ekerå–Håstad's algorithms for computing short discrete logarithms with 
+ * tradeoffs [3, 4].
  * 
  * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
  * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
@@ -20,28 +17,32 @@
  * 
  * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via 
  * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020, 
- * pp. 319-327 (2001). DOI: https://doi.org/10.1007/3-540-45353-9_24.
-
- * [3] Ekerå, M.: Modifying Shor's algorithm to compute short discrete 
- * logarithms. In: IACR ePrint Archive, 2016/1128.
+ * pp. 319-327 (2001).
  * 
- * [4] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
+ * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
  * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017). DOI: https://doi.org/10.1007/978-3-319-59879-6_20.
+ * pp. 347-363 (2017).
  * 
- * [5] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122.
+ * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing 
+ * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
+ * 
+ * [5] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+ * 
+ * [6] Ekerå, M.: On completely factoring any integer in a single run of an 
+ * order-finding algorithm. Quantum Inf. Process. 20:6(205) (2021). 
  * 
  * Linear probability distributions may also be used to represent the marginal
- * distributions of two-dimensional probability distributions, collapsed 
- * diagonal distributions, and traces in diagonal distributions for fixed 
- * offsets from the optimal alpha_d for given alpha_r.
+ * distributions of the two-dimensional probability distributions in [5].
  * 
- * Note that Shor's algorithm for factoring composite integers (that are not
- * pure powers) reduces the factoring problem to an order-finding problem.
- * Ekerå-Håstad's algorithm for factoring RSA integers reduces the factoring
- * problem to a short discrete logarithm problem. Both the general integer 
- * factoring problem and the RSA integer factoring problems are hence covered.
+ * Note that Shor uses a reduction essentially due to Miller for reducing the 
+ * problem of factoring integers (that are odd and not pure prime powers) to 
+ * order-finding problems. For a better reduction, see [6].
+ * 
+ * Note furthermore that Ekerå–Håstad [3, 4] reduce the RSA integers factoring 
+ * problem to a short discrete logarithm problem. Both the problems of factoring
+ * general N, and of factoring RSA integers, with or without tradeoffs, may
+ * hence be modelled using linear distributions.
  */
 
 /*!
@@ -50,14 +51,11 @@
  *
  * \brief     A module for linear probability distributions.
  *
- * Linear probability distributions are used to represent the probability
- * distributions induced by Shor's order-finding algorithm [1], by Seifert's
- * algorithm for computing order with tradeoffs [2], by Ekerå's algorithm for
- * computing short discrete logarithms [3], and by Ekerå-Håstad's algorithm for
- * computing short discrete logarithms with tradeoffs [4, 5]. The algorithm
- * of Ekerå and Håstad also factors RSA integers by classically reducing the RSA
- * integer factoring problem to a short discrete logarithm problem in a group of
- * unknown order and solving this problem quantumly. 
+ * Linear distributions are used to represent the probability distributions 
+ * induced by Shor's order-finding algorithm [1], by Seifert's algorithm for 
+ * computing orders with tradeoffs [2] [5, Appendix A], and by Ekerå's and 
+ * Ekerå–Håstad's algorithms for computing short discrete logarithms with 
+ * tradeoffs [3, 4].
  * 
  * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
  * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
@@ -65,28 +63,32 @@
  * 
  * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via 
  * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020, 
- * pp. 319-327 (2001). DOI: https://doi.org/10.1007/3-540-45353-9_24.
-
- * [3] Ekerå, M.: Modifying Shor's algorithm to compute short discrete 
- * logarithms. In: IACR ePrint Archive, 2016/1128.
+ * pp. 319-327 (2001).
  * 
- * [4] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
+ * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
  * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017). DOI: https://doi.org/10.1007/978-3-319-59879-6_20.
+ * pp. 347-363 (2017).
  * 
- * [5] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122.
+ * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing 
+ * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
+ * 
+ * [5] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+ * 
+ * [6] Ekerå, M.: On completely factoring any integer in a single run of an 
+ * order-finding algorithm. Quantum Inf. Process. 20:6(205) (2021). 
  * 
  * Linear probability distributions may also be used to represent the marginal
- * distributions of two-dimensional probability distributions, collapsed 
- * diagonal distributions, and traces in diagonal distributions for fixed 
- * offsets from the optimal alpha_d for given alpha_r.
+ * distributions of the two-dimensional probability distributions in [5].
  * 
- * Note that Shor's algorithm for factoring composite integers (that are not
- * pure powers) reduces the factoring problem to an order-finding problem.
- * Ekerå-Håstad's algorithm for factoring RSA integers reduces the factoring
- * problem to a short discrete logarithm problem. Both the general integer 
- * factoring problem and the RSA integer factoring problems are hence covered.
+ * Note that Shor uses a reduction essentially due to Miller for reducing the 
+ * problem of factoring integers (that are odd and not pure prime powers) to 
+ * order-finding problems. For a better reduction, see [6].
+ * 
+ * Note furthermore that Ekerå–Håstad [3, 4] reduce the RSA integers factoring 
+ * problem to a short discrete logarithm problem. Both the problems of factoring
+ * general N, and of factoring RSA integers, with or without tradeoffs, may
+ * hence be modelled using linear distributions.
  */
 
 #ifndef LINEAR_DISTRIBUTION_H

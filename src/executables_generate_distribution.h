@@ -137,7 +137,7 @@ typedef enum {
    * the distribution.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   PROBABILITY_ESTIMATE_BOUNDED_ERROR = 1,
 
@@ -150,7 +150,7 @@ typedef enum {
    * used to compute the distribution.
    * 
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   PROBABILITY_ESTIMATE_QUICK = 2,
 

@@ -28,16 +28,16 @@
  * \brief   Computes the exact probability of observing a pair (j, k) with
  *          angle theta_d using a closed-form expression.
  * 
- * This function uses the closed-form expression in the paper [1] by Ekerå on 
- * post-processing in Ekerå's and Håstad's quantum algorithm [2] for computing 
- * short discrete logarithms and factoring RSA integers.
+ * This function uses the closed-form expression in [1] for the probability of 
+ * observing a pair (j, k) with angle theta_d in Ekerå's and Ekerå–Håstad's 
+ * algorithms [2] for computing short discrete logarithms.
  * 
  * [1] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122.
+ * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
  * 
  * [2] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
  * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017). DOI: https://doi.org/10.1007/978-3-319-59879-6_20.
+ * pp. 347-363 (2017).
  * 
  * To ensure numeric stability, this function uses higher precision than the
  * default precision of #PRECISION internally. However, there is no need to go 
@@ -56,11 +56,20 @@ void linear_probability_d(
  * \brief   Computes the exact probability of observing an integer j with angle
  *          theta_r using a closed-form expression.
  *
- * This function uses the closed-form expression in appendix A to the paper [1] 
- * by Ekerå on computing general discrete logarithms and orders with tradeoffs.
+ * This function uses the closed-form expression in appendix A to [1] for the 
+ * probability of observing an integer j with angle theta_r in Shor's [2] and 
+ * Seifert's [3] order-finding algorithms.
  * 
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+ * 
+ * [2] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
+ * Computing (SISC), volume 26(5), pp. 1484 (1997). 
+ * 
+ * [3] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via 
+ * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020, 
+ * pp. 319-327 (2001).
  * 
  * This function uses the default precision #PRECISION internally. There is no 
  * need to go beyond the default precision in theta_r when calling the function.

@@ -34,8 +34,8 @@
  * that enters into the approximation must be explicitly specified as an 
  * argument to this function. It is not modified by this function.
  * 
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  * 
  * This function uses the default precision #PRECISION internally. There is no 
  * need to go beyond the default precision in theta_d or theta_r when calling 
@@ -79,8 +79,8 @@ bool probability_approx(
  * better error bound. If this is the case, sigma is updated in place and the 
  * probability and error bound for this sigma returned.
  * 
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  * 
  * This function calls probability_approx(). See the documentation of this 
  * function for information on precision requirements on theta_d and theta_r.
@@ -115,8 +115,8 @@ bool probability_approx_adjust_sigma(
  * sigma that yields the best error bound, and the probability associated with
  * this value of sigma.
  *
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  * 
  * This function calls probability_approx(). See the documentation of this 
  * function for information on precision requirements on theta_d and theta_r.
@@ -150,8 +150,8 @@ bool probability_approx_optimal_sigma(
  *
  * This function is present mainly for completeness and verification purposes.
  * 
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  *
  * This function uses the default precision #PRECISION internally. There is no 
  * need to go beyond the default precision in theta_d or theta_r when calling 

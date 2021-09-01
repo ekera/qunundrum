@@ -11,8 +11,8 @@
  * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
  * and orders with tradeoffs.
  *
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  */
 
 /*!
@@ -27,8 +27,8 @@
  * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
  * and orders with tradeoffs.
  *
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  */
 
 #ifndef DISTRIBUTION_H

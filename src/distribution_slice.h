@@ -39,7 +39,7 @@ typedef enum {
    * the distribution slices. The approximation is parameterized in sigma.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    * 
    * Sigma is selected using the heuristic in [1] for fixed tau = 11.
    */
@@ -55,7 +55,7 @@ typedef enum {
    * the distribution slices. The approximation is parameterized in sigma.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    * 
    * Sigma is selected optimally at the outset, and adapted locally in each step
    * by seeing if increasing or decreasing sigma yields a lower error bound.
@@ -72,7 +72,7 @@ typedef enum {
    * for this approximation.
    * 
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_QUICK = 2
 } Distribution_Slice_Compute_Method;
