@@ -21,7 +21,7 @@ All problem instances considered in the diagram have approximately a 128 bit cla
 
 Note that the quantum circuit required to implement the group operation for elliptic curve groups differs significantly from the circuit required for the other groups. This must be accounted for when making comparisons.
 
-<a href="README.md">![Algorithm comparisons for a 128 bit classical strength level](./docs/pages/images/algorithm-comparison.png)</a>
+![Algorithm comparisons for a 128 bit classical strength level](./docs/pages/images/algorithm-comparison.png)
 
 ### Remarks
 Note that the source code in this repository was developed for academic research purposes. It grew out of our research project in an organic manner as research questions were posed and answered. It is distributed "as is" without warranty of any kind, either expressed or implied. For further details on the terms of use, see the [license](LICENSE.md).
