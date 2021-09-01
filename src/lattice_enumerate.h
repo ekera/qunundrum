@@ -64,7 +64,7 @@
  *                            basis matrix G for the matrix A.
  * \param[in] M               The (n + 1) x (n + 1) triangular matrix M of
  *                            Gram-Schmidt projection factors for the matrix A.
- * \param[in] ks              The n samples of integers k.
+ * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution. These
  *                            parameters in particular contain d.
@@ -114,9 +114,8 @@ void lattice_enumerate_reduced_basis_for_d(
  * \param[in] M               The (n + 1) x (n + 1) triangular matrix M of
  *                            Gram-Schmidt projection factors for the matrix A.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain r.
  * \param[in] precision       The precision to use when enumerating.
  * \param[in] detect_smooth_r A flag that may be set to #TRUE to detect if the 
  *                            shortest vector in the lattice is on the form
@@ -163,9 +162,8 @@ void lattice_enumerate_reduced_basis_for_r(
  *                            Gram-Schmidt projection factors for the matrix A.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d and r.
  * \param[in] precision       The precision to use when enumerating.
  * \param[in] timeout         A timeout in seconds after which the enumeration
  *                            will be aborted if d has not been recovered. May 
@@ -208,9 +206,8 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d.
  * \param[in] algorithm       An enumeration entry that specifies the lattice 
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -255,9 +252,8 @@ void lattice_enumerate_for_d(
  *                            store status information on the recovery of r.
  * \param[in] js              The n samples of integers j.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            integers j were sampled. These parameters in
- *                            particular contain r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice 
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -303,9 +299,8 @@ void lattice_enumerate_for_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d and r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d and r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice 
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -336,7 +331,6 @@ void lattice_enumerate_for_d_r(
   const bool detect_smooth_r = TRUE,
   const uint64_t timeout = 0);
 
-
 /*!
  * \brief   Given n pairs (j, k), this function attempts to recover d by
  *          constructing a basis A for the lattice L given j and r, reducing A, 
@@ -355,9 +349,8 @@ void lattice_enumerate_for_d_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d and r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d and r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice 
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.

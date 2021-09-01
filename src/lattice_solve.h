@@ -111,7 +111,7 @@ void lattice_solve_reduced_basis_for_d(
  * \param[in] A               The (n + 1) x (n + 1) reduced basis matrix A for
  *                            the lattice L.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution. These
+ * \param[in] parameters      The parameters of the distribution. These 
  *                            parameters in particular contain r.
  * \param[in] detect_smooth_r A flag that may be set to #TRUE to detect if the
  *                            shortest vector in the lattice is on the form
@@ -190,9 +190,8 @@ void lattice_solve_reduced_basis_for_d_given_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d.
  * \param[in] algorithm       An enumeration entry that specifies the lattice
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -233,9 +232,8 @@ void lattice_solve_for_d(
  *                            store status information on the recovery of r.
  * \param[in] js              The n samples of integers j.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            integers j were sampled. These parameters in
- *                            particular contain r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -276,9 +274,8 @@ void lattice_solve_for_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d and r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d and r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
@@ -322,9 +319,8 @@ void lattice_solve_for_d_r(
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
  * \param[in] n               The integer n.
- * \param[in] parameters      The parameters of the distribution from which the
- *                            (j, k) pairs were sampled. These parameters in
- *                            particular contain d and r.
+ * \param[in] parameters      The parameters of the distribution. These 
+ *                            parameters in particular contain d and r.
  * \param[in] algorithm       An enumeration entry that specifies the lattice
  *                            basis reduction algorithm, or combination of such
  *                            algorithms, to use when attempting recovery.
