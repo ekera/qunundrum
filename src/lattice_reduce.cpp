@@ -197,6 +197,12 @@ void lattice_compute_reduced_diagonal_basis(
   Lattice_Reduction_Algorithm algorithm,
   const uint32_t red_precision)
 {
+  /* Sanity checks. */
+  if (parameters->l < parameters->sigma) {
+    critical("lattice_compute_reduced_diagonal_basis(): "
+      "This function requires l >= sigma.");
+  }
+
   /* Setup variables. */
   mpz_t alpha;
   mpz_init(alpha);
