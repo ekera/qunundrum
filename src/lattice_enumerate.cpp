@@ -53,33 +53,67 @@ using namespace fplll;
 #define MAX_RADIUS_DOUBLINGS 128
 
 /*!
- * \brief   Executes the pi projection test proposed by Kannan.
- *
- * For further details, please see [1] and Appendix C in [2].
+ * \brief   Computes uhat, the optimum for the k:th entry in the cu_coordinates
+ *          vector, and the minimum and maximum offsets in uhat.
  * 
- * [1] Kannan, R.: Improved algorithms for integer programming and related 
- * lattice problems. In: Proceedings of the 15th Symposium on the Theory of 
- * Computing. STOC 1983. ACM Press, pp. 99—108 (1983).
+ * Let A be the (n + 1) x (n + 1) basis matrix of the lattice L.
  * 
- * [2] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122, 1st revision.
+ * Let G be the Gram-Schmidt orthogonalized (GSO) basis matrix for A, and M the 
+ * triangular matrix of Gram-Schmidt projection factors, so that A = M * G. Note
+ * that gram_schmidt_orthogonalization() computes these matrices given A.
+ * 
+ * Let u = cu_coordinates * A and v = cu_coordinates * A, where cu_coordinates 
+ * and cv_coordinates are row vectors.
+ * 
+ * Let k be an integer index on the interval between 1 and n + 1.
+ * 
+ * Assume that cv_coordinates is completely populated, and that the entries at 
+ * indices k, .., n + 1 of cu_coordinates are populated.
+ * 
+ * This function then computes minimum and maximum offset in the k:th entry in 
+ * the cu_coordinates vector, such that 
+ * 
+ *   | \\pi_k(u - v) |^2 = 
+ *     | \\pi_k((cu_coordinates - cv_coordinates) * A) |^2 =
+ *       | \\pi_k((cu_coordinates - cv_coordinates) * M * G) |^2 < R^2.
+ * 
+ * where R^2 is square_radius. This is accomplished using standard techniques 
+ * of looking at the Gram-Schmidt projection of u - v onto planes k, .., n + 1.
  * 
  * \internal
  *
- * \param[in] square_radius     The square radius.
- * \param[in] cu_coordinates    The coordinates of the u vector.
- * \param[in] cv_coordinates    The coordinates of the v vector.
- * \param[in] M                 The M matrix.
- * \param[in] G_square_norms    The square norms of the rows of the G matrix.
- * \param[in] k                 The index of the component currently processed.
- *                              Specifies the depth in the enumeration tree.
- * \param[in] n                 The number of runs used to setup the A matrix
- *                              from which the G and M matrices are computed.
- * \param[in] precision         The floating point precision.
+ * \param[out]     uhat             An integer to set to the optimum for the 
+ *                                  k:th entry in the cu_coordinates vector.
+ * \param[out]     min_uhat_offset  An integer to set to the minimum offset in 
+ *                                  the k:th entry in the cu_coordinates vector.
+ * \param[out]     max_uhat_offset  An integer to set to the maximum offset in 
+ *                                  the k:th entry in the cu_coordinates vector.
+ * \param[in]      square_radius    The square radius R^2 of the ball to 
+ *                                  enumerate.
+ * \param[in, out] cu_coordinates   The coordinates of u in the A basis. The 
+ *                                  k:th entry will be set to uhat.
+ * \param[in]      cv_coordinates   The coordinates of v in the A basis.
+ * \param[in]      M                The triangular M matrix of Gram-Schmidt 
+ *                                  projection factors, such that A = M * G for 
+ *                                  G the Gram-Schmidt orthogonalized (GSO) 
+ *                                  basis matrix for the A basis.
+ * \param[in]      G_square_norms   The square norms of the rows of G.
+ * \param[in]      k                The index into the cu_coordinates vector. 
+ *                                  Must  be on the interval [1, n + 1]. The 
+ *                                  entries at indices k + 1, .., n + 1 of the 
+ *                                  cu_oordinates vector must be populated.
+ * \param[in]      n                The number of runs used to setup the A 
+ *                                  matrix from which G and M are computed.
+ * \param[in]      precision        The floating point precision.
+ * 
+ * \return Returns #TRUE if | \\pi_k(u - v) |^2 > R^2, and #FALSE otherwise.
  */
-static bool pi_projection_test(
+static bool compute_uhat_offsets(
+  mpz_t uhat,
+  mpz_t min_uhat_offset,
+  mpz_t max_uhat_offset,
   const mpfr_t square_radius,
-  const vector<Z_NR<mpz_t>> &cu_coordinates,
+  vector<Z_NR<mpz_t>> &cu_coordinates,
   const vector<FP_NR<mpfr_t>> &cv_coordinates,
   const FP_mat<mpfr_t> &M,
   const vector<FP_NR<mpfr_t>> &G_square_norms,
@@ -89,8 +123,6 @@ static bool pi_projection_test(
 {
   bool result = TRUE;
 
-  vector<FP_NR<mpfr_t>> u(n + 1);
-
   mpfr_t square_norm;
   mpfr_init2(square_norm, precision);
 
@@ -99,136 +131,204 @@ static bool pi_projection_test(
 
   mpfr_t tmp2;
   mpfr_init2(tmp2, precision);
-  
-  /* Grow the radius by 1 percent to be on the safe side. */
-  mpfr_t grown_square_radius;
-  mpfr_init2(grown_square_radius, precision);
-  mpfr_mul_d(grown_square_radius, square_radius, (double)1.01f, MPFR_RNDN);
 
-  for (uint32_t j = 0; j <= n; j++) {
-    mpfr_set_prec(u[j].get_data(), precision);
+  /* 1. Compute uhat (using tmp as temporary storage for uhat). */
+  mpfr_set(tmp, cv_coordinates[k - 1].get_data(), MPFR_RNDN);
 
-    /* Let u = c_u - c_v. */
+  for (uint32_t j = k + 1; j <= n + 1; j++) {
     mpfr_sub_z(
-      u[j].get_data(),
+      tmp2,
+      cv_coordinates[j - 1].get_data(),
+      cu_coordinates[j - 1].get_data(),
+      MPFR_RNDN);
+
+    mpfr_mul(tmp2, tmp2, M[k - 1][j - 1].get_data(), MPFR_RNDN);
+    mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
+  }
+
+  mpfr_round(tmp, tmp);
+  mpfr_get_z(uhat, tmp, MPFR_RNDN);
+  
+  /* 1.1 Store uhat in the k:th position in the cu_coordinates vector. */
+  mpz_set(cu_coordinates[k - 1].get_data(), uhat);
+    /* Note: k is indexed from one. */
+
+  /* Note: The parameter k is indexed from one, whilst the indices i and j below
+   * are indexed from zero. Therefore, we subtract one from k when used. */
+
+  /* 2. Let c = c_u - c_v. */
+  vector<FP_NR<mpfr_t>> c(n + 1);
+
+  for (uint32_t j = k - 1; j <= n; j++) { /* Note: k is indexed from one. */
+    mpfr_set_prec(c[j].get_data(), precision);
+
+    mpfr_sub_z(
+      c[j].get_data(),
       cv_coordinates[j].get_data(),
       cu_coordinates[j].get_data(),
       MPFR_RNDN);
-    mpfr_neg(u[j].get_data(), u[j].get_data(), MPFR_RNDN);
+    mpfr_neg(c[j].get_data(), c[j].get_data(), MPFR_RNDN);
   }
 
-  /* Compute the norms. */
-
-  /* Note that the parameter k is indexed from one, whilst the indices i and j
-   * are indexed from zero; hence we subtract one from k when used. */
+  /* 3. Compute the square norm for the projection onto entries k + 1, .., n. */
   mpfr_set_ui(square_norm, 0, MPFR_RNDN);
 
-  for (uint32_t j = k - 1; j <= n; j++) { /* k is indexed from one */
-    mpfr_set(tmp, u[j].get_data(), MPFR_RNDN);
+  for (uint32_t j = k; j <= n; j++) { /* Note: k is indexed from one. */
+    mpfr_set(tmp, c[j].get_data(), MPFR_RNDN);
 
     for (uint32_t i = j + 1; i <= n; i++) {
-      mpfr_mul(tmp2, M[i][j].get_data(), u[i].get_data(), MPFR_RNDN);
+      mpfr_mul(tmp2, M[i][j].get_data(), c[i].get_data(), MPFR_RNDN);
       mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
     }
 
-    mpfr_mul(tmp, tmp, tmp, MPFR_RNDN);
+    mpfr_sqr(tmp, tmp, MPFR_RNDN);
     mpfr_mul(tmp, tmp, G_square_norms[j].get_data(), MPFR_RNDN);
 
     mpfr_add(square_norm, square_norm, tmp, MPFR_RNDN);
+  }
 
-    if (mpfr_cmp(square_norm, grown_square_radius) > 0) {
-      result = FALSE;
-      break;
+  /* 4. Compute the contribution for the projection onto entry k to tmp. */
+  mpfr_set(tmp, c[k - 1].get_data(), MPFR_RNDN);
+  for (uint32_t i = k; i <= n; i++) { /* Note: k is indexed from one. */
+    mpfr_mul(tmp2, M[i][k - 1].get_data(), c[i].get_data(), MPFR_RNDN);
+    mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
+  }
+
+  mpfr_sqr(tmp2, tmp, MPFR_RNDN);
+  mpfr_mul(tmp2, tmp2, G_square_norms[k - 1].get_data(), MPFR_RNDN);
+
+  /* Sum up the square norm for the projection onto entries k, .., n to tmp2. */
+  mpfr_add(tmp2, tmp2, square_norm, MPFR_RNDN);
+
+  /* 5. Check if the square norm exceeds the square radius R^2. */
+  if (mpfr_cmp(tmp2, square_radius) > 0) {
+    /* 5.1 If so, set the minimum and maximum offset to zero. */
+    mpz_set_ui(min_uhat_offset, 0);
+    mpz_set_ui(max_uhat_offset, 0);
+
+    result = FALSE; /* Empty interval. */
+  } else {
+    /* 5.2 If not, compute the minimum and maximum offset. */
+
+    mpfr_t residual;
+    mpfr_init2(residual, precision);
+
+    mpfr_sub(residual, square_radius, square_norm, MPFR_RNDN);
+    mpfr_div(residual, residual, G_square_norms[k - 1].get_data(), MPFR_RNDN);
+    mpfr_sqrt(residual, residual, MPFR_RNDN);
+
+    /* Note: We need | offset + tmp | < residual, where tmp may be negative. */
+
+    /* 5.2.1. Compute min_uhat_offset, the minimum offset. */
+    mpfr_neg(tmp2, residual, MPFR_RNDN); /* tmp2 = -residual */
+    mpfr_sub(tmp2, tmp2, tmp, MPFR_RNDN); /* tmp2 = -residual - tmp */
+
+    if (mpfr_sgn(tmp2) < 0) {
+      mpfr_ceil(tmp2, tmp2);
+    } else {
+      mpfr_floor(tmp2, tmp2);
     }
+    mpfr_get_z(min_uhat_offset, tmp2, MPFR_RNDN);
+
+    /* 5.2.2. Compute max_uhat_offset, the maximum offset. */
+    mpfr_sub(tmp2, residual, tmp, MPFR_RNDN); /* tmp2 = residual - tmp */
+
+    if (mpfr_sgn(tmp2) < 0) {
+      mpfr_ceil(tmp2, tmp2);
+    } else {
+      mpfr_floor(tmp2, tmp2);
+    }
+    mpfr_get_z(max_uhat_offset, tmp2, MPFR_RNDN);
+
+    result = TRUE; /* Non-empty interval. */
+
+    /* Clear temporary memory. */
+    mpfr_clear(residual);
   }
 
   /* Clear memory. */
-  mpfr_clear(grown_square_radius);
   mpfr_clear(square_norm);
   mpfr_clear(tmp);
   mpfr_clear(tmp2);
 
-  u.clear();
+  c.clear();
 
   /* Signal result. */
   return result;
 }
 
 /*!
- * \brief   An internal function called recursively to perform lattice
- *          enumeration using ideas from Kannan.
+ * \brief   An internal function that is called recursively to enumerate L.
  *
- * This function implements lattice enumeration. It is implemented naïvely 
- * following Kannan [1] essentially as described in appendix C to [2].
+ * This function implements lattice enumeration, by building on ideas originally
+ * described by Kannan [1], with a few optimizations:
+ *
+ *   1. We use standard techniques from the literature, such as incremental
+ *      Gram-Schmidt projections, to enumerate all vectors in within a ball of a
+ *      given radius, see the internal function offset_uhat(). We test each 
+ *      plausible candidate against the known solution d_or_r. (This explains 
+ *      why d_or_r must be passed to this function.)
+ *
+ *   2. We use that the last component is d or r, and hence on a restricted 
+ *      known interval min_d_or_r <= d, r <= max_d_or_r.
+ *
+ *   3. We support detecting partially smooth r.
  *
  * [1] Kannan, R.: Improved algorithms for integer programming and related 
  * lattice problems. In: Proceedings of the 15th Symposium on the Theory of 
  * Computing. STOC 1983. ACM Press, pp. 99—108 (1983).
  *
- * [2] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122, 1st revision.
- *
- * Note however that vectors and matrices are indexed from one in the paper,
- * but indexed from zero in C and C++. Note furthermore that we do not collect
- * a set of potential solutions; instead we test all potential solutions as
- * they are found until a correct solution is found.
- *
- * This is why the solution must be explicitly passed to this function.
- *
- * To speed up enumeration, we make some further optimizations:
- *
- * (i)   We reduce the  number of pi projection tests that we perform in each
- *       component, primarily to speed up enumeration of low-dimensional
- *       lattices. We seek for the bounds on the index in each component first
- *       and then explore the whole range in this component without testing.
- *
- * (ii)  We use that the last component is d or r and hence on a restricted 
- *       known interval min_d_or_r <= d, r <= max_d_or_r.
- *
- * (iii) We support detecting partially smooth r.
- *
  * Note that this a fairly straightforward implementation of lattice enumeration
  * that has proven sufficient for these purposes. There are more efficient
  * methods for enumerating lattices, and it is possible to implement this
- * function more efficiently. However, it has not proved necessary.
+ * function more efficiently. However, doing so has not proved necessary.
  *
  * \internal
  *
- * \param[out] status           Used to report status of the enumeration.
- * \param[in]  square_radius    The square radius of the hypersphere to
- *                              enumerate.
- * \param[in]  cu_coordinates   The coordinates of the u vector.
- * \param[in]  cv_coordinates   The coordinates of the v vector.
- * \param[in]  A                The A matrix.
- * \param[in]  G_square_norms   The square norms of the rows of the G matrix.
- * \param[in]  M                The M matrix.
- * \param[in]  k                The index of the component currently processed.
- *                              Specifies the depth in the enumeration tree.
- * \param[in]  n                The number of runs n used to setup A so that A,
- *                              G and M are all (n+1) x (n+1) matrices.
- * \param[in]  min_d_or_r       The minimum value of the correct solution. Used
- *                              to prune the enumeration at the last level.
- * \param[in]  max_d_or_r       The maximum value of the correct solution. Used
- *                              to prune the enumeration at the last level.
- * \param[in]  d_or_r           The correct solution. Used only to test if the
- *                              candidate solutions found are correct.
- * \param[in]  parameters       The parameters of the distribution. These
- *                              parameters in particular contain m.
- * \param[in]  precision        The floating point precision.
- * \param[in]  detect_smooth    A flag that should be set to #TRUE if the 
- *                              function should return d_or_r' for 
- *                              d_or_r = d_or_r' * z, where z is smooth. Set to 
- *                              #FALSE otherwise.
- * \param[in]  timeout          The timeout after which the enumeration will be
- *                              aborted. Set to zero to disable the timeout.
- * \param[in]  timer            A timer used to measure how much time has
- *                              elapsed since the first call this this function.
- *                              Must be initialized and started by the caller.
+ * \param[out]     status          An entry in the #Lattice_Status_Recovery 
+ *                                 enumeration that is used to signal  
+ *                                 information on whether d_or_r was 
+ *                                 successfully recovered.
+ * \param[in]      square_radius   The square radius R^2 of the ball to 
+ *                                 enumerate.
+ * \param[in, out] cu_coordinates  The coordinates of u in the A basis.
+ * \param[in]      cv_coordinates  The coordinates of v in the A basis.
+ * \param[in]      M               The triangular M matrix of Gram-Schmidt 
+ *                                 projection factors, such that A = M * G for 
+ *                                 G the Gram-Schmidt orthogonalized (GSO) basis
+ *                                 matrix for the A basis.
+ * \param[in]      G_square_norms  The square norms of the rows of G.
+ * \param[in]      k               The index into the cu_coordinates vector.
+ *                                 Specifies the depth in the enumeration tree.
+ * \param[in]      n               The number of runs n used to setup A. Also A,
+ *                                 G and M are all (n + 1) x (n + 1) matrices.
+ * \param[in]      min_d_or_r      The minimum value of the correct solution. 
+ *                                 Used to prune the enumeration at the last 
+ *                                 level of the enumeration tree.
+ * \param[in]      max_d_or_r      The maximum value of the correct solution.
+ *                                 Used to prune the enumeration at the last 
+ *                                 level of the enumeration tree.
+ * \param[in]      d_or_r          The correct solution. Used only to test if 
+ *                                 the candidate solutions found are correct.
+ * \param[in]      m               The length m in bits of r. Used only when 
+ *                                 solving of r, and detect_smooth is set to 
+ *                                 #TRUE.
+ * \param[in]      precision       The floating point precision.
+ * \param[in]      detect_smooth   A flag that should be set to #TRUE if the 
+ *                                 function should return d_or_r' for 
+ *                                 d_or_r = d_or_r' * z, where z is smooth. Set 
+ *                                 to #FALSE otherwise.
+ * \param[in]      timeout         The timeout after which the enumeration will 
+ *                                 be aborted. Set to 0 to disable the timeout.
+ * \param[in]      timer           A timer used to measure how much time has
+ *                                 elapsed since the first call this this 
+ *                                 function. Must be initialized and started by
+ *                                 the caller.
  */
 static void lattice_enumerate_inner(
   Lattice_Status_Recovery * const status,
   const mpfr_t square_radius,
-  const vector<Z_NR<mpz_t>> &cu_coordinates,
+  vector<Z_NR<mpz_t>> &cu_coordinates,
   const vector<FP_NR<mpfr_t>> &cv_coordinates,
   const ZZ_mat<mpz_t> &A,
   const vector<FP_NR<mpfr_t>> &G_square_norms,
@@ -244,589 +344,303 @@ static void lattice_enumerate_inner(
   const uint64_t timeout,
   Timer * const timer)
 {
+  /* Sanity checks. */
   if ((mpz_cmp(min_d_or_r, d_or_r) > 0) || (mpz_cmp(max_d_or_r, d_or_r) < 0)) {
     critical("lattice_enumerate_inner(): Sanity checks not respected.");
+  }
+
+  /* Timeout check. */
+  if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
+    (*status) = LATTICE_STATUS_TIMEOUT;
+
+    return; /* Stop. */
   }
 
   /* Initially set the status to not recovered. */
   (*status) = LATTICE_STATUS_NOT_RECOVERED;
 
-  /* Check the timeout. */
-  if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
-    (*status) = LATTICE_STATUS_TIMEOUT;
-
-    return;
-  }
-
   /* Declare variables and constants. */
   mpz_t uhat;
   mpz_init(uhat);
 
-  mpz_t uhat_max;
-  mpz_init(uhat_max);
+  mpz_t min_uhat_offset;
+  mpz_init(min_uhat_offset);
 
-  mpz_t uhat_min;
-  mpz_init(uhat_min);
+  mpz_t abs_min_uhat_offset;
+  mpz_init(abs_min_uhat_offset);
 
-  vector<Z_NR<mpz_t>> new_cu_coordinates(n + 1);
+  mpz_t max_uhat_offset;
+  mpz_init(max_uhat_offset);
+
+  mpz_t bound;
+  mpz_init(bound);
+
+  mpz_t offset;
+  mpz_init(offset);
 
   mpz_t candidate_d_or_r;
   mpz_init(candidate_d_or_r);
 
-  const int sign_d_or_r = (mpz_sgn(A[0][n].get_data()) < 0) ? -1 : 1;
-
   mpz_t increment_d_or_r;
   mpz_init(increment_d_or_r);
-  mpz_abs(increment_d_or_r, A[0][n].get_data());
-
-  mpz_t z;
-  mpz_init(z);
 
   mpz_t last_component_u;
   mpz_init(last_component_u);
 
+  mpz_t tmp_z;
+  mpz_init(tmp_z);
+
+  mpfr_t tmp_f;
+  mpfr_init2(tmp_f, precision);
+
   /* Note: The above variables are cleared at the end of this function. */
 
-  /* Setup uhat. */
-  {
-    mpfr_t tmp;
-    mpfr_init2(tmp, precision);
-
-    mpfr_t tmp2;
-    mpfr_init2(tmp2, precision);
-
-    mpfr_set(tmp, cv_coordinates[k - 1].get_data(), MPFR_RNDN);
-
-    for (uint32_t j = k + 1; j <= n + 1; j++) {
-      mpfr_sub_z(
-        tmp2,
-        cv_coordinates[j - 1].get_data(),
-        cu_coordinates[j - 1].get_data(),
-        MPFR_RNDN);
-
-      mpfr_mul(tmp2, tmp2, M[k - 1][j - 1].get_data(), MPFR_RNDN);
-      mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
-    }
-
-    mpfr_round(tmp, tmp);
-    mpfr_get_z(uhat, tmp, MPFR_RNDN);
-
-    /* Clear memory. */
-    mpfr_clear(tmp);
-    mpfr_clear(tmp2);
-  }
-
-  /* Setup the new coordinate vector. */
-  for (uint32_t j = 0; j <= n; j++) {
-    mpz_set(new_cu_coordinates[j].get_data(), cu_coordinates[j].get_data());
-  }
-
-  mpz_set(new_cu_coordinates[k - 1].get_data(), uhat);
-
-  /* Find the maximum and minimum value in the k:th position. */
-
-  {
-    /* The maximum in the k:th component is = uhat + max_cu. Set max_cu to
-     * zero initially, then to one, and then double max_cu in every iteration
-     * thereafter until we no longer find ourselves inside the radius of the
-     * hypersphere. This yields a coarse estimate that we then refine below. */
-    mpz_t max_cu;
-    mpz_init_set_ui(max_cu, 0);
-
-    while (TRUE) {
-      mpz_add(new_cu_coordinates[k - 1].get_data(), uhat, max_cu);
-
-      bool result = pi_projection_test(
-          square_radius,
-          new_cu_coordinates,
-          cv_coordinates,
-          M,
-          G_square_norms,
-          k,
-          n,
-          precision);
-      if (!result) {
-        break;
-      }
-
-      if (mpz_cmp_ui(max_cu, 0) == 0) {
-        mpz_set_ui(max_cu, 1);
-      } else {
-        mpz_mul_ui(max_cu, max_cu, 2);
-      }
-    }
-
-    if (mpz_cmp_ui(max_cu, 0) == 0) {
-      /* Clear memory. */
-      mpz_clear(max_cu);
-
-      /* Abort the run. */
-      goto lattice_enumerate_inner_clear;
-    } else if (mpz_cmp_ui(max_cu, 2) <= 0) {
-      /* We need not do anything; as we explicitly test max_cu in {0, 1, 2} we
-       * are guaranteed that max_cu is a tight bound. */
-    } else {
-      /* Refine the search by using that we know that the minimum is acceptable,
-       * whilst the maximum is unacceptable. Select a pivot element inbetween
-       * the two values and test it to find a new minimum and maximum. Repeat
-       * this process recursively until a tight bound is established. */
-
-      /* Initially set min_cu = max_cu / 2. */
-      mpz_t min_cu;
-      mpz_init(min_cu);
-      mpz_div_ui(min_cu, max_cu, 2);
-
-      mpz_t pivot_cu;
-      mpz_init(pivot_cu);
-
-      while (TRUE) {
-        mpz_sub(pivot_cu, max_cu, min_cu);
-        if (mpz_cmp_ui(pivot_cu, 2) < 0) {
-          break;
-        }
-
-        mpz_add(pivot_cu, max_cu, min_cu);
-        mpz_div_ui(pivot_cu, pivot_cu, 2);
-
-        mpz_add(new_cu_coordinates[k - 1].get_data(), uhat, pivot_cu);
-
-        bool result = pi_projection_test(
-            square_radius,
-            new_cu_coordinates,
-            cv_coordinates,
-            M,
-            G_square_norms,
-            k,
-            n,
-            precision);
-        if (result) {
-          mpz_set(min_cu, pivot_cu);
-        } else {
-          mpz_set(max_cu, pivot_cu);
-        }
-      }
-
-      /* Clear memory. */
-      mpz_clear(pivot_cu);
-      mpz_clear(min_cu);
-    }
-
-    /* Export the result. */
-    mpz_add(uhat_max, uhat, max_cu);
-
-    /* Clear memory. */
-    mpz_clear(max_cu);
-  }
-
-  {
-   /* The minimum in the k:th component is min = uhat + min_cu. Set min_cu to
-    * -1 initially, and then double min_cu in every iteration thereafter until
-    * we no longer find ourselves inside the radius of the hypersphere. This
-    * yields a coarse estimate that we then refine below. */
-
-    mpz_t min_cu;
-    mpz_init_set_si(min_cu, -1);
-
-    while (TRUE) {
-      mpz_add(new_cu_coordinates[k - 1].get_data(), uhat, min_cu);
-
-      bool result = pi_projection_test(
-          square_radius,
-          new_cu_coordinates,
-          cv_coordinates,
-          M,
-          G_square_norms,
-          k,
-          n,
-          precision);
-      if (!result) {
-        break;
-      }
-
-      mpz_mul_ui(min_cu, min_cu, 2);
-    }
-
-    if (mpz_cmp_si(min_cu, -2) >= 0) {
-      /* We need not do anything; as we explicitly test min_cu in {-1, -2}, and
-       * previously min_cu = 0, we know that min_cu is a tight bound. */
-    } else {
-      /* Refine the search by using that we know that the maximum is acceptable,
-       * whilst the minimum is unacceptable. Select a pivot element inbetween
-       * the two values and test it to find a new minimum and maximum. Repeat
-       * this process recursively until a tight bound is established. */
-
-      /* Initially set max_cu = min_cu / 2. */
-      mpz_t max_cu;
-      mpz_init(max_cu);
-      mpz_div_ui(max_cu, min_cu, 2);
-
-      mpz_t pivot_cu;
-      mpz_init(pivot_cu);
-
-      while (TRUE) {
-        mpz_sub(pivot_cu, min_cu, max_cu);
-        if (mpz_cmp_si(pivot_cu, -2) > 0) {
-          break;
-        }
-
-        mpz_add(pivot_cu, max_cu, min_cu);
-        mpz_div_ui(pivot_cu, pivot_cu, 2);
-
-        mpz_add(new_cu_coordinates[k - 1].get_data(), uhat, pivot_cu);
-
-        bool result = pi_projection_test(
-            square_radius,
-            new_cu_coordinates,
-            cv_coordinates,
-            M,
-            G_square_norms,
-            k,
-            n,
-            precision);
-        if (result) {
-          mpz_set(max_cu, pivot_cu);
-        } else {
-          mpz_set(min_cu, pivot_cu);
-        }
-      }
-
-      /* Clear memory. */
-      mpz_clear(pivot_cu);
-      mpz_clear(max_cu);
-    }
-
-    /* Export the result. */
-    mpz_add(uhat_min, uhat, min_cu);
-
-    /* Clear memory. */
-    mpz_clear(min_cu);
-  }
-
-  /* Begin: Optimization for d and r on min_d_or_r <= d, r <= max_d_or_r ---- */
-
-  if (1 == k) {
-    /* The interval is now (uhat_min, uhat_max) around uhat. */
-    mpz_set(new_cu_coordinates[0].get_data(), uhat);
-
-    /* Compute the last component. */
-    mpz_set_ui(last_component_u, 0);
-  
-    {
-      mpz_t tmp;
-      mpz_init(tmp);
-
-      for (uint32_t i = 0; i <= n; i++) {
-        mpz_mul(tmp, A[i][n].get_data(), new_cu_coordinates[i].get_data());
-        mpz_add(last_component_u, last_component_u, tmp);
-      }
-
-      /* Clear memory. */
-      mpz_clear(tmp);
-    }
-
-    mpz_set(candidate_d_or_r, last_component_u);
-
-    /* Move ahead if necessary. */
-    if (mpz_cmp(candidate_d_or_r, min_d_or_r) < 0) {
-      mpz_t tmp;
-      mpz_init(tmp);
-
-      mpz_sub(tmp, min_d_or_r, candidate_d_or_r);
-      mpz_add(tmp, tmp, increment_d_or_r);
-      mpz_sub_ui(tmp, tmp, 1);
-      mpz_div(tmp, tmp, increment_d_or_r);
-
-      if (sign_d_or_r < 1) {
-        mpz_sub(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          tmp);
-      } else {
-        mpz_add(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          tmp);
-      }
-
-      mpz_mul(tmp, tmp, increment_d_or_r);
-      mpz_add(candidate_d_or_r, candidate_d_or_r, tmp);
-
-      /* Clear memory. */
-      mpz_clear(tmp);
-    }
-
-    uint32_t timeout_counter = 0;
-
-    /* Iterate. */
-    while (TRUE) {
-      const int result_min_d_or_r = mpz_cmp(candidate_d_or_r, min_d_or_r);
-      const int result_max_d_or_r = mpz_cmp(candidate_d_or_r, max_d_or_r);
-
-      if (result_max_d_or_r > 0) {
-        break;
-      }
-
-      if ((result_min_d_or_r >= 0) && (result_max_d_or_r <= 0)) {
-        if (mpz_cmp(candidate_d_or_r, d_or_r) == 0) {
-          /* Set the status to recovered. */
-          (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
-
-          /* Stop. */
-          goto lattice_enumerate_inner_clear;
-        } else if (detect_smooth && (0 != mpz_cmp_ui(candidate_d_or_r, 0))) {
-          mpz_mod(z, d_or_r, candidate_d_or_r);
-
-          if (mpz_cmp_ui(z, 0) == 0) { /* candidate_d_or_r divides d_or_r */
-            mpz_div(z, d_or_r, candidate_d_or_r);
-
-            const bool smooth = lattice_smoothness_is_smooth(
-                                  z,
-                                  LATTICE_SMOOTHNESS_CONSTANT_C,
-                                  m);
-
-            if (smooth) {
-              /* Set the status to recovered. */
-              (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
-
-              /* Stop. */
-              goto lattice_enumerate_inner_clear;
-            }
-          }
-        }
-      }
-
-      /* Check the timeout. */
-      timeout_counter = (timeout_counter + 1) & 0xff;
-      
-      if (0 == timeout_counter) {
-        if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
-          /* Set the status to timeout. */
-          (*status) = LATTICE_STATUS_TIMEOUT;
-
-          /* Stop. */
-          goto lattice_enumerate_inner_clear;
-        }
-      }
-
-      /* Increment the coordinate. */
-      if (sign_d_or_r < 1) {
-        mpz_sub_ui(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          1);
-      } else {
-        mpz_add_ui(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          1);
-      }
-
-      if (mpz_cmp(new_cu_coordinates[k - 1].get_data(), uhat_max) >= 0) {
-        break;
-      }
-
-      /* Increment the candidate d or r. */
-      mpz_add(candidate_d_or_r, candidate_d_or_r, increment_d_or_r);
-    }
-
-    /* Reset the counters. */
-    mpz_set(candidate_d_or_r, last_component_u);
-    mpz_set(new_cu_coordinates[k - 1].get_data(), uhat);
-
-    /* Move ahead if necessary. */
-    if (mpz_cmp(candidate_d_or_r, max_d_or_r) > 0) {
-      mpz_t tmp;
-      mpz_init(tmp);
-
-      mpz_sub(tmp, candidate_d_or_r, max_d_or_r);
-      mpz_sub(tmp, tmp, increment_d_or_r);
-      mpz_add_ui(tmp, tmp, 1);
-      mpz_div(tmp, tmp, increment_d_or_r);
-
-      if (sign_d_or_r < 1) {
-        mpz_add(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          tmp);
-      } else {
-        mpz_sub(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          tmp);
-      }
-
-      mpz_mul(tmp, tmp, increment_d_or_r);
-      mpz_sub(candidate_d_or_r, candidate_d_or_r, tmp);
-
-      /* Clear memory. */
-      mpz_clear(tmp);
-    }
-
-    /* Iterate. */
-    while (TRUE) {
-      /* Decrement the candidate d or r. */
-      mpz_sub(candidate_d_or_r, candidate_d_or_r, increment_d_or_r);
-
-      /* Decrement the coordinate. */
-      if (sign_d_or_r < 1) {
-        mpz_add_ui(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          1);
-      } else {
-        mpz_sub_ui(
-          new_cu_coordinates[k - 1].get_data(),
-          new_cu_coordinates[k - 1].get_data(),
-          1);
-      }
-
-      if (mpz_cmp(new_cu_coordinates[k - 1].get_data(), uhat_min) <= 0) {
-        break;
-      }
-
-      const int result_min_d_or_r = mpz_cmp(candidate_d_or_r, min_d_or_r);
-      const int result_max_d_or_r = mpz_cmp(candidate_d_or_r, max_d_or_r);
-
-      if (result_min_d_or_r < 0) {
-        break;
-      }
-
-      if ((result_min_d_or_r >= 0) && (result_max_d_or_r <= 0)) {
-        if (mpz_cmp(candidate_d_or_r, d_or_r) == 0) {
-          /* Set the status to recovered. */
-          (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
-
-          /* Stop. */
-          goto lattice_enumerate_inner_clear;
-        } else if (detect_smooth && (0 != mpz_cmp_ui(candidate_d_or_r, 0))) {
-          mpz_mod(z, d_or_r, candidate_d_or_r);
-
-          if (mpz_cmp_ui(z, 0) == 0) { /* candidate_d_or_r divides d_or_r */
-            mpz_div(z, d_or_r, candidate_d_or_r);
-
-            const bool smooth = lattice_smoothness_is_smooth(
-                                  z,
-                                  LATTICE_SMOOTHNESS_CONSTANT_C,
-                                  m);
-
-            if (smooth) {
-              /* Set the status to recovered. */
-              (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
-
-              /* Stop. */
-              goto lattice_enumerate_inner_clear;
-            }
-          }
-        }
-      }
-
-      /* Check the timeout. */
-      timeout_counter = (timeout_counter + 1) & 0xff;
-      
-      if (0 == timeout_counter) {
-        if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
-          /* Set the status to timeout. */
-          (*status) = LATTICE_STATUS_TIMEOUT;
-
-          /* Stop. */
-          goto lattice_enumerate_inner_clear;
-        }
-      }
-    }
-
-    /* No solution found. Stop. */
+  /* Compute uhat, and the minimum and maximum offsets in uhat. */
+  const bool result = compute_uhat_offsets(
+                        uhat,
+                        min_uhat_offset,
+                        max_uhat_offset,
+                        square_radius,
+                        cu_coordinates,
+                        cv_coordinates,
+                        M,
+                        G_square_norms,
+                        k,
+                        n,
+                        precision);
+  if (TRUE != result) {
+    /* Stop. */
     goto lattice_enumerate_inner_clear;
   }
 
-  /* End: Optimization for d and r. ----------------------------------------- */
+  if (k > 1) {
+    /* Recursively call lattice_enumerate_inner() for the interval. */
 
-  /* The interval is now (uhat_min, .., uhat_max). */
-  mpz_t counter;
-  mpz_init_set_ui(counter, 0);
+    /* Compute bound = max(abs(min_uhat_offset), max_uhat_offset). */
+    if (mpz_cmp_ui(max_uhat_offset, 0) < 0) {
+      critical("lattice_enumerate_inner(): Expected max_uhat_offset >= 0.");
+    }
 
-  while (TRUE) {
-    mpz_add(new_cu_coordinates[k - 1].get_data(), uhat, counter);
+    mpz_abs(abs_min_uhat_offset, min_uhat_offset);
+    if (mpz_cmp(max_uhat_offset, abs_min_uhat_offset) > 0) {
+      mpz_set(bound, max_uhat_offset);
+    } else {
+      mpz_set(bound, abs_min_uhat_offset);
+    }
 
-    bool exceeds_max =
-      (mpz_cmp(new_cu_coordinates[k - 1].get_data(), uhat_max) >= 0);
+    /* Iterate with offset 0, .., bound with positive and negative sign. */
+    mpz_set_si(offset, -1);
 
-    if (!exceeds_max) {
-      /* Recursively enumerate the lattice. */
-      lattice_enumerate_inner(
-        status,
-        square_radius,
-        new_cu_coordinates,
-        cv_coordinates,
-        A,
-        G_square_norms,
-        M,
-        k - 1,
-        n,
-        min_d_or_r,
-        max_d_or_r,
-        d_or_r,
-        m,
-        precision,
-        detect_smooth,
-        timeout,
-        timer);
-      if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
-        break; /* Recovery was successful or an error occurred. */
+    while (mpz_cmp(offset, bound) <= 0) {
+      mpz_add_ui(offset, offset, 1);
+
+      if (mpz_cmp(offset, max_uhat_offset) <= 0) {
+        mpz_add(cu_coordinates[k - 1].get_data(), uhat, offset);
+
+        lattice_enumerate_inner(
+          status,
+          square_radius,
+          cu_coordinates,
+          cv_coordinates,
+          A,
+          G_square_norms,
+          M,
+          k - 1,
+          n,
+          min_d_or_r,
+          max_d_or_r,
+          d_or_r,
+          m,
+          precision,
+          detect_smooth,
+          timeout,
+          timer);
+        if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
+          break; /* Recovery was successful or an error occurred. */
+        }
+      }
+
+      if (mpz_cmp_ui(offset, 0) == 0) {
+        continue;
+      }
+
+      if (mpz_cmp(offset, abs_min_uhat_offset) <= 0) {
+        mpz_sub(cu_coordinates[k - 1].get_data(), uhat, offset);
+
+        lattice_enumerate_inner(
+          status,
+          square_radius,
+          cu_coordinates,
+          cv_coordinates,
+          A,
+          G_square_norms,
+          M,
+          k - 1,
+          n,
+          min_d_or_r,
+          max_d_or_r,
+          d_or_r,
+          m,
+          precision,
+          detect_smooth,
+          timeout,
+          timer);
+        if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
+          break; /* Recovery was successful or an error occurred. */
+        }
       }
     }
 
-    mpz_sub(new_cu_coordinates[k - 1].get_data(), uhat, counter);
+    /* Done. */
 
-    bool exceeds_min =
-      (mpz_cmp(new_cu_coordinates[k - 1].get_data(), uhat_min) <= 0);
+  } else if (k == 1) {
+    /* 1. Compute the last component of the vector u when there is no offset. */
+    mpz_set(cu_coordinates[0].get_data(), uhat);
 
-    if ((!exceeds_min) && (mpz_cmp_ui(counter, 0) != 0)) {
-      /* Recursively enumerate the lattice. */
-      lattice_enumerate_inner(
-        status,
-        square_radius,
-        new_cu_coordinates,
-        cv_coordinates,
-        A,
-        G_square_norms,
-        M,
-        k - 1,
-        n,
-        min_d_or_r,
-        max_d_or_r,
-        d_or_r,
-        m,
-        precision,
-        detect_smooth,
-        timeout,
-        timer);
-      if (LATTICE_STATUS_NOT_RECOVERED != (*status)) {
-        break; /* Recovery was successful or an error occurred. */
+    mpz_set_ui(last_component_u, 0);
+
+    for (uint32_t i = 0; i <= n; i++) {
+      mpz_mul(tmp_z, A[i][n].get_data(), cu_coordinates[i].get_data());
+      mpz_add(last_component_u, last_component_u, tmp_z);
+    }
+
+    mpz_set(candidate_d_or_r, last_component_u);
+
+    /* 2. Find the increment in the last component in the offset. */
+    mpz_abs(increment_d_or_r, A[0][n].get_data());
+
+    /* 3. Check if there is an offset on [min_uhat_offset, max_uhat_offset] that
+     * respects the requirement that the last component of u is on the interval
+     * [min_d_or_r, max_d_or_r] and check if any of these yield d_or_r. */
+
+    /* 3.1 Adjust the minimum offset to the requirement in 3. */
+    mpz_mul(tmp_z, min_uhat_offset, increment_d_or_r);
+    mpz_add(tmp_z, last_component_u, tmp_z);
+
+    if (mpz_cmp(tmp_z, min_d_or_r) < 0) {
+      /* Check how much min_uhat_offset must be incremented. */
+      mpz_sub(tmp_z, min_d_or_r, tmp_z);
+      mpfr_set_z(tmp_f, tmp_z, MPFR_RNDN);
+      mpfr_div_z(tmp_f, tmp_f, increment_d_or_r, MPFR_RNDN);
+      mpfr_ceil(tmp_f, tmp_f);
+      mpfr_get_z(tmp_z, tmp_f, MPFR_RNDN);
+
+      mpz_add(min_uhat_offset, min_uhat_offset, tmp_z);
+    }
+
+    if (mpz_cmp(min_uhat_offset, max_uhat_offset) > 0) {
+      /* Stop. Empty offset interval. */
+      goto lattice_enumerate_inner_clear;
+    }
+
+    /* 3.2. Adjust the maximum offset to the requirement in 3. */
+    mpz_mul(tmp_z, max_uhat_offset, increment_d_or_r);
+    mpz_add(tmp_z, last_component_u, tmp_z);
+
+    if (mpz_cmp(tmp_z, max_d_or_r) > 0) {
+      /* Check how much max_uhat_offset must be decremented. */
+      mpz_sub(tmp_z, tmp_z, max_d_or_r);
+      mpfr_set_z(tmp_f, tmp_z, MPFR_RNDN);
+      mpfr_div_z(tmp_f, tmp_f, increment_d_or_r, MPFR_RNDN);
+      mpfr_ceil(tmp_f, tmp_f);
+      mpfr_get_z(tmp_z, tmp_f, MPFR_RNDN);
+
+      mpz_sub(max_uhat_offset, max_uhat_offset, tmp_z);
+    }
+
+    if (mpz_cmp(min_uhat_offset, max_uhat_offset) > 0) {
+      /* Stop. Empty offset interval. */
+      goto lattice_enumerate_inner_clear;
+    }
+
+    /* Iterate with offset 0, .., bound with positive and negative sign. */
+    mpz_set(offset, min_uhat_offset);
+
+    mpz_mul(tmp_z, min_uhat_offset, increment_d_or_r);
+    mpz_add(candidate_d_or_r, last_component_u, tmp_z);
+
+    uint32_t timeout_counter = 0;
+
+    while (mpz_cmp(offset, max_uhat_offset) <= 0) {
+      /* Candidate check. */
+      if (mpz_cmp(candidate_d_or_r, d_or_r) == 0) {
+        /* Set the status to recovered. */
+        (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION;
+
+        /* Stop. */
+        goto lattice_enumerate_inner_clear;
+      } else if (detect_smooth && (0 != mpz_cmp_ui(candidate_d_or_r, 0))) {
+        mpz_mod(tmp_z, d_or_r, candidate_d_or_r);
+
+        if (mpz_cmp_ui(tmp_z, 0) == 0) { /* candidate_d_or_r divides d_or_r */
+          mpz_div(tmp_z, d_or_r, candidate_d_or_r);
+
+          const bool smooth = lattice_smoothness_is_smooth(
+                                tmp_z,
+                                LATTICE_SMOOTHNESS_CONSTANT_C,
+                                m);
+
+          if (smooth) {
+            /* Set the status to recovered. */
+            (*status) = LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH;
+
+            /* Stop. */
+            goto lattice_enumerate_inner_clear;
+          }
+        }
       }
+
+      /* Timeout check. */
+      timeout_counter = (timeout_counter + 1) & 0xff;
+      if (0 == timeout_counter) {
+        if ((0 != timeout) && (timer_stop(timer) / (1000 * 1000) > timeout)) {
+          /* Set the status to timeout. */
+          (*status) = LATTICE_STATUS_TIMEOUT;
+
+          /* Stop. */
+          goto lattice_enumerate_inner_clear;
+        }
+      }
+
+      /* Increment the offset and the candidate. */
+      mpz_add_ui(offset, offset, 1);
+      mpz_add(candidate_d_or_r, candidate_d_or_r, increment_d_or_r);
     }
 
-    if (exceeds_min && exceeds_max) {
-      break;
-    }
+    /* Done. */
 
-    mpz_add_ui(counter, counter, 1);
+  } else {
+    critical("lattice_enumerate_inner(): Expected k to be on [1, n + 1].");
   }
-
-  /* Clear memory. */
-  mpz_clear(counter);
 
 lattice_enumerate_inner_clear:
 
-  /* Clear memory initially allocated. */
-  new_cu_coordinates.clear();
+  switch (*status) {
+    case LATTICE_STATUS_NOT_RECOVERED:
+    case LATTICE_STATUS_TIMEOUT:
+      /* Zeroize the k:th entry in the cu_coordinates vectors. This is not 
+       * necessary, but avoids leaving data in the vector when backtracking. */
+      mpz_set_ui(cu_coordinates[k - 1].get_data(), 0);
+      break;
 
+    default:
+      break;
+  }
+
+  /* Clear memory. */
   mpz_clear(uhat);
-  mpz_clear(uhat_min);
-  mpz_clear(uhat_max);
+  mpz_clear(min_uhat_offset);
+  mpz_clear(abs_min_uhat_offset);
+  mpz_clear(max_uhat_offset);
+  mpz_clear(bound);
+  mpz_clear(offset);
+
   mpz_clear(candidate_d_or_r);
   mpz_clear(increment_d_or_r);
-  mpz_clear(z);
   mpz_clear(last_component_u);
+
+  mpz_clear(tmp_z);
+  mpfr_clear(tmp_f);
 }
 
 void lattice_enumerate_reduced_basis_for_d(
@@ -968,7 +782,8 @@ void lattice_enumerate_reduced_basis_for_d(
       mpz_set_ui(cu_coordinates[j].get_data(), 0);
     }
 
-    /* Initially set the radius to the square norm of the shortest vector. */
+    /* Compute the square norm of the shortest non-zero vector in the reduced 
+     * lattice basis A. */
     mpfr_t square_radius;
     mpfr_init2(square_radius, precision);
     mpfr_set_ui(square_radius, 0, MPFR_RNDN);
@@ -979,8 +794,13 @@ void lattice_enumerate_reduced_basis_for_d(
       mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
     }
 
-    /* To make sure we do not miss the vector, reduce radius by 2^10. */
-    mpfr_div_ui(square_radius, square_radius, 1024, MPFR_RNDN);
+    /* To attempt to ensure that we do not miss the shortest vector in the 
+     * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
+    mpfr_div_ui(
+      square_radius,
+      square_radius,
+      INITIAL_RADIUS_REDUCTION_FACTOR,
+      MPFR_RNDN);
 
     /* Start a timer. */
     Timer timer;
@@ -1240,7 +1060,8 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
       mpz_set_ui(cu_coordinates[j].get_data(), 0);
     }
 
-    /* Initially set the radius to the square norm of the shortest vector. */
+    /* Compute the square norm of the shortest non-zero vector in the reduced 
+     * lattice basis A. */
     mpfr_t square_radius;
     mpfr_init2(square_radius, precision);
     mpfr_set_ui(square_radius, 0, MPFR_RNDN);
@@ -1251,8 +1072,13 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
       mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
     }
 
-    /* To make sure we do not miss the vector, reduce radius by 2^10. */
-    mpfr_div_ui(square_radius, square_radius, 1024, MPFR_RNDN);
+    /* To attempt to ensure that we do not miss the shortest vector in the 
+     * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
+    mpfr_div_ui(
+      square_radius,
+      square_radius,
+      INITIAL_RADIUS_REDUCTION_FACTOR,
+      MPFR_RNDN);
 
     /* Start a timer. */
     Timer timer;
@@ -1394,7 +1220,8 @@ void lattice_enumerate_reduced_basis_for_r(
     mpz_set_ui(cu_coordinates[j].get_data(), 0);
   }
 
-  /* Initially set the radius to the square norm of the shortest vector. */
+  /* Compute the square norm of the shortest non-zero vector in the reduced 
+   * lattice basis A. */
   mpfr_t square_radius;
   mpfr_init2(square_radius, precision);
   mpfr_set_ui(square_radius, 0, MPFR_RNDN);
@@ -1405,12 +1232,13 @@ void lattice_enumerate_reduced_basis_for_r(
     mpfr_add(square_radius, square_radius, tmp, MPFR_RNDN);
   }
 
-  /* To make sure we do not miss the vector, reduce radius by 2^10. */
-  mpfr_div_ui(
-    square_radius,
-    square_radius,
-    INITIAL_RADIUS_REDUCTION_FACTOR,
-    MPFR_RNDN);
+  /* To attempt to ensure that we do not miss the shortest vector in the 
+   * lattice, reduce the square norm by #INITIAL_RADIUS_REDUCTION_FACTOR. */
+    mpfr_div_ui(
+      square_radius,
+      square_radius,
+      INITIAL_RADIUS_REDUCTION_FACTOR,
+      MPFR_RNDN);
 
   /* Start a timer. */
   Timer timer;
