@@ -158,7 +158,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -500,7 +500,7 @@ static bool arguments_init_parse_command_line(
 /*!
  * \brief   Clears an initialized command line arguments data structure.
  *
- * \param[in, out] arguments   The argument data structure to clear.
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Generate_Linear_Distribution_RSA_Arguments * const arguments)
