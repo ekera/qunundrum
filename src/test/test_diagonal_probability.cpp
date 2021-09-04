@@ -29,7 +29,7 @@
 #define MAX_BUFFER_SIZE 8192
 
 void test_diagonal_probability_approx_kat() {
-  printf("Testing diagonal_probability() via KAT...\n");
+  printf("Testing diagonal_probability_approx() via KAT...\n");
 
   /* As set in main() in main_generate_distribution.cpp. */
   mpfr_set_default_prec(PRECISION);
@@ -119,7 +119,7 @@ void test_diagonal_probability_approx_kat() {
 
         FILE * file = fopen(path, "rb");
         if (NULL == file) {
-          critical("test_diagonal_probability_kat(): "
+          critical("test_diagonal_probability_approx_kat(): "
             "Failed to open \"%s\".", path);
         }
 
@@ -163,12 +163,12 @@ void test_diagonal_probability_approx_kat() {
             const long double exp_norm_ld = mpfr_get_ld(exp_norm, MPFR_RNDN);
 
             if ((exp_norm_ld <= 0) || (norm_ld <= 0)) {
-              critical("test_diagonal_probability_kat(): "
+              critical("test_diagonal_probability_approx_kat(): "
                 "Failed to verify probability estimate.");
             }
 
             if (!test_cmp_ld(norm_ld, exp_norm_ld)) {
-              critical("test_diagonal_probability_kat(): "
+              critical("test_diagonal_probability_approx_kat(): "
                 "Failed to verify probability estimate.");
             }
           }
