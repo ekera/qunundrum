@@ -75,7 +75,7 @@ void rsa_generate_modulus(
     break;
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpz_clear(modulus);
   mpz_clear(N);
 }

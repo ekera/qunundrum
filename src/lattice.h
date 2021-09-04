@@ -58,14 +58,27 @@ typedef enum {
   LATTICE_STATUS_RECOVERED_SEARCH = 2,
 
   /*!
-   * \brief   Indicates that the quantity was recovered by enumerating.
+   * \brief   Indicates that the quantity was recovered by enumerating the 
+   *          lattice.
    */
   LATTICE_STATUS_RECOVERED_ENUMERATION = 3,
 
   /*!
    * \brief   Indicates that a timeout has occurred.
    */
-  LATTICE_STATUS_TIMEOUT = 4
+  LATTICE_STATUS_TIMEOUT = 4,
+
+  /*!
+   * \brief   Indicates that the quantity was recovered, except for a cm-smooth
+   *          factor that may be efficiently found in an additional classical 
+   *          post-processing step. */ 
+  LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH = 5,
+
+  /*!
+   * \brief   Indicates that the discrete logarithm, modularly reduced by r/z
+   *          for some smooth z > 1, was recovered by enumerating the lattice.
+   */
+  LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH = 6
 } Lattice_Status_Recovery;
 
 /*!

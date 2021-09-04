@@ -111,6 +111,29 @@ typedef enum {
 } Solution_Method;
 
 /*!
+ * \brief   An enumeration of options for detecting if the order is smooth.
+ */
+typedef enum {
+  /*!
+   * \brief   Indicates that smooth orders should be detected and leveraged to 
+   *          faciliate solving when possible.
+   */
+  DETECT_SMOOTH_ORDER_TRUE = 1,
+
+  /*!
+   * \brief   Indicates that smooth orders should not be detected, and hence 
+   *          not leveraged to faciliate solving.
+   */
+  DETECT_SMOOTH_ORDER_FALSE = 2,
+
+  /*!
+   * \brief   Indicates that no option for detecting smooth orders has been 
+   *          specified.
+   */
+  DETECT_SMOOTH_ORDER_DEFAULT = 0
+} Detect_Smooth_Order_Option;
+
+/*!
  * \brief   A data structure for holding the current solution status and for
  *          printing information and statistics to log files and to the console.
  */

@@ -163,15 +163,16 @@ int main(int argc, char ** argv) {
     fflush(stdout);
   }
 
-  /* Clean up. */
+  /* Close the random state. */
+  random_close(&random_state);
+
+  /* Clear memory. */
   mpz_clear(alpha_d);
   mpz_clear(alpha_r);
   mpz_clear(j);
   mpz_clear(k);
 
   diagonal_distribution_clear(&distribution);
-
-  random_close(&random_state);
-
+  
   return 0;
 }

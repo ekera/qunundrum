@@ -75,7 +75,7 @@ int main(int argc, char ** argv) {
   /* Export distribution information. */
   linear_distribution_export_info(&distribution, stdout, TRUE, FALSE);
 
-  /* Clean up memory. */
+  /* Clear memory. */
   linear_distribution_clear(&distribution);
 
   return 0;

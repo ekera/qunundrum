@@ -102,7 +102,7 @@ void distribution_slice_compute(
       (mpfr_exp_t)(parameters->l + parameters->m), MPFR_RNDN);
     mpfr_div(scale_factor_theta, scale_factor_theta, tmp, MPFR_RNDN);
 
-    /* Clean up temporary memory. */
+    /* Clear memory. */
     mpfr_clear(tmp);
   }
 
@@ -413,7 +413,7 @@ void distribution_slice_compute(
     slice->flags |= SLICE_FLAGS_ERROR_BOUND_WARNING;
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   for (uint32_t i = 0; i <= (2 * dimension); i++) {
     for (uint32_t j = 0; j <= (2 * dimension); j++) {
       mpfr_clear(norm_matrix[i][j]);

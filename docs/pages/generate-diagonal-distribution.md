@@ -7,7 +7,7 @@ Synopsis: mpirun generate_diagonal_distribution \
       [ -det | -rnd | -exp <d> <r> ] <m> <l> { <m> <l> }
 ```
 
-Computes the distribution induced by Shor's algorithm for computing general discrete logarithms when tweaked as described by Ekerå in for example (Paper).
+Computes the distribution induced by Shor's algorithm for computing general discrete logarithms when tweaked as in [[E19]](https://arxiv.org/pdf/1905.09084.pdf).
 
 The aforementioned distribution is a distribution in two arguments (alpha_d, alpha_r), or equivalently, in two angle pairs (theta_d, theta_r).
 The argument pairs are related in that alpha_d = round(alpha_r d/r) + Delta for some small Delta.
@@ -26,9 +26,9 @@ Tuples <code>\<m\></code> <code>\<l\></code> where
 
 ### Optional command line arguments
 Flags controlling the value of d and r (defaults to <code>-det</code>):
-- <code>-det</code> selects d and r on [2^(m-1), 2^m) deterministically by reading from Catalan's constant
-- <code>-rnd</code> selects r uniformly at random from [2^(m-1), 2^m) and d uniformly at random from [r/2, r)
-- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) <= <code>\<r\></code> < 2^m
+- <code>-det</code> selects d and r on (2^(m-1), 2^m) deterministically by reading from Catalan's constant
+- <code>-rnd</code> selects r uniformly at random from (2^(m-1), 2^m) and d uniformly at random from [r/2, r)
+- <code>-exp \<d\> \<r\></code> explicitly sets d and r to <code>\<d\></code> and <code>\<r\></code> where 0 < <code>\<d\></code> < <code>\<r\></code> and 2^(m-1) < <code>\<r\></code> < 2^m
 
 Flags controlling the bound on |Delta| (defaults to: 20):
 - <code>-bound-delta \<bound\></code> sets the bound on |Delta| to <code>\<bound\></code>
@@ -37,4 +37,4 @@ Flags controlling the dimension (defaults to <code>-dim-heuristic</code>):
 - <code>-dim-heuristic</code> adaptively sets the dimension according to a heuristic
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>
 
-The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in paper on revisiting Shor's algorithm. See this reference for a description of how the histogram is constructed.
+The dimension specifies the resolution of the histogram. Must be a power of two. The dimension is 2^nu in the paper on revisiting Shor's algorithm. See this reference for a description of how the histogram is constructed.

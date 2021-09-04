@@ -16,9 +16,9 @@
 #include <stdint.h>
 
 /*!
- * \brief   Deterministically selects the logarithm d and the order r on the
- *          interval [2^(m-1), 2^m) by reading digits from Catalan's constant
- *
+ * \brief   Deterministically selects the logarithm d and the order r as m bit 
+ *          integers by reading digits from Catalan's constant
+ * 
  * \param[in, out] d    The logarithm d.
  * \param[in, out] r    The order r.
  * \param[in] m         The bit length of d and r.
@@ -30,7 +30,7 @@ void parameters_selection_deterministic_d_r(
 
 /*!
  * \brief   Selects the logarithm d or the order r uniformly at random from
- *          the interval [2^(m-1), 2^m).
+ *          the interval (2^(m-1), 2^m).
  *
  * \param[in, out] value    The logarithm d or order r.
  * \param[in] m             The bit length of the value.
@@ -41,7 +41,7 @@ void parameters_selection_random_d_or_r(
 
 /*!
  * \brief   Selects the order r uniformly at random from the interval
- *          [2^(m-1), 2^m) and the logarithm d uniformly at random from the
+ *          (2^(m-1), 2^m) and the logarithm d uniformly at random from the
  *          interval [r/2, r).
  *
  * \param[in, out] d        The logarithm d.

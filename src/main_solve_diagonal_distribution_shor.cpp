@@ -560,7 +560,7 @@ static void main_server(
       status.MPI_SOURCE, nodes);
   }
 
-  /* Clean up. */
+  /* Close the file. */
   fclose(log_file);
   log_file = NULL;
 }

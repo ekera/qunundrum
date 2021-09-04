@@ -146,7 +146,7 @@ void sample_alpha_from_region(
     mpz_neg(alpha, alpha);
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpfr_clear(min_alpha);
   mpfr_clear(max_alpha);
 
@@ -201,7 +201,7 @@ void sample_j_from_alpha_r(
   mpz_setbit(pow2, parameters->m + parameters->l);
   mpz_mod(j, j, pow2);
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(pow2);
 }
 
@@ -265,7 +265,7 @@ void sample_j_k_from_alpha_d(
   mpz_setbit(pow2, parameters->m + parameters->l);
   mpz_mod(j, j, pow2);
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(pow2);
   mpz_clear(tmp);
 }
@@ -344,7 +344,7 @@ void sample_j_k_from_alpha_d_r(
   mpz_setbit(pow2, parameters->l); /* pow2 = 2^l */
   mpz_mod(k, k, pow2); /* k = ((alpha_d - dj) / 2^m) mod 2^l */
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(t_r);
   mpz_clear(pow2);
 }
@@ -405,7 +405,7 @@ void sample_j_k_from_diagonal_alpha_d_r(
   mpz_sub(k, alpha_d, k); /* k = alpha_d - dj */
   mpz_mod(k, k, pow2); /* k = (alpha_d - dj) mod 2^(m + l) */
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(t_r);
   mpz_clear(pow2);
 }

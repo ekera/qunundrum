@@ -54,21 +54,21 @@ typedef enum {
 
   /*!
    * \brief   Indicates that the value is selected uniformly at random on the
-   *           interval [2^(m-1), 2^m).
+   *          interval (2^(m-1), 2^m).
    */
   SELECTION_METHOD_RANDOM = 3,
 
   /*!
    * \brief   Indicates that the value is set to 2^(m-1) + 1.
    *
-   * This is the smallest odd value on the interval [2^(m-1), 2^m).
+   * This is the smallest value on the interval (2^(m-1), 2^m).
    */
   SELECTION_METHOD_MINIMAL = 4,
 
   /*!
    * \brief   Indicates that the value is set to 2^m - 1.
    *
-   * This is the greatest odd value on the interval [2^(m-1), 2^m).
+   * This is the greatest value on the interval (2^(m-1), 2^m).
    */
   SELECTION_METHOD_MAXIMAL = 5,
 

@@ -492,14 +492,15 @@ static bool arguments_init_parse_command_line(
       }
 
       if (DISTRIBUTION_TYPE_ORDER == arguments->distribution_type) {
-        /* Check that the specified value is not less than 2^(m-1). */
+        /* Check that the specified value is greater than 2^(m-1). */
         mpz_set_ui(arguments->entries[j].value, 0);
         mpz_setbit(arguments->entries[j].value, arguments->entries[j].m - 1);
 
-        if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value) < 0)
+        if (mpz_cmp(arguments->explicit_value, arguments->entries[j].value) 
+          <= 0)
         {
           fprintf(stderr, "Error: The explicitly specified value with -exp is "
-            "less than 2^(m-1) for at least one <m>.\n");
+            "less than or equal to 2^(m-1) for at least one <m>.\n");
           return FALSE;
         }
       }
@@ -823,7 +824,7 @@ static void main_server(
     }
   }
 
-  /* Clean up the distribution enumerator. */
+  /* Clear memory. */
   linear_distribution_enumerator_clear(&enumerator);
 
   /* Setup an export job. */
@@ -1003,11 +1004,11 @@ static void main_client()
     /* Send back the slice. */
     linear_distribution_slice_send(&slice, MPI_RANK_ROOT);
 
-    /* Clean up the slice. */
+    /* Clear memory. */
     linear_distribution_slice_clear(&slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 
@@ -1034,12 +1035,12 @@ static void print_synopsis(
   fprintf(file, "\n");
   fprintf(file, "Selection method for d or r: -- defaults to -max\n");
 
-  fprintf(file, " -min  select d or r to 2^(m-1) + 1\n");
-  fprintf(file, " -max  select d or r to 2^m - 1\n");
+  fprintf(file, " -min  set d or r to 2^(m-1) + 1\n");
+  fprintf(file, " -max  set d or r to 2^m - 1\n");
   fprintf(file,
     " -det  select d or r deterministically from Catalan's constant\n");
   fprintf(file,
-    " -rnd  select d or r uniformly at random from [2^(m-1), 2^m)\n");
+    " -rnd  select d or r uniformly at random from (2^(m-1), 2^m)\n");
   fprintf(file,
       " -exp  explicitly set d or r to <value>\n");
 

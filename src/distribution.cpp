@@ -131,7 +131,7 @@ void distribution_init_import(
     distribution_insert_slice(distribution, slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 
@@ -667,7 +667,7 @@ bool distribution_sample_pair_j_k(
       "   j: %Zd\n   k: %Zd\n", j, k);
   #endif
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(alpha_d);
   mpz_clear(alpha_r);
 

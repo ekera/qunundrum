@@ -148,7 +148,7 @@ void gram_schmidt_orthogonalization(
     }
   }
 
-  /* Clean up memory. */
+  /* Clear memory. */
   mpz_clear(tmp_z);
   mpfr_clear(tmp_f);
 }

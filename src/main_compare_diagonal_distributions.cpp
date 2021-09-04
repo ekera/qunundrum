@@ -72,7 +72,6 @@ int main(int argc, char ** argv) {
   fclose(file);
   file = NULL;
 
-
   Diagonal_Distribution distribution_b;
 
   file = fopen(argv[2], "rb");

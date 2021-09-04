@@ -144,7 +144,7 @@ void linear_distribution_init_import(
     linear_distribution_insert_slice(distribution, slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 

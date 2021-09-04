@@ -13,6 +13,7 @@
 #include "lattice_babai.h"
 #include "lattice_algebra.h"
 #include "lattice_reduce.h"
+#include "lattice_smoothness.h"
 
 #include "parameters.h"
 #include "sample.h"
@@ -49,7 +50,8 @@ void lattice_solve_reduced_basis_for_d(
   const mpz_t * const ks,
   const uint32_t n,
   const Parameters * const parameters,
-  const uint32_t precision)
+  const uint32_t precision,
+  const bool detect_smooth_r)
 {
   /* Check dimensions. */
   if ((A.get_rows() != (int)(n + 1)) || (A.get_cols() != (int)(n + 1))) {
@@ -112,7 +114,7 @@ void lattice_solve_reduced_basis_for_d(
 
     vector_matrix_product(solution, solution_coordinates, A);
 
-    /* Clean up memory. */
+    /* Clear memory. */
     solution_coordinates.clear();
   #else
     /* Compute the closest vector. */
@@ -125,6 +127,7 @@ void lattice_solve_reduced_basis_for_d(
   if (mpz_cmp(candidate_d, parameters->d) == 0) {
     (*status_d) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
   } else {
+    /* Setup variables. */
     mpz_t multiple;
     mpz_init(multiple);
 
@@ -153,11 +156,56 @@ void lattice_solve_reduced_basis_for_d(
       }
     }
 
+    /* Clear memory. */
     mpz_clear(multiple);
     mpz_clear(tmp_d);
   }
 
-  /* Clean up memory. */
+  if (detect_smooth_r && (LATTICE_STATUS_NOT_RECOVERED == (*status_d))) {
+    /* Setup variables. */
+    mpz_t candidate_r;
+    mpz_init(candidate_r);
+
+    mpz_t test_r;
+    mpz_init(test_r);
+
+    /* Extract the candidate r. */
+    mpz_abs(candidate_r, A[0][n].get_data());
+    mpz_mod(test_r, parameters->r, candidate_r);
+
+    if (mpz_cmp_ui(test_r, 0) == 0) { /* candidate_r divides r */
+      mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
+      
+      if (mpz_cmp_ui(test_r, 1) > 0) {
+        if (lattice_smoothness_is_smooth(
+              test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
+        {
+          mpz_t reduced_d;
+          mpz_init(reduced_d);
+
+          mpz_t reduced_candidate_d;
+          mpz_init(reduced_candidate_d);
+
+          mpz_mod(reduced_candidate_d, candidate_d, candidate_r);
+          mpz_mod(reduced_d, parameters->d, candidate_r);
+
+          if (mpz_cmp(reduced_d, reduced_candidate_d) == 0) {
+            (*status_d) = LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH;
+          }
+
+          /* Clear memory. */
+          mpz_clear(reduced_d);
+          mpz_clear(reduced_candidate_d);
+        }
+      }
+    }
+
+    /* Clear memory. */
+    mpz_clear(candidate_r);
+    mpz_clear(test_r);
+  }
+
+  /* Clear memory. */
   target.clear();
   solution.clear();
 
@@ -167,6 +215,54 @@ void lattice_solve_reduced_basis_for_d(
   mpz_clear(candidate_d);
 }
 
+void lattice_solve_reduced_basis_for_r(
+  Lattice_Status_Recovery * const status_r,
+  const ZZ_mat<mpz_t> &A,
+  const uint32_t n,
+  const Parameters * const parameters,
+  const bool detect_smooth_r)
+{
+  /* Check dimensions. */
+  if ((A.get_rows() != (int)(n + 1)) || (A.get_cols() != (int)(n + 1))) {
+    critical("lattice_solve_reduced_basis_for_r(): "
+      "Incorrect dimensions for the matrix A.");
+  }
+
+  /* Setup variables. */
+  mpz_t candidate_r;
+  mpz_init(candidate_r);
+
+  mpz_t test_r;
+  mpz_init(test_r);
+
+  /* Extract the candidate r. */
+  mpz_abs(candidate_r, A[0][n].get_data());
+  mpz_mod(test_r, parameters->r, candidate_r);
+
+  if (mpz_cmp_ui(test_r, 0) != 0) {
+    (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
+  } else {
+    mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
+
+    if (mpz_cmp_ui(test_r, 1) == 0) {
+      (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
+    } else if (mpz_cmp_ui(test_r, SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE) <= 0) {
+      (*status_r) = LATTICE_STATUS_RECOVERED_SEARCH;
+    } else if (detect_smooth_r && 
+                lattice_smoothness_is_smooth(
+                  test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
+    {
+      (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH;
+    } else {
+      (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
+    }
+  }
+
+  /* Clear memory. */
+  mpz_clear(candidate_r);
+  mpz_clear(test_r);
+}
+
 void lattice_solve_for_d(
   Lattice_Status_Recovery * const status_d,
   const mpz_t * const js,
@@ -174,7 +270,8 @@ void lattice_solve_for_d(
   const uint32_t n,
   const Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
-  uint32_t precision)
+  uint32_t precision,
+  const bool detect_smooth_r)
 {
   /* Setup the A matrix. */
   ZZ_mat<mpz_t> A(n + 1, n + 1);
@@ -205,7 +302,8 @@ void lattice_solve_for_d(
       ks,
       n,
       parameters,
-      precision);
+      precision,
+      detect_smooth_r);
 
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
       break;
@@ -224,54 +322,13 @@ void lattice_solve_for_d(
   M.clear();
 }
 
-void lattice_solve_reduced_basis_for_r(
-  Lattice_Status_Recovery * const status_r,
-  const ZZ_mat<mpz_t> &A,
-  const uint32_t n,
-  const Parameters * const parameters)
-{
-  /* Check dimensions. */
-  if ((A.get_rows() != (int)(n + 1)) || (A.get_cols() != (int)(n + 1))) {
-    critical("lattice_solve_reduced_basis_for_r(): "
-      "Incorrect dimensions for the matrix A.");
-  }
-
-  /* Setup variables. */
-  mpz_t candidate_r;
-  mpz_init(candidate_r);
-
-  mpz_t test_r;
-  mpz_init(test_r);
-
-  /* Extract the candidate r. */
-  mpz_abs(candidate_r, A[0][n].get_data());
-  mpz_mod(test_r, parameters->r, candidate_r);
-
-  if (mpz_cmp_ui(test_r, 0) != 0) {
-    (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
-  } else {
-    mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
-
-    if (mpz_cmp_ui(test_r, 1) == 0) {
-      (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
-    } else if (mpz_cmp_ui(test_r, SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE) <= 0) {
-      (*status_r) = LATTICE_STATUS_RECOVERED_SEARCH;
-    } else {
-      (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
-    }
-  }
-
-  /* Clean up memory. */
-  mpz_clear(candidate_r);
-  mpz_clear(test_r);
-}
-
 void lattice_solve_for_r(
   Lattice_Status_Recovery * const status_r,
   const mpz_t * const js,
   const uint32_t n,
   const Parameters * const parameters,
-  Lattice_Reduction_Algorithm algorithm)
+  Lattice_Reduction_Algorithm algorithm,
+  const bool detect_smooth_r)
 {
   /* Setup the A matrix. */
   ZZ_mat<mpz_t> A(n + 1, n + 1);
@@ -292,7 +349,8 @@ void lattice_solve_for_r(
       status_r,
       A,
       n,
-      parameters);
+      parameters,
+      detect_smooth_r);
 
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_r)) {
       break;
@@ -317,7 +375,8 @@ void lattice_solve_for_d_r(
   const uint32_t n,
   const Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
-  const uint32_t precision)
+  const uint32_t precision,
+  const bool detect_smooth_r)
 {
   /* Setup the A matrix. */
   ZZ_mat<mpz_t> A(n + 1, n + 1);
@@ -347,7 +406,8 @@ void lattice_solve_for_d_r(
         status_r,
         A,
         n,
-        parameters);
+        parameters,
+        detect_smooth_r);
     }
 
     if (LATTICE_STATUS_NOT_RECOVERED == (*status_d)) {
@@ -362,9 +422,12 @@ void lattice_solve_for_d_r(
         ks,
         n,
         parameters,
-        precision);
+        precision,
+        detect_smooth_r);
     }
 
+    /* Check if both d and r have been recovered. Note that timeouts cannot 
+     * occur when solving without enumerating, so the below check suffices. */
     if ((LATTICE_STATUS_NOT_RECOVERED != (*status_d)) &&
         (LATTICE_STATUS_NOT_RECOVERED != (*status_r)))
     {

@@ -75,7 +75,7 @@ int main(int argc, char ** argv) {
   /* Export distribution information. */
   distribution_export_info(&distribution, stdout, TRUE);
 
-  /* Clean up memory. */
+  /* Clear memory. */
   distribution_clear(&distribution);
 
   return 0;

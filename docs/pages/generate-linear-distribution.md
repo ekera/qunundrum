@@ -27,11 +27,11 @@ or, if the <code>-l</code> flag is specified, tuples <code>\<m\></code> <code>\<
 
 ### Optional command line arguments
 Flags controlling the value of d or r (defaults to <code>-max</code>):
-- <code>-min</code> selects minimal odd d or r equal to 2^(m - 1) + 1
+- <code>-min</code> selects minimal d or r equal to 2^(m - 1) + 1
 - <code>-max</code> selects maximal d or r equal to 2^m - 1
-- <code>-det</code> selects d or r on [2^(m-1), 2^m) deterministically by reading from Catalan's constant
-- <code>-rnd</code> selects d or r uniformly at random from [2^(m-1), 2^m)
-- <code>-exp \<value\></code> explicitly sets d or r to <code>\<value\></code> where 0 < d < 2^m and 2^(m-1) <= r < 2^m
+- <code>-det</code> selects d or r on (2^(m-1), 2^m) deterministically by reading from Catalan's constant
+- <code>-rnd</code> selects d or r uniformly at random from (2^(m-1), 2^m)
+- <code>-exp \<value\></code> explicitly sets d or r to <code>\<value\></code> where 0 < d < 2^m and 2^(m-1) < r < 2^m
 
 Flags controlling the dimension (defaults to 2048):
 - <code>-dim \<dimension\></code> sets the dimension to <code>\<dimension\></code>

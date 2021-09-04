@@ -757,7 +757,7 @@ void main_server(
     }
   }
 
-  /* Clean up the distribution enumerator. */
+  /* Clear memory. */
   linear_distribution_enumerator_clear(&enumerator);
 
   /* Setup an export job. */
@@ -909,11 +909,11 @@ void main_client()
     /* Send back the slice. */
     linear_distribution_slice_send(&slice, MPI_RANK_ROOT);
 
-    /* Clean up the slice. */
+    /* Clear memory. */
     linear_distribution_slice_clear(&slice);
   }
 
-  /* Clean up. */
+  /* Clear memory. */
   parameters_clear(&parameters);
 }
 
@@ -932,7 +932,7 @@ static void print_synopsis(
   fprintf(file, "\n");
   fprintf(file, "Selection method for d : -- defaults to -max\n");
 
-  fprintf(file, " -max  select d to 2^m - 1\n");
+  fprintf(file, " -max  set d to 2^m - 1\n");
   fprintf(file,
     " -rnd  select d from random p and q where N = pq\n");
   fprintf(file,

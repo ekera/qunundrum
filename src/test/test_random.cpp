@@ -327,12 +327,13 @@ void test_random_generate_mpz() {
     critical("Failed to generate mpz.");
   }
 
+  /* Close the random state. */
+  random_close(&random_state);
+
   /* Clear memory. */
   mpz_clear(modulus);
   mpz_clear(value);
   mpz_clear(expected);
-  
-  random_close(&random_state);
 }
 
 void test_random() {

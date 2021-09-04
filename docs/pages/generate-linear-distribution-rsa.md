@@ -22,7 +22,7 @@ Entries <code>\<n\></code> where
 ### Optional command line arguments
 Flags controlling the value of d (defaults to <code>-det</code>):
 - <code>-max</code> selects maximal d = 2^m - 1
-- <code>-rnd</code> selects d uniformly at random from [2^(m-1), 2^m)
+- <code>-rnd</code> selects d uniformly at random from (2^(m-1), 2^m)
 - <code>-exp \<p\> \<q\></code> explicitly sets d to (<code>\<p\></code> - 1)/2 + (<code>\<q\></code> - 1)/2 - 2^m for 2^((n/2)-1) < <code>\<p\></code>, <code>\<q\></code> < 2^(n/2)
 
 Flags controlling the paddling length reduction delta (defaults to 20):

@@ -72,7 +72,7 @@ void linear_probability_d(
       /* norm = (1 / 2^(2(m + 2l))) (2^(l + m) - d (2^l - 1)) 2^(2l) + 
        *                               (2^l d / 3) (2^l - 1) (2^(l + 1) - 1) */
     
-    /* Clean up. */
+    /* Clear memory. */
     mpfr_clear(tmp);
     mpfr_clear(tmp2);
     mpfr_clear(tmp3);
@@ -154,7 +154,7 @@ void linear_probability_d(
      *    2d ( (2^l - 1) - (1/2) ((cos((2^l - 1) theta_d) - cos(2^l theta_d)) / 
      *       (1 - cos(theta_d)) - 1) ) / 2^(2(m + 2l)) */
 
-  /* Clean up. */
+  /* Clear memory. */
   mpfr_clear(one_minus_cos_theta);
   mpfr_clear(one_minus_cos_2l_theta);
 
@@ -248,7 +248,7 @@ void linear_probability_r(
      *            (r - beta) * (sin(N * theta_r / 2) / sin(theta_r / 2))^2) /
      *               2^(2 (l + m)) */
 
-  /* Clean up. */
+  /* Clear memory. */
   mpz_clear(beta);
 
   mpfr_clear(N);
