@@ -36,8 +36,8 @@
  * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
  *
  * [2] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
- * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017).
+ * logarithms and factoring RSA integers. In: PQCrypto 2017, Springer LNCS
+ * 10346, pp. 347-363 (2017).
  *
  * To ensure numeric stability, this function uses higher precision than the
  * default precision of #PRECISION internally. However, there is no need to go

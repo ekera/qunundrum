@@ -20,8 +20,8 @@
  * pp. 319-327 (2001).
  *
  * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
- * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017).
+ * logarithms and factoring RSA integers. In: PQCrypto 2017, Springer LNCS
+ * 10346, pp. 347-363 (2017).
  *
  * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing
  * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
@@ -66,8 +66,8 @@
  * pp. 319-327 (2001).
  *
  * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
- * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017).
+ * logarithms and factoring RSA integers. In: PQCrypto 2017, Springer LNCS
+ * 10346, pp. 347-363 (2017).
  *
  * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing
  * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
