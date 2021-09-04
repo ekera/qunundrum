@@ -62,7 +62,7 @@ using namespace fplll;
  * triangular matrix of Gram-Schmidt projection factors, so that A = M * G. Note
  * that gram_schmidt_orthogonalization() computes these matrices given A.
  *
- * Let u = cu_coordinates * A and v = cu_coordinates * A, where cu_coordinates
+ * Let u = cu_coordinates * A and v = cv_coordinates * A, where cu_coordinates
  * and cv_coordinates are row vectors.
  *
  * Let k be an integer index on the interval between 1 and n + 1.
@@ -70,8 +70,8 @@ using namespace fplll;
  * Assume that cv_coordinates is completely populated, and that the entries at
  * indices k, .., n + 1 of cu_coordinates are populated.
  *
- * This function then computes minimum and maximum offset in the k:th entry in
- * the cu_coordinates vector, such that
+ * This function then computes the minimum and maximum offsets in the k:th entry
+ * in the cu_coordinates vector, such that
  *
  *   | \\pi_k(u - v) |^2 =
  *     | \\pi_k((cu_coordinates - cv_coordinates) * A) |^2 =
@@ -93,7 +93,7 @@ using namespace fplll;
  * \param[in, out] cu_coordinates   The coordinates of u in the A basis. The
  *                                  k:th entry will be set to uhat.
  * \param[in]      cv_coordinates   The coordinates of v in the A basis.
- * \param[in]      M                The triangular M matrix of Gram-Schmidt
+ * \param[in]      M                The triangular matrix M of Gram-Schmidt
  *                                  projection factors, such that A = M * G for
  *                                  G the Gram-Schmidt orthogonalized (GSO)
  *                                  basis matrix for the A basis.
@@ -208,7 +208,7 @@ static bool compute_uhat_offsets(
 
     result = FALSE; /* Empty interval. */
   } else {
-    /* 5.2 If not, compute the minimum and maximum offset. */
+    /* 5.2 If not, compute the minimum and maximum offsets. */
 
     mpfr_t residual;
     mpfr_init2(residual, precision);
@@ -264,13 +264,14 @@ static bool compute_uhat_offsets(
  * described by Kannan [1], with a few optimizations:
  *
  *   1. We use standard techniques from the literature, such as incremental
- *      Gram-Schmidt projections, to enumerate all vectors in within a ball of a
- *      given radius, see the internal function offset_uhat(). We test each
+ *      Gram-Schmidt projections, to enumerate all vectors in L within a ball of
+ *      a given radius, see the internal function offset_uhat(). We test each
  *      plausible candidate against the known solution d_or_r. (This explains
  *      why d_or_r must be passed to this function.)
  *
- *   2. We use that the last component is d or r, and hence on a restricted
- *      known interval min_d_or_r <= d, r <= max_d_or_r.
+ *   2. We use that the last component is d or r (or dr in the scaled basis for
+ *      diagonal distributions), and hence on a restricted known interval
+ *      min_d_or_r <= d, r <= max_d_or_r.
  *
  *   3. We support detecting partially smooth r.
  *
@@ -293,15 +294,15 @@ static bool compute_uhat_offsets(
  *                                 enumerate.
  * \param[in, out] cu_coordinates  The coordinates of u in the A basis.
  * \param[in]      cv_coordinates  The coordinates of v in the A basis.
- * \param[in]      M               The triangular M matrix of Gram-Schmidt
+ * \param[in]      M               The triangular matrix M of Gram-Schmidt
  *                                 projection factors, such that A = M * G for
  *                                 G the Gram-Schmidt orthogonalized (GSO) basis
  *                                 matrix for the A basis.
  * \param[in]      G_square_norms  The square norms of the rows of G.
  * \param[in]      k               The index into the cu_coordinates vector.
  *                                 Specifies the depth in the enumeration tree.
- * \param[in]      n               The number of runs n used to setup A. Also A,
- *                                 G and M are all (n + 1) x (n + 1) matrices.
+ * \param[in]      n               The number of runs used to setup the A
+ *                                 matrix from which G and M are computed.
  * \param[in]      min_d_or_r      The minimum value of the correct solution.
  *                                 Used to prune the enumeration at the last
  *                                 level of the enumeration tree.
@@ -311,17 +312,16 @@ static bool compute_uhat_offsets(
  * \param[in]      d_or_r          The correct solution. Used only to test if
  *                                 the candidate solutions found are correct.
  * \param[in]      m               The length m in bits of r. Used only when
- *                                 solving of r, and detect_smooth is set to
+ *                                 solving for r, and detect_smooth is set to
  *                                 #TRUE.
  * \param[in]      precision       The floating point precision.
  * \param[in]      detect_smooth   A flag that should be set to #TRUE if the
  *                                 function should return d_or_r' for
- *                                 d_or_r = d_or_r' * z, where z is smooth. Set
- *                                 to #FALSE otherwise.
+ *                                 d_or_r = d_or_r' * z, where z is smooth.
  * \param[in]      timeout         The timeout after which the enumeration will
  *                                 be aborted. Set to 0 to disable the timeout.
  * \param[in]      timer           A timer used to measure how much time has
- *                                 elapsed since the first call this this
+ *                                 elapsed since the first call to this
  *                                 function. Must be initialized and started by
  *                                 the caller.
  */
@@ -509,9 +509,9 @@ static void lattice_enumerate_inner(
     /* 2. Find the increment in the last component in the offset. */
     mpz_abs(increment_d_or_r, A[0][n].get_data());
 
-    /* 3. Check if there is an offset on [min_uhat_offset, max_uhat_offset] that
-     * respects the requirement that the last component of u is on the interval
-     * [min_d_or_r, max_d_or_r] and check if any of these yield d_or_r. */
+    /* 3. Check if there are offsets on [min_uhat_offset, max_uhat_offset] that
+     * respect the requirement that the last component of u is on the interval
+     * [min_d_or_r, max_d_or_r], and check if any of these yield d_or_r. */
 
     /* 3.1 Adjust the minimum offset to the requirement in 3. */
     mpz_mul(tmp_z, min_uhat_offset, increment_d_or_r);
@@ -712,8 +712,11 @@ void lattice_enumerate_reduced_basis_for_d(
     }
   }
 
-  /* Setup the starting vector:
-   * v = ({-2^m k_1}_{2^{m+l}}, .., {-2^m k_n}_{2^{m+l}}, 0). */
+  /* Setup the vector
+   *
+   *   v = ({-2^m k_1}_{2^{m+l}}, .., {-2^m k_n}_{2^{m+l}}, 0)
+   * 
+   * that defines the origin of the ball to enumerate. */
   vector<Z_NR<mpz_t>> v(n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
@@ -871,9 +874,9 @@ void lattice_enumerate_reduced_basis_for_d(
 
       /* Note that we set detect_smooth to FALSE above. If r is partially very
        * smooth, there may be an artificially short vector in the lattice,
-       * leading us to enumerate very many vectors. To handle this, however,
-       * we reduce the upper interval for d, see the above code. The
-       * detect_smooth flag is only relevant when enumerating for r. */
+       * leading us to enumerate very many vectors. To handle this, however, we
+       * reduce the upper interval for d, see the above code. The detect_smooth
+       * flag is only relevant when enumerating for r. */
 
       if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
         /* If the fact that r has smooth factors was used, report it. */
@@ -990,7 +993,7 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
     }
   }
 
-  /* Setup the starting vector. */
+  /* Setup the vector v that defines the origin of the ball to enumerate. */
   vector<Z_NR<mpz_t>> v(n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
@@ -1122,9 +1125,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
 
       /* Note that we set detect_smooth to FALSE above. If r is partially very
        * smooth, there may be an artificially short vector in the lattice,
-       * leading us to enumerate very many vectors. To handle this, however,
-       * we reduce the upper interval for d, see the above code. The
-       * detect_smooth flag is only relevant when enumerating for r. */
+       * leading us to enumerate very many vectors. To handle this, however, we
+       * reduce the upper interval for d, see the above code. The detect_smooth
+       * flag is only relevant when enumerating for r. */
 
       if (LATTICE_STATUS_NOT_RECOVERED != (*status_d)) {
         /* A solution was found or there was a timeout. */

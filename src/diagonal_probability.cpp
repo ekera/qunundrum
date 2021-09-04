@@ -27,9 +27,12 @@ void diagonal_probability_approx_f(
     return;
   }
 
-  /* Since the probability is high when theta_r d/r is very close to theta_d,
-   * this function uses higher precision than the default precision of
-   * #PRECISION internally to ensure numeric stability. */
+  /* This function uses higher precision than the default precision of
+   * #PRECISION internally to ensure numeric stability.
+   *
+   * It may be possible to reduce the precision, as the diagonal probability is
+   * now computed in two steps, and as this the first step requires less
+   * precision than the second step. */
 
   const uint32_t precision =
     2 * (max_ui(parameters->m + parameters->sigma, PRECISION));

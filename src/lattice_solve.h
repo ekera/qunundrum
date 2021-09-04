@@ -214,9 +214,9 @@ void lattice_solve_reduced_basis_for_d_given_r(
  *                            general discrete logarithm d. Setting this flag to
  *                            #TRUE hence increases the probability of solving
  *                            for a general discrete logarithm d, when the group
- *                            order r is very smooth and n is close to one. The
+ *                            order r is very smooth and n is close to one. This
  *                            flag has no effect for short discrete logarithms.
- *                            There is therefore no default value for the flag.
+ *                            There is therefore no default value for this flag.
  */
 void lattice_solve_for_d(
   Lattice_Status_Recovery * const status_d,
@@ -270,8 +270,8 @@ void lattice_solve_for_r(
 /*!
  * \brief   Given n pairs (j, k), this function attempts to recover d and r by
  *          using j to construct a basis for the lattice L, reducing the basis,
- *          and solving both a shortest non-zero vector and a closest vector
- *          problem in L.
+ *          and solving both a shortest non-zero vector problem and a closest
+ *          vector problem in L.
  *
  * This function calls lattice_compute_reduced_basis() to setup and reduce the
  * basis matrix A for the lattice L.

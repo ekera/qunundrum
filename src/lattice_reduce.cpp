@@ -227,7 +227,7 @@ void lattice_compute_reduced_diagonal_basis(
     mpz_mul(alpha, parameters->r, js[j]); /* alpha = rj */
     mpz_set(A[0][j].get_data(), alpha); /* A[0][j] = rj */
 
-    mod_reduce(alpha, pow2msigma); /* alpha = {rj}_{2^{m+sigma}} */
+    mod_reduce(alpha, pow2msigma); /* alpha = {rj}_{2^{m + sigma}} */
 
     mpz_sub(A[0][j].get_data(), A[0][j].get_data(), alpha);
       /* A[0][j] = rj - alpha */

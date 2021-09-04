@@ -135,7 +135,7 @@ void diagonal_parameters_clear(
  * \brief   Sets up the parameters for explicitly specified d and r, and for
  *          explicitly specified values of m and s.
  *
- * This function sets l = ceil(m / s).
+ * This function sets l = ceil((m + sigma) / s).
  *
  * \param[in, out] parameters   The parameters to setup.
  * \param[in] d                 The logarithm d.

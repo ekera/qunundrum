@@ -91,7 +91,7 @@ void linear_distribution_enumerator_init(
   }
 
   for (uint32_t i = 0; i < count; i++) {
-    /* Allocate memory for a slice coordinate. */
+    /* Allocate memory for the slice coordinate. */
     enumerator->coordinates[i] =
       (Linear_Distribution_Coordinate *)malloc(
         sizeof(Linear_Distribution_Coordinate));

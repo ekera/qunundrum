@@ -26,8 +26,8 @@
 #include <string.h>
 
 /*!
- * \brief   The bound on delta when creating the histogram in Delta used to
- *          sample the probability distribution.
+ * \brief   The bound on the absolute value of Delta when creating the histogram
+ *          in Delta used to sample the probability distribution.
  */
 #define BOUND_DELTA   1000
 

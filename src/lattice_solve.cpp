@@ -41,7 +41,7 @@ using namespace fplll;
  *          subtracted from the candidate for d.
  *
  * Note that the last component of the shortest non-zero vector in the reduced
- * lattice basis is expected to be a divisor of r when solving for an order, or
+ * lattice basis is expected to be a divisor of r when solving for an order or
  * for a general discrete logarithm.
  */
 #define SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE 256
@@ -614,8 +614,6 @@ void lattice_solve_for_d_given_r(
         precision);
     }
 
-    /* Check if both d and r have been recovered. Note that timeouts cannot
-     * occur when solving without enumerating, so the below check suffices. */
     if (LATTICE_STATUS_NOT_RECOVERED != (*status_d))
     {
       break;

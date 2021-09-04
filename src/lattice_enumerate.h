@@ -230,9 +230,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
  *                            general discrete logarithm d. Setting this flag to
  *                            #TRUE hence increases the probability of solving
  *                            for a general discrete logarithm d, when the group
- *                            order r is very smooth and n is close to one. The
+ *                            order r is very smooth and n is close to one. This
  *                            flag has no effect for short discrete logarithms.
- *                            There is therefore no default value for the flag.
+ *                            There is therefore no default value for this flag.
  * \param[in] timeout         A timeout in seconds after which the enumeration
  *                            will be aborted if d has not been recovered. May
  *                            be set to zero to disable the timeout.

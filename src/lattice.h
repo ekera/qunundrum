@@ -40,16 +40,16 @@ typedef enum {
   /*!
    * \brief   Indicates that the solution was immediately recovered, either by
    *          extracting the shortest non-zero vector from the reduced lattice
-   *          basis, or by mapping a target vector to the closest vector in the
-   *          lattice using Babai's nearest plane algorithm.
+   *          basis, or by mapping the target vector to the closest vector in
+   *          the lattice using Babai's nearest plane algorithm.
    */
   LATTICE_STATUS_RECOVERED_IMMEDIATE = 1,
 
   /*!
    * \brief   Indicates that the solution was recovered, either by extracting
    *          the shortest non-zero vector from the reduced lattice basis, or by
-   *          mapping a target vector to the closest vector in the lattice using
-   *          Babai's nearest plane algorithm, and then performing a small
+   *          mapping the target vector to the closest vector in the lattice
+   *          using Babai's nearest plane algorithm, and then performing a small
    *          linear search in the last lattice component.
    */
   LATTICE_STATUS_RECOVERED_SEARCH = 2,

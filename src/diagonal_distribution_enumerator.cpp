@@ -90,7 +90,7 @@ void diagonal_distribution_enumerator_init(
   }
 
   for (uint32_t i = 0; i < count; i++) {
-    /* Allocate memory for a slice coordinate. */
+    /* Allocate memory for the slice coordinate. */
     enumerator->coordinates[i] =
       (Diagonal_Distribution_Coordinate *)malloc(
         sizeof(Diagonal_Distribution_Coordinate));
