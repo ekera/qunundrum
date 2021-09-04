@@ -14,8 +14,7 @@ The full distribution is two-dimensional in (alpha_d, alpha_r), or equivalently,
 
 This executable computes and stores a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
 
-The distribution is said to be diagonal, since we expect interference on the diagonal in the argument plane where the angle phi is small.
-The executable is named accordingly.
+The distribution is said to be diagonal since constructive interference is expected to arise on the diagonal in the argument plane where the angle phi is small.
 
 The distribution generated will be assigned an appropriate name and written to the <code>distributions</code> directory. If this directory does not exist, it will be created. If the distribution already exists, an error will be reported.
 

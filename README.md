@@ -133,7 +133,7 @@ For further details, please see the documentation for
 ### Diagonal probability distributions
 Diagonal probability distributions are used to represent the probability distribution induced by Shor's original algorithm for computing general discrete logarithms when the group order is known. Analogies to the above executables that may be used to generate, sample and solve diagonal distributions are also available.
 
-The generator and sampler are for the distribution that would be induced by Shor's original algorithm for computing general discrete logarithms, with the control register initialized to a uniform superposition over all register values, so as to enable control qubit recycling, with a variable number of padding bits. The solver implements an improved version of Shor's original classical post-processing algorithm that implements a bounded search to increase the success probability. There is furthermore a lattice-based solver that supports tradeoffs.
+The generator and sampler are for the distribution that would be induced by Shor's original algorithm for computing general discrete logarithms, with the control register initialized to a uniform superposition over all register values, so as to enable control qubit recycling, and with a variable number of padding bits. The solver implements an improved version of Shor's original classical post-processing algorithm that performs a bounded search to increase the success probability. There is furthermore a lattice-based solver that supports tradeoffs.
 
 The full modified quantum algorithm and the two post-processing algorithms are described in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). Note that the analysis in this paper is heuristic. The distribution is generated using this heuristic.
 
