@@ -715,7 +715,7 @@ void lattice_enumerate_reduced_basis_for_d(
   /* Setup the vector
    *
    *   v = ({-2^m k_1}_{2^{m+l}}, .., {-2^m k_n}_{2^{m+l}}, 0)
-   * 
+   *
    * that defines the origin of the ball to enumerate. */
   vector<Z_NR<mpz_t>> v(n + 1);
 
