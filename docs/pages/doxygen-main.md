@@ -1,17 +1,16 @@
 # Qunundrum
 This repository contains the source code of MPI programs for computing the probability distributions induced by:
 
-* Shor's order-finding algorithm [[Shor94]](https://arxiv.org/pdf/quant-ph/9508027.pdf)
-* Seifert's order-finding algorithm with tradeoffs [[Seifert01]](https://link.springer.com/chapter/10.1007%2F3-540-45353-9_24)
-* Ekerå's algorithm for computing short discrete logarithms [[E16]](https://eprint.iacr.org/2016/1128.pdf)
-* Ekerå-Håstad's algorithm for computing short discrete logarithms with tradeoffs [[EH17]](https://link.springer.com/chapter/10.1007/978-3-319-59879-6_20) [(Slides)](https://2017.pqcrypto.org/conference/slides/quantum/ekera-hastad-complex.pdf) [[E20b]](https://doi.org/10.1007/s10623-020-00783-2)
-* Ekerå-Håstad's algorithm for factoring RSA integers with tradeoffs [[EH17]](https://link.springer.com/chapter/10.1007/978-3-319-59879-6_20) [(Slides)](https://2017.pqcrypto.org/conference/slides/quantum/ekera-hastad-complex.pdf) [[E20b]](https://doi.org/10.1007/s10623-020-00783-2)
-* Ekerå's algorithm for computing general discrete logarithms and orders with tradeoffs [[E18]](https://eprint.iacr.org/2018/797.pdf)
-* Shor's algorithm for computing general discrete logarithms [[Shor94]](https://arxiv.org/pdf/quant-ph/9508027.pdf) with modifications [[E19]](https://arxiv.org/pdf/1905.09084.pdf)
+* Shor's order-finding algorithm [[Shor94]](https://doi.org/10.1109/SFCS.1994.365700) [[Shor97]](https://doi.org/10.1137/S0097539795293172)
+* Seifert's order-finding algorithm with tradeoffs [[Seifert01]](https://doi.org/10.1007/3-540-45353-9_24)
+* Ekerå–Håstad's algorithm for computing short discrete logarithms with tradeoffs [[EH17]](https://doi.org/10.1007/978-3-319-59879-6_20) [(Slides)](https://2017.pqcrypto.org/conference/slides/quantum/ekera-hastad-complex.pdf) [[E20]](https://doi.org/10.1007/s10623-020-00783-2)
+* Ekerå–Håstad's algorithm for factoring RSA integers with tradeoffs [[EH17]](https://doi.org/10.1007/978-3-319-59879-6_20) [(Slides)](https://2017.pqcrypto.org/conference/slides/quantum/ekera-hastad-complex.pdf) [[E20]](https://doi.org/10.1007/s10623-020-00783-2)
+* Ekerå's algorithm for computing general discrete logarithms and orders with tradeoffs [[E21]](https://doi.org/10.1515/jmc-2020-0006)
+* Shor's algorithm for computing general discrete logarithms [[Shor94]](https://doi.org/10.1109/SFCS.1994.365700) [[Shor97]](https://doi.org/10.1137/S0097539795293172) with modifications [[E19p]](https://arxiv.org/pdf/1905.09084.pdf)
 
 Once computed the distributions may be sampled to simulate the quantum algorithms. This is possible for large cryptographically relevant problem instances. Note however that the solution to the problem (i.e. the group order, the discrete logarithm, or in some cases both) must be known.
 
-This repository furthermore contains the source code of MPI programs that estimate the number of vectors that need to be enumerated in the classical lattice-based post-processing algorithms of Ekerå and Ekerå-Håstad, and of MPI programs that execute the post-processing algorithms with respect to simulated outputs from the quantum algorithms. For completeness, implementations of Shor's original post-processing algorithms are also provided. See also [[E20a]](https://arxiv.org/pdf/2007.10044.pdf) and [this repository](https://github.com/ekera/factoritall) for resources on efficiently factoring any integer after a single call to an order finding algorithm.
+This repository furthermore contains the source code of MPI programs that estimate the number of vectors that need to be enumerated in the classical lattice-based post-processing algorithms of Ekerå and Ekerå–Håstad, and of MPI programs that execute the post-processing algorithms with respect to simulated outputs from the quantum algorithms. For completeness, implementations of Shor's original post-processing algorithms are also provided. See also [[E21b]](https://doi.org/10.1007/s11128-021-03069-1) and [this repository](https://github.com/ekera/factoritall) for resources on efficiently factoring any integer after a single call to an order-finding algorithm.
 
 ### Remarks
 Note that this source code was developed for academic research purposes. It grew out of our research project in an organic manner as research questions were posed and answered. It is distributed "as is" without warranty of any kind, either expressed or implied. For further details on the terms of use, see the [license](LICENSE.md).
@@ -19,7 +18,7 @@ Note that this source code was developed for academic research purposes. It grew
 It is possible to further optimize portions of the code. However, the current code performs sufficiently well for our purposes. Note furthermore that the portions of the code that pertain to Shor's original algorithm for computing general discrete logarithms are based on a heuristic that lacks an error bound. These portions, and the heuristic, are currently a work in progress.
 
 ## Installing and compiling
-To compile and run these programs under e.g. [Ubuntu 18.04 LTS](https://releases.ubuntu.com/releases/18.04) or [20.04 LTS](https://releases.ubuntu.com/releases/20.04), first execute:
+To compile and run these programs under e.g. [Ubuntu 20.04 LTS](https://releases.ubuntu.com/releases/20.04), first execute:
 
 ```console
 $ sudo apt install libgmp-dev libmpfr-dev libfplll-dev libopenmpi-dev

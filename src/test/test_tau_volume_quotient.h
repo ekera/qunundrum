@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_tau_volume_quotient.h
  * \ingroup unit_tests_estimating_volume_quotients
- * 
- * \brief   The declaration of unit tests for the 
+ *
+ * \brief   The declaration of unit tests for the
  *          \ref estimating_volume_quotients module.
  */
 
@@ -11,7 +11,7 @@
  *              Unit tests for estimating volume quotients
  * \ingroup  unit_tests
  * \ingroup  estimating_volume_quotients
- * 
+ *
  * \brief    A module for unit tests for estimating volume quotients.
  */
 
@@ -24,7 +24,7 @@
 void test_tau_volume_quotient_kat();
 
 /*!
- * \brief   Execute all unit tests for the \ref estimating_volume_quotients 
+ * \brief   Execute all unit tests for the \ref estimating_volume_quotients
  *          module.
  */
 void test_tau_volume_quotient();

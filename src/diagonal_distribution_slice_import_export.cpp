@@ -8,17 +8,12 @@
 
 #include "diagonal_distribution_slice.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 static void diagonal_distribution_slice_import_common(
   Diagonal_Distribution_Slice * const slice,
@@ -27,11 +22,6 @@ static void diagonal_distribution_slice_import_common(
   if (1 != fscanf(file, "%d\n", &(slice->min_log_alpha_r))) {
     critical("diagonal_distribution_slice_import_common(): "
       "Failed to import min_log_alpha_r.");
-  }
-
-  if (1 != fscanf(file, "%d\n", &(slice->offset_alpha_d))) {
-    critical("diagonal_distribution_slice_import_common(): "
-      "Failed to import offset_alpha_d.");
   }
 
   if (1 != fscanf(file, "%x\n", &(slice->flags))) {
@@ -97,7 +87,6 @@ void diagonal_distribution_slice_export(
 {
   fprintf(file, "%u\n", slice->dimension);
   fprintf(file, "%d\n", slice->min_log_alpha_r);
-  fprintf(file, "%d\n", slice->offset_alpha_d);
   fprintf(file, "%.8x\n", slice->flags);
 
   for (uint32_t i = 0; i < slice->dimension; i++) {

@@ -19,17 +19,17 @@
 /*!
  * \brief   The relative path to the distribution directory.
  */
-const static char * const DISTRIBUTIONS_DIRECTORY = "distributions";
+static const char * const DISTRIBUTIONS_DIRECTORY = "distributions";
 
 /*!
  * \brief   The relative path to the log directory.
  */
-const static char * const LOGS_DIRECTORY = "logs";
+static const char * const LOGS_DIRECTORY = "logs";
 
 /*!
  * \brief   The relative path to the plots directory.
  */
-const static char * const PLOTS_DIRECTORY = "plots";
+static const char * const PLOTS_DIRECTORY = "plots";
 
 /*!
  * \brief   The maximum path buffer size.

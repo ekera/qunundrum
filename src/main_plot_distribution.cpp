@@ -17,30 +17,24 @@
 #include "executables.h"
 #include "executables_plot_distribution.h"
 
-#include "distribution.h"
-#include "linear_distribution.h"
-#include "linear_distribution_slice.h"
-#include "linear_distribution_enumerator.h"
-#include "random.h"
 #include "common.h"
+#include "distribution.h"
+#include "errors.h"
+#include "linear_distribution.h"
+#include "math.h"
+#include "plot_distribution.h"
+#include "plot_distribution_axis.h"
+#include "plot_distribution_common.h"
 #include "string_utilities.h"
 
-#include "plot_distribution.h"
-#include "plot_distribution_common.h"
-#include "plot_distribution_axis.h"
-
-#include "errors.h"
-#include "math.h"
-
+#include <gmp.h>
 #include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Plots a two-dimensional probability distribution to file.
@@ -66,7 +60,7 @@ static void plot_distribution(
     }
   }
 
-  /* Extract m and s. */
+  /* Extract m, s and l. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t s = distribution->parameters.s;
   const uint32_t l = distribution->parameters.l;
@@ -99,7 +93,7 @@ static void plot_distribution(
     critical("plot_distribution(): Failed to open \"%s\" for writing.", path);
   }
 
-  printf("Writing the distribution to \"%s\"...\n", path);
+  printf("Writing the plot to \"%s\"...\n", path);
 
   fprintf(file, "%% Use e.g. pdflatex, xelatex or lualatex to compile this "
     "file to a PDF.\n");

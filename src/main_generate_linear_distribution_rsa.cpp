@@ -18,34 +18,31 @@
 #include "executables.h"
 #include "executables_generate_distribution.h"
 
+#include "common.h"
+#include "errors.h"
 #include "linear_distribution.h"
-#include "linear_distribution_slice.h"
 #include "linear_distribution_enumerator.h"
+#include "linear_distribution_slice.h"
 #include "linear_probability.h"
+#include "math.h"
 #include "parameters.h"
 #include "parameters_selection.h"
-#include "thread_pool.h"
-#include "math.h"
-#include "errors.h"
-#include "string_utilities.h"
 #include "rsa.h"
+#include "string_utilities.h"
+#include "thread_pool.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <pthread.h>
-
-#include <memory.h>
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing argument entries in the form of
@@ -161,7 +158,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -170,12 +167,12 @@ typedef struct {
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Generate_Linear_Distribution_RSA_Arguments * const arguments,
@@ -273,8 +270,8 @@ static bool arguments_init_parse_command_line(
         /* Check that p and q are (probable) prime numbers. */
         int result;
 
-        result = mpz_probab_prime_p(arguments->p, RSA_RABIN_MILLER_ITERATIONS);
-        /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
+        result = mpz_probab_prime_p(arguments->p, RSA_MILLER_RABIN_ITERATIONS);
+        /* Note: Returns 2 if n is prime, return 1 if n is probably prime
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {
           fprintf(stderr,
@@ -282,8 +279,8 @@ static bool arguments_init_parse_command_line(
           return FALSE;
         }
 
-        result = mpz_probab_prime_p(arguments->q, RSA_RABIN_MILLER_ITERATIONS);
-        /* Note: Returns 2 if n is prime, return 1 if n is probably prime 
+        result = mpz_probab_prime_p(arguments->q, RSA_MILLER_RABIN_ITERATIONS);
+        /* Note: Returns 2 if n is prime, return 1 if n is probably prime
          * (without being certain), or return 0 if n is definitely non-prime. */
         if ((1 != result) && (2 != result)) {
           fprintf(stderr,
@@ -310,7 +307,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x <= 0) {
         fprintf(stderr, "Error: The value of <delta> must be positive.\n");
         return FALSE;
@@ -337,7 +334,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if ((x < 16) || (x > 8192) || (!is_pow2((uint32_t)x))) {
         fprintf(stderr, "Error: The <dimension> passed to -dim must be a power "
           "of two on the interval [16, 8192].\n");
@@ -369,7 +366,7 @@ static bool arguments_init_parse_command_line(
     arguments->selection_method = SELECTION_METHOD_MAXIMAL;
   }
 
-  /* Parse entries {<n>}. */
+  /* Parse entries { <n> }. */
   if ((argc - i) <= 0) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -415,7 +412,7 @@ static bool arguments_init_parse_command_line(
 
   /* Iterate over the tuples. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
-    int x = atoi(argv[i]);
+    const int x = atoi(argv[i]);
     if (x <= 0) {
       fprintf(stderr, "Error: Failed to parse <n>.\n");
       return FALSE;
@@ -502,8 +499,8 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Generate_Linear_Distribution_RSA_Arguments * const arguments)
@@ -699,10 +696,10 @@ void main_server(
             1, /* count */
             MPI_INT,
             status.MPI_SOURCE, /* destination */
-            MPI_TAG_SLICE_ALPHAS,
+            MPI_TAG_SLICE_MIN_LOG_ALPHA,
             MPI_COMM_WORLD))
         {
-          critical("main_server(): Failed to send MPI_TAG_SLICE_ALPHAS.");
+          critical("main_server(): Failed to send min_log_alpha.");
         }
       } else {
         uint32_t job = MPI_JOB_STOP;
@@ -759,6 +756,8 @@ void main_server(
 
   /* Clear memory. */
   linear_distribution_enumerator_clear(&enumerator);
+
+  parameters_clear(&parameters);
 
   /* Setup an export job. */
   Linear_Distribution_RSA_Export_Job * export_job =
@@ -848,20 +847,20 @@ void main_client()
         1, /* count */
         MPI_INT,
         MPI_RANK_ROOT,
-        MPI_TAG_SLICE_ALPHAS,
+        MPI_TAG_SLICE_MIN_LOG_ALPHA,
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_client(): Failed to receive MPI_TAG_SLICE_ALPHAS.");
+      critical("main_client(): Failed to receive min_log_alpha.");
     }
 
     const int32_t max_alpha = abs_i(min_log_alpha);
 
     const int32_t m = (int32_t)(parameters.m);
 
-    /* Note that it is technically only necessary to skip in the two-dimensional 
-     * case, as the error otherwise grows to great. We could remove the below 
-     * restriction with a small gain in probability mass, and obtain a more 
+    /* Note that it is technically only necessary to skip in the two-dimensional
+     * case, as the error otherwise grows to great. We could remove the below
+     * restriction with a small gain in probability mass, and obtain a more
      * symmetric distribution. */
 
     if (max_alpha > m + 10) {
@@ -942,7 +941,7 @@ static void print_synopsis(
   fprintf(file,
     "Entries <n>: -- one distribution is generated for each entry\n");
   fprintf(file,
-    " <n>   the length in bits of N = pq\n");
+    " <n>   the even length n in bits of the RSA integer N = pq\n");
 
   fprintf(file, "\n");
   fprintf(file, "Delta: -- defaults to 20\n");
@@ -1025,7 +1024,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

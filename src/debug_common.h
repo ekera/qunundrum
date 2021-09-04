@@ -1,7 +1,7 @@
 /*!
  * \file    debug_common.h
  * \ingroup debug_trace_print
- * 
+ *
  * \brief   The declaration of functions used to generate debug trace printouts.
  */
 
@@ -24,7 +24,7 @@ extern "C" {
 
 /*!
  * \brief   Prints the contents of a buffer to the console.
- * 
+ *
  * \param[in] buffer    The buffer to print.
  * \param[in] length    The length in bytes of the buffer.
  */

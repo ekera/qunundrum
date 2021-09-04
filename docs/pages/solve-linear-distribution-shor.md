@@ -30,7 +30,7 @@ Flags specifying the search bound (defaults to 2^16):
 The log file <code>logs/solve-linear-shor.txt</code> is on the format
 ```
 # Processing: linear-distribution-max-dim-2048-r-m-2048-s-1.txt
-m: 2048 s: 1 n: 1 -- success: 1000 -- fail: 0 (0) -- prepare:     1.789 ms solve:    36.435 ms [   14.173,   650.876] 
+m: 2048 s: 1 n: 1 -- success: 1000 -- fail: 0 (0) -- prepare:     1.789 ms solve:    36.435 ms [   14.173,   650.876]
 ```
 where we find m, s, n -- #success -- #fail -- prep-time -- solve-time, and
 - m is the bit length of the order r

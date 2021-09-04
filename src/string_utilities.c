@@ -10,8 +10,8 @@
 #include "errors.h"
 
 #include <stdarg.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 void safe_snprintf(char * str, size_t size, const char * format, ...)
 {

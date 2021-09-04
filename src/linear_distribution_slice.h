@@ -17,13 +17,14 @@
 #ifndef LINEAR_DISTRIBUTION_SLICE_H
 #define LINEAR_DISTRIBUTION_SLICE_H
 
-#include "probability.h"
 #include "parameters.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
- * \brief   An enumeration of targets when computing slices in linear 
+ * \brief   An enumeration of targets when computing slices in linear
  *          probability distributions.
  */
 typedef enum {
@@ -57,9 +58,9 @@ typedef struct {
    *
    *
    * The slice covers the interval
-   * 
+   *
    *    [sgn abs(min_log_alpha), sgn (abs(min_log_alpha) + 1))
-   * 
+   *
    * where sgn = sgn(min_log_alpha).
    */
   int32_t min_log_alpha;
@@ -302,7 +303,7 @@ void linear_distribution_slice_bcast_send(
  * \param[in] parameters      The parameters for which to compute the slice.
  * \param[in] target          The target. Either a short discrete logarithm d or
  *                            an order r.
- * \param[in] min_log_alpha   The signed logarithmic alpha-coordinate of the 
+ * \param[in] min_log_alpha   The signed logarithmic alpha-coordinate of the
  *                            slice to compute.
  */
 void linear_distribution_slice_compute(
@@ -312,14 +313,14 @@ void linear_distribution_slice_compute(
   const int32_t min_log_alpha);
 
 /*!
- * \brief Computes a slice using Simpson's method of numerical integration, 
+ * \brief Computes a slice using Simpson's method of numerical integration,
  *        followed by Richardson-extrapolation to cancel linear error terms.
  *
  * \param[in, out] slice      The slice to compute.
  * \param[in] parameters      The parameters for which to compute the slice.
  * \param[in] target          The target. Either a short discrete logarithm d or
  *                            an order r.
- * \param[in] min_log_alpha   The signed logarithmic alpha-coordinate of the 
+ * \param[in] min_log_alpha   The signed logarithmic alpha-coordinate of the
  *                            slice to compute.
  */
 void linear_distribution_slice_compute_richardson(
@@ -343,10 +344,10 @@ void linear_distribution_slice_compute_richardson(
  * \param[in] slice           The slice for which to return the coordinates.
  *
  * \param[out] min_log_alpha  The minimum signed logarithmic alpha_d or alpha_r.
- *                            May be set to NULL if this coordinate is not 
+ *                            May be set to NULL if this coordinate is not
  *                            needed.
  * \param[out] max_log_alpha  The maximum signed logarithmic alpha_d or alpha_r.
- *                            May be set to NULL if this coordinate is not 
+ *                            May be set to NULL if this coordinate is not
  *                            needed.
  */
 void linear_distribution_slice_coordinates(
@@ -364,10 +365,10 @@ void linear_distribution_slice_coordinates(
  *                            structure for the slice.
  *
  * \param[out] min_log_alpha  The minimum signed logarithmic alpha_d or alpha_r.
- *                            May be set to NULL if this coordinate is not 
+ *                            May be set to NULL if this coordinate is not
  *                            needed.
  * \param[out] max_log_alpha  The maximum signed logarithmic alpha_d or alpha_r.
- *                            May be set to NULL if this coordinate is not 
+ *                            May be set to NULL if this coordinate is not
  *                            needed.
  */
 void linear_distribution_slice_region_coordinates(
@@ -391,9 +392,9 @@ void linear_distribution_slice_region_coordinates(
  * \param[in] slice             The slice from which to sample.
  * \param[in, out] random_state The random state from which to read random data.
  *
- * \param[out] min_log_alpha    The minimum signed logarithmic of alpha_d or 
+ * \param[out] min_log_alpha    The minimum signed logarithmic of alpha_d or
  *                              alpha_r.
- * \param[out] max_log_alpha    The maximum signed logarithmic of alpha_d or 
+ * \param[out] max_log_alpha    The maximum signed logarithmic of alpha_d or
  *                              alpha_r.
  */
 void linear_distribution_slice_sample_region(

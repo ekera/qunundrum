@@ -5,43 +5,44 @@
  * \brief   The declaration of data structures representing linear probability
  *          distributions, and of functions for manipulating such distributions.
  *
- * Linear probability distributions are used to represent the probability
- * distributions induced by Shor's order-finding algorithm [1], by Seifert's
- * algorithm for computing order with tradeoffs [2], by Ekerå's algorithm for
- * computing short discrete logarithms [3], and by Ekerå-Håstad's algorithm for
- * computing short discrete logarithms with tradeoffs [4, 5]. The algorithm
- * of Ekerå and Håstad also factors RSA integers by classically reducing the RSA
- * integer factoring problem to a short discrete logarithm problem in a group of
- * unknown order and solving this problem quantumly. 
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via 
- * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020, 
- * pp. 319-327 (2001). DOI: https://doi.org/10.1007/3-540-45353-9_24.
-
- * [3] Ekerå, M.: Modifying Shor's algorithm to compute short discrete 
- * logarithms. In: IACR ePrint Archive, 2016/1128.
- * 
- * [4] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
- * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017). DOI: https://doi.org/10.1007/978-3-319-59879-6_20.
- * 
- * [5] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122.
- * 
+ * Linear distributions are used to represent the probability distributions
+ * induced by Shor's order-finding algorithm [1], by Seifert's algorithm for
+ * computing orders with tradeoffs [2] [5, Appendix A], and by Ekerå's and
+ * Ekerå–Håstad's algorithms for computing short discrete logarithms with
+ * tradeoffs [3, 4].
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via
+ * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020,
+ * pp. 319-327 (2001).
+ *
+ * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
+ * logarithms and factoring RSA integers. In: PQCrypto 2017, Springer LNCS
+ * 10346, pp. 347-363 (2017).
+ *
+ * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing
+ * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
+ *
+ * [5] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+ *
+ * [6] Ekerå, M.: On completely factoring any integer in a single run of an
+ * order-finding algorithm. Quantum Inf. Process. 20:6(205) (2021).
+ *
  * Linear probability distributions may also be used to represent the marginal
- * distributions of two-dimensional probability distributions, collapsed 
- * diagonal distributions, and traces in diagonal distributions for fixed 
- * offsets from the optimal alpha_d for given alpha_r.
- * 
- * Note that Shor's algorithm for factoring composite integers (that are not
- * pure powers) reduces the factoring problem to an order-finding problem.
- * Ekerå-Håstad's algorithm for factoring RSA integers reduces the factoring
- * problem to a short discrete logarithm problem. Both the general integer 
- * factoring problem and the RSA integer factoring problems are hence covered.
+ * distributions of the two-dimensional probability distributions in [5].
+ *
+ * Note that Shor uses a reduction essentially due to Miller for reducing the
+ * problem of factoring integers (that are odd and not pure prime powers) to
+ * order-finding problems. For a better reduction, see [6].
+ *
+ * Note furthermore that Ekerå–Håstad [3, 4] reduce the RSA integers factoring
+ * problem to a short discrete logarithm problem. Both the problems of factoring
+ * general N, and of factoring RSA integers, with or without tradeoffs, may
+ * hence be modelled using linear distributions.
  */
 
 /*!
@@ -50,57 +51,60 @@
  *
  * \brief     A module for linear probability distributions.
  *
- * Linear probability distributions are used to represent the probability
- * distributions induced by Shor's order-finding algorithm [1], by Seifert's
- * algorithm for computing order with tradeoffs [2], by Ekerå's algorithm for
- * computing short discrete logarithms [3], and by Ekerå-Håstad's algorithm for
- * computing short discrete logarithms with tradeoffs [4, 5]. The algorithm
- * of Ekerå and Håstad also factors RSA integers by classically reducing the RSA
- * integer factoring problem to a short discrete logarithm problem in a group of
- * unknown order and solving this problem quantumly. 
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via 
- * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020, 
- * pp. 319-327 (2001). DOI: https://doi.org/10.1007/3-540-45353-9_24.
-
- * [3] Ekerå, M.: Modifying Shor's algorithm to compute short discrete 
- * logarithms. In: IACR ePrint Archive, 2016/1128.
- * 
- * [4] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
- * logarithms and factor RSA integers. In: PQCrypto 2017, Springer LNCS 10346,
- * pp. 347-363 (2017). DOI: https://doi.org/10.1007/978-3-319-59879-6_20.
- * 
- * [5] Ekerå, M.: On post-processing in the quantum algorithm for computing 
- * short discrete logarithms. In: IACR ePrint Archive, 2017/1122.
- * 
+ * Linear distributions are used to represent the probability distributions
+ * induced by Shor's order-finding algorithm [1], by Seifert's algorithm for
+ * computing orders with tradeoffs [2] [5, Appendix A], and by Ekerå's and
+ * Ekerå–Håstad's algorithms for computing short discrete logarithms with
+ * tradeoffs [3, 4].
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Seifert, J.-P.: Using fewer Qubits in Shor's factorization algorithm via
+ * simultaneous Diophantine approximation. In: CT-RSA 2001, Spring LNCS 2020,
+ * pp. 319-327 (2001).
+ *
+ * [3] Ekerå, M. and Håstad, J.: Quantum algorithms for computing short discrete
+ * logarithms and factoring RSA integers. In: PQCrypto 2017, Springer LNCS
+ * 10346, pp. 347-363 (2017).
+ *
+ * [4] Ekerå, M.: On post-processing in the quantum algorithm for computing
+ * short discrete logarithms. Des. Codes, Cryptogr. 88, pp. 2313–2335 (2020).
+ *
+ * [5] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+ *
+ * [6] Ekerå, M.: On completely factoring any integer in a single run of an
+ * order-finding algorithm. Quantum Inf. Process. 20:6(205) (2021).
+ *
  * Linear probability distributions may also be used to represent the marginal
- * distributions of two-dimensional probability distributions, collapsed 
- * diagonal distributions, and traces in diagonal distributions for fixed 
- * offsets from the optimal alpha_d for given alpha_r.
- * 
- * Note that Shor's algorithm for factoring composite integers (that are not
- * pure powers) reduces the factoring problem to an order-finding problem.
- * Ekerå-Håstad's algorithm for factoring RSA integers reduces the factoring
- * problem to a short discrete logarithm problem. Both the general integer 
- * factoring problem and the RSA integer factoring problems are hence covered.
+ * distributions of the two-dimensional probability distributions in [5].
+ *
+ * Note that Shor uses a reduction essentially due to Miller for reducing the
+ * problem of factoring integers (that are odd and not pure prime powers) to
+ * order-finding problems. For a better reduction, see [6].
+ *
+ * Note furthermore that Ekerå–Håstad [3, 4] reduce the RSA integers factoring
+ * problem to a short discrete logarithm problem. Both the problems of factoring
+ * general N, and of factoring RSA integers, with or without tradeoffs, may
+ * hence be modelled using linear distributions.
  */
 
 #ifndef LINEAR_DISTRIBUTION_H
 #define LINEAR_DISTRIBUTION_H
 
-#include "linear_distribution_slice.h"
-#include "distribution.h"
-#include "diagonal_distribution.h"
-#include "random.h"
-#include "parameters.h"
 #include "common.h"
+#include "distribution.h"
+#include "linear_distribution_slice.h"
+#include "parameters.h"
+#include "random.h"
 
+#include <gmp.h>
 #include <mpfr.h>
+
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of flags indicating if the distribution if for a
@@ -135,13 +139,7 @@ enum {
    *          collapsing a two-dimensional distribution to a marginal
    *          distribution.
    */
-  LINEAR_DISTRIBUTION_FLAG_COLLAPSED = 2,
-
-  /*!
-   * \brief   A flag indicating that the distribution was constructed by
-   *          collapsing a diagonal distribution to a marginal distribution.
-   */
-  LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL = 128
+  LINEAR_DISTRIBUTION_FLAG_COLLAPSED = 2
 };
 
 /*!
@@ -414,30 +412,6 @@ void linear_distribution_init_collapse_r(
   const Distribution * const src);
 
 /*!
- * \brief   Initializes a distribution by collapsing a diagonal distribution to
- *          a marginal distribution in alpha_r.
- *
- * \param[in, out] dst    The distribution to initialize.
- * \param[in] src         The distribution to collapse.
- */
-void linear_distribution_init_collapse_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src);
-
-/*!
- * \brief   Initializes a distribution by extracting a specific offset in
- *          alpha_d from a diagonal distribution.
- *
- * \param[in, out] dst        The distribution to initialize.
- * \param[in] src             The distribution from which to extract.
- * \param[in] offset_alpha_d  The offset in alpha_d.
- */
-void linear_distribution_init_extract_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src,
-  const int32_t offset_alpha_d);
-
-/*!
  * \}
  */
 
@@ -469,7 +443,7 @@ void linear_distribution_insert_slice(
  *          sampling a distribution in which the slices are sorted in decreasing
  *          order with respect to the total probability of observing the slice
  *          is much faster.
- * 
+ *
  * \param[in, out] distribution   The distribution in which to sort the slices.
  */
 void linear_distribution_sort_slices(
@@ -488,7 +462,7 @@ void linear_distribution_sort_slices(
  * \brief   Samples a slice from the distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -506,7 +480,6 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
  *
  * \param[in] distribution        The distribution to sample.
  * \param[in, out] random_state   The random state to use when sampling.
- *
  * \param[in, out] min_log_alpha  The minimum signed logarithmic alpha.
  * \param[in, out] max_log_alpha  The maximum signed logarithmic alpha.
  *
@@ -549,7 +522,7 @@ bool linear_distribution_sample_approximate_alpha(
  * sample_j_from_alpha_r() and sample_j_k_from_alpha_d(), respectively.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample the pivot.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] alpha          The argument alpha.
  *
  * \return  Returns #TRUE if the argument alpha was successfully sampled, #FALSE

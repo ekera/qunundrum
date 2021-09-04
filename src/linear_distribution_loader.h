@@ -21,17 +21,17 @@
 #include "linear_distribution.h"
 #include "thread_pool.h"
 
-#include <pthread.h>
-
 #include <stdint.h>
 
+#include <sys/types.h>
+
 /*!
- * \brief   The maximum number of loaded linear distributions to simultaneously 
+ * \brief   The maximum number of loaded linear distributions to simultaneously
  *          reside in primary memory at any one time.
- * 
+ *
  * This cap primarily serves to prevent excessive use of primary memory.
- * 
- * Note that popped distributions also reside in primary memory until they are 
+ *
+ * Note that popped distributions also reside in primary memory until they are
  * deallocated. They do not count in this context.
  */
 #define LINEAR_DISTRIBUTION_LOADER_MAX_SIMULTANEOUSLY_LOADED_DISTRIBUTIONS 8

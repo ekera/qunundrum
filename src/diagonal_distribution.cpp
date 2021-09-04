@@ -8,19 +8,28 @@
 
 #include "diagonal_distribution.h"
 
-#include "distribution.h"
+#include "common.h"
 #include "diagonal_distribution_slice.h"
-#include "diagonal_distribution.h"
-#include "parameters.h"
-#include "probability.h"
-#include "random.h"
+#include "diagonal_parameters.h"
+#include "diagonal_probability.h"
 #include "errors.h"
-#include "sample.h"
 #include "math.h"
+#include "random.h"
+#include "sample.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+/*!
+ * \brief   The bound on the absolute value of Delta when creating the histogram
+ *          in Delta used to sample the probability distribution.
+ */
+#define BOUND_DELTA   1000
 
 Diagonal_Distribution * diagonal_distribution_alloc()
 {
@@ -42,7 +51,7 @@ void diagonal_distribution_dealloc(
 
 void diagonal_distribution_init(
   Diagonal_Distribution * const distribution,
-  const Parameters * const parameters,
+  const Diagonal_Parameters * const parameters,
   const uint32_t flags,
   const uint32_t capacity)
 {
@@ -62,8 +71,8 @@ void diagonal_distribution_init(
   }
 
   /* Copy the parameters to the distribution. */
-  parameters_init(&(distribution->parameters));
-  parameters_copy(&(distribution->parameters), parameters);
+  diagonal_parameters_init(&(distribution->parameters));
+  diagonal_parameters_copy(&(distribution->parameters), parameters);
 
   /* Store other parameters in the distribution. */
   distribution->precision = PRECISION;
@@ -86,7 +95,7 @@ void diagonal_distribution_init_copy_scale(
     src_distribution->capacity);
 
   for (uint32_t i = 0; i < src_distribution->count; i++) {
-    Diagonal_Distribution_Slice * const slice = 
+    Diagonal_Distribution_Slice * const slice =
       diagonal_distribution_slice_alloc();
 
     diagonal_distribution_slice_init(slice, dimension);
@@ -115,10 +124,10 @@ void diagonal_distribution_init_import(
   }
 
   /* Import the parameters and use them to initialize the distribution. */
-  Parameters parameters;
+  Diagonal_Parameters parameters;
 
-  parameters_init(&parameters);
-  parameters_import(&parameters, file);
+  diagonal_parameters_init(&parameters);
+  diagonal_parameters_import(&parameters, file);
 
   /* Read the slice count. */
   uint32_t count;
@@ -143,7 +152,7 @@ void diagonal_distribution_init_import(
   }
 
   /* Clear memory. */
-  parameters_clear(&parameters);
+  diagonal_parameters_clear(&parameters);
 }
 
 void diagonal_distribution_clear(
@@ -157,7 +166,7 @@ void diagonal_distribution_clear(
   free(distribution->slices);
   distribution->slices = NULL;
 
-  parameters_clear(&(distribution->parameters));
+  diagonal_parameters_clear(&(distribution->parameters));
 
   memset(distribution, 0, sizeof(Diagonal_Distribution));
 }
@@ -182,25 +191,25 @@ void diagonal_distribution_insert_slice(
 }
 
 /*!
- * \brief Compares two diagonal slices with respect to the total probability  
- *        they capture, for the purpose of enabling slices to be sorted in 
+ * \brief Compares two diagonal slices with respect to the total probability
+ *        they capture, for the purpose of enabling slices to be sorted in
  *        descending order with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first slice.
  * \param[in] b   A pointer to a pointer to the second slice.
- * 
- * \return Returns -1 if the total probability captured by the first slice is 
- *         greater than that captured by the second slice, 1 if the inverse is 
+ *
+ * \return Returns -1 if the total probability captured by the first slice is
+ *         greater than that captured by the second slice, 1 if the inverse is
  *         true, and 0 if the probabilities are equal.
  */
 static int diagonal_distribution_sort_slices_cmp(
   const void * const a,
   const void * const b)
 {
-  const Diagonal_Distribution_Slice * const slice_a = 
+  const Diagonal_Distribution_Slice * const slice_a =
     *((const Diagonal_Distribution_Slice * const *)a);
 
-  const Diagonal_Distribution_Slice * const slice_b = 
+  const Diagonal_Distribution_Slice * const slice_b =
     *((const Diagonal_Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
@@ -220,9 +229,9 @@ void diagonal_distribution_sort_slices(
   }
 
   qsort(
-    distribution->slices, 
-    distribution->count, 
-    sizeof(Diagonal_Distribution_Slice *), 
+    distribution->slices,
+    distribution->count,
+    sizeof(Diagonal_Distribution_Slice *),
     diagonal_distribution_sort_slices_cmp);
 }
 
@@ -237,7 +246,7 @@ void diagonal_distribution_export(
   fprintf(file, "%.8x\n", distribution->flags);
 
   /* Export the parameters. */
-  parameters_export(&(distribution->parameters), file);
+  diagonal_parameters_export(&(distribution->parameters), file);
 
   /* Export the number of slices. */
   uint32_t count = distribution->count;
@@ -255,18 +264,18 @@ const Diagonal_Distribution_Slice * diagonal_distribution_sample_slice(
 {
   /* Select a pivot uniformly at random. */
   long double pivot = random_generate_pivot_inclusive(random_state);
-  
+
   #ifdef DEBUG_TRACE_SAMPLING
   printf("diagonal_distribution_sample_slice(): "
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
 
-  /* Normalize if the total probability exceeds one. Of course, this should 
+  /* Normalize if the total probability exceeds one. Of course, this should
    * never occur in practice, unless the dimension that controls the resolution
    * of the distribution is set very low. This check handles such cases. */
   if (distribution->total_probability > 1) {
     pivot *= distribution->total_probability;
-  
+
     #ifdef DEBUG_TRACE_SAMPLING
     printf("diagonal_distribution_sample_slice(): "
       "Debug: Warning: Scaled pivot: %Lf\n", pivot);
@@ -283,12 +292,11 @@ const Diagonal_Distribution_Slice * diagonal_distribution_sample_slice(
     printf("diagonal_distribution_sample_slice(): "
       "Debug: Decremented pivot to %Lf for slice: %u\n", pivot, i);
     #endif
-  
+
     if (pivot <= 0) {
       #ifdef DEBUG_TRACE_SAMPLING
       printf("diagonal_distribution_sample_slice(): "
-        "Debug: Selected slice: %u (%d %d)\n", i, 
-          slice->min_log_alpha_r, slice->offset_alpha_d);
+        "Debug: Selected slice: %u (%d)\n", i, slice->min_log_alpha_r);
       #endif
 
       return slice;
@@ -307,8 +315,7 @@ bool diagonal_distribution_sample_region(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r,
-  int32_t * const offset_alpha_d)
+  double * const max_log_alpha_r)
 {
   const Diagonal_Distribution_Slice * const slice =
     diagonal_distribution_sample_slice(distribution, random_state);
@@ -322,44 +329,40 @@ bool diagonal_distribution_sample_region(
 
     (*min_log_alpha_r) = 0;
     (*max_log_alpha_r) = 0;
-    (*offset_alpha_d) = 0;
 
     return FALSE;
   }
 
   #ifdef DEBUG_TRACE_SAMPLING
   printf("diagonal_distribution_sample_region(): "
-    "Debug: Sampled slice via diagonal_distribution_sample_slice(): %d %d\n",
-      slice->min_log_alpha_r, slice->offset_alpha_d);
+    "Debug: Sampled slice via diagonal_distribution_sample_slice(): %d\n",
+      slice->min_log_alpha_r);
   #endif
 
   diagonal_distribution_slice_sample_region(
     slice,
     random_state,
     min_log_alpha_r,
-    max_log_alpha_r,
-    offset_alpha_d);
+    max_log_alpha_r);
 
   #ifdef DEBUG_TRACE_SAMPLING
   printf("diagonal_distribution_sample_region(): "
     "Debug: Sampled region via diagonal_distribution_slice_sample_region(): "
-      "%f %f %d\n", *min_log_alpha_r, *max_log_alpha_r, *offset_alpha_d);
+      "%f %fn", *min_log_alpha_r, *max_log_alpha_r);
   #endif
 
   /* Signal success. */
   return TRUE;
 }
 
-bool diagonal_distribution_sample_alpha_d_r(
+bool diagonal_distribution_sample_alpha_r(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
-  mpz_t alpha_d,
   mpz_t alpha_r)
 {
   /* Sample a region from the distribution. */
   double min_log_alpha_r;
   double max_log_alpha_r;
-  int32_t offset_alpha_d;
 
   bool result;
 
@@ -367,25 +370,23 @@ bool diagonal_distribution_sample_alpha_d_r(
     distribution,
     random_state,
     &min_log_alpha_r,
-    &max_log_alpha_r,
-    &offset_alpha_d);
+    &max_log_alpha_r);
   if (FALSE == result) {
     #ifdef DEBUG_TRACE_SAMPLING
-    printf("diagonal_distribution_sample_alpha_d_r(): "
+    printf("diagonal_distribution_sample_alpha_r(): "
       "Debug: Sampled region via diagonal_distribution_sample_region(): "
         "Out of bounds.\n");
     #endif
 
     mpz_set_ui(alpha_r, 0); /* no notion of infinity exists in GMP */
-    mpz_set_ui(alpha_d, 0);
 
     return FALSE;
   }
 
   #ifdef DEBUG_TRACE_SAMPLING
-  printf("diagonal_distribution_sample_alpha_d_r(): "
+  printf("diagonal_distribution_sample_alpha_r(): "
     "Debug: Sampled region via diagonal_distribution_sample_region(): "
-      "%f %f %d\n", min_log_alpha_r, max_log_alpha_r, offset_alpha_d);
+      "%f %f\n", min_log_alpha_r, max_log_alpha_r);
   #endif
 
   uint32_t kappa_r;
@@ -400,37 +401,10 @@ bool diagonal_distribution_sample_alpha_d_r(
     random_state);
 
   #ifdef DEBUG_TRACE_SAMPLING
-  printf("diagonal_distribution_sample_alpha_d_r(): "
+  printf("diagonal_distribution_sample_alpha_r(): "
     "Debug: Kappa: %u\n", kappa_r);
-  gmp_printf("diagonal_distribution_sample_alpha_d_r(): "
+  gmp_printf("diagonal_distribution_sample_alpha_r(): "
     "Debug: Sampled alpha_r via sample_alpha_from_region(): %Zd\n", alpha_r);
-  #endif
-
-  /* Compute alpha_d given alpha_r and the offset in alpha_d. */
-  const uint32_t precision =
-    2 * (distribution->parameters.m + distribution->parameters.l);
-
-  mpfr_t f_alpha_d;
-  mpfr_init2(f_alpha_d, precision);
-
-  mpfr_set_z(f_alpha_d, distribution->parameters.d, MPFR_RNDN);
-  mpfr_div_z(f_alpha_d, f_alpha_d, distribution->parameters.r, MPFR_RNDN);
-  mpfr_mul_z(f_alpha_d, f_alpha_d, alpha_r, MPFR_RNDN);
-  mpfr_round(f_alpha_d, f_alpha_d);
-  mpfr_get_z(alpha_d, f_alpha_d, MPFR_RNDN);
-
-  mpfr_clear(f_alpha_d);
-
-  if (offset_alpha_d < 0) {
-    mpz_sub_ui(alpha_d, alpha_d, (uint32_t)(-offset_alpha_d));
-  } else {
-    mpz_add_ui(alpha_d, alpha_d, offset_alpha_d);
-  }
-
-  #ifdef DEBUG_TRACE_SAMPLING
-  gmp_printf("diagonal_distribution_sample_alpha_d_r(): "
-    "Debug: Computed alpha_d from alpha_r (with offset %d): %Zd\n",
-      offset_alpha_d, alpha_d);
   #endif
 
   /* Signal success. */
@@ -443,47 +417,45 @@ bool diagonal_distribution_sample_pair_j_k(
   mpz_t j,
   mpz_t k)
 {
-  mpz_t alpha_d;
-  mpz_init(alpha_d);
+  const uint32_t precision =
+    2 * (max_ui(distribution->parameters.m +
+      distribution->parameters.sigma, PRECISION));
 
   mpz_t alpha_r;
   mpz_init(alpha_r);
 
   bool result;
 
-  result = diagonal_distribution_sample_alpha_d_r(
+  result = diagonal_distribution_sample_alpha_r(
               distribution,
               random_state,
-              alpha_d,
               alpha_r);
   if (FALSE == result) {
     #ifdef DEBUG_TRACE_SAMPLING
     gmp_printf("diagonal_distribution_sample_pair_j_k(): "
-      "Debug: Sampled (alpha_d, alpha_r) via "
-        "diagonal_distribution_sample_alpha_d_r():\n Out of bounds.\n");
+      "Debug: Sampled alpha_r via "
+        "diagonal_distribution_sample_alpha_r():\n Out of bounds.\n");
     #endif
 
-    mpz_clear(alpha_d);
     mpz_clear(alpha_r);
 
     mpz_set_ui(j, 0);
     mpz_set_ui(k, 0);
 
+    /* Signal sampling error in f. */
     return FALSE;
   }
 
   #ifdef DEBUG_TRACE_SAMPLING
   gmp_printf("diagonal_distribution_sample_pair_j_k(): "
-    "Debug: Sampled (alpha_d, alpha_r) via "
-      "diagonal_distribution_sample_alpha_d_r():\n"
-        "   alpha_d: %Zd\n   alpha_r: %Zd\n", alpha_d, alpha_r);
+    "Debug: Sampled alpha_r via "
+      "diagonal_distribution_sample_alpha_r():\n"
+        "   alpha_r: %Zd\n", alpha_r);
   #endif
 
-  /* Sample an integer pair (j, k) from (alpha_d, alpha_r). */
-  sample_j_k_from_diagonal_alpha_d_r(
+  /* Sample an integer j given alpha_r. */
+  sample_j_from_diagonal_alpha_r(
     j,
-    k,
-    alpha_d,
     alpha_r,
     &(distribution->parameters),
     random_state);
@@ -494,9 +466,127 @@ bool diagonal_distribution_sample_pair_j_k(
       "   j: %Zd\n   k: %Zd\n", j, k);
   #endif
 
+  /* Initialize additional variables. */
+  mpz_t k0;
+  mpz_init(k0);
+
+  mpz_t tmp_z;
+  mpz_init(tmp_z);
+
+  mpfr_t tmp;
+  mpfr_init2(tmp, precision);
+
+  mpfr_t tmp2;
+  mpfr_init2(tmp2, precision);
+
+  /* Compute: ((d / r) alpha_r - d * j) / 2^(m + sigma - l) */
+  mpfr_set_z(tmp, alpha_r, MPFR_RNDN); /* tmp = alpha_r */
+  mpfr_mul_z(tmp, tmp, distribution->parameters.d, MPFR_RNDN);
+    /* tmp = alpha_r * d */
+  mpfr_div_z(tmp, tmp, distribution->parameters.r, MPFR_RNDN);
+    /* tmp = alpha_r * d / r */
+
+  mpz_mul(tmp_z, distribution->parameters.d, j); /* tmp_z = d * j */
+  mpfr_sub_z(tmp, tmp, tmp_z, MPFR_RNDN); /* tmp = alpha_r * d / r - d * j */
+
+  mpz_set_ui(tmp_z, 0); /* tmp_z = 0 */
+  mpz_setbit(tmp_z,
+    distribution->parameters.m +
+    distribution->parameters.sigma -
+    distribution->parameters.l); /* tmp_z = 2^(m + sigma - l) */
+  mpfr_div_z(tmp, tmp, tmp_z, MPFR_RNDN);
+    /* tmp = (alpha_r * d / r - d * j) / 2^(m + sigma - l) */
+
+  mpfr_round(tmp, tmp);
+  mpfr_get_z(k0, tmp, MPFR_RNDN); /* k0 = round(tmp) */
+
+  /* Sample pivot. */
+  long double pivot = random_generate_pivot_inclusive(random_state);
+
+  mpz_t alpha_d;
+  mpz_init(alpha_d);
+
+  for (uint32_t delta = 0; delta < BOUND_DELTA; delta++) {
+    for (int32_t sign = 1; sign >= -1; sign -= 2) {
+      /* Compute alpha_d. */
+      if (1 == sign) {
+        mpz_add_ui(k, k0, delta);
+      } else {
+        if (0 == delta) {
+          continue;
+        }
+
+        mpz_sub_ui(k, k0, delta);
+      }
+
+      mpz_set_ui(tmp_z, 0); /* tmp_z = 0 */
+      mpz_setbit(tmp_z, distribution->parameters.l); /* tmp_z = 2^l */
+      mpz_mod(k, k, tmp_z);
+
+      mpz_set_ui(tmp_z, 0); /* tmp_z = 0 */
+      mpz_setbit(tmp_z,
+        distribution->parameters.m +
+          distribution->parameters.sigma -
+            distribution->parameters.l); /* tmp_z = 2^(m + sigma - l) */
+      mpz_mul(tmp_z, tmp_z, k); /* tmp_z = 2^(m + sigma - l) k */
+
+      mpz_mul(alpha_d, distribution->parameters.d, j); /* alpha_d = dj */
+      mpz_add(alpha_d, alpha_d, tmp_z);
+        /* alpha_d = dj + 2^(m + sigma - l) k */
+
+      mpz_set_ui(tmp_z, 0); /* tmp_z = 0 */
+      mpz_setbit(tmp_z,
+        distribution->parameters.m + distribution->parameters.sigma);
+          /* tmp_z = 2^(m + sigma) */
+      mod_reduce(alpha_d, tmp_z);
+        /* alpha_d = {dj + 2^(m + sigma - l) k}_{2^(m + sigma)} */
+
+      mpfr_set_z(tmp, distribution->parameters.d, MPFR_RNDN); /* tmp = d */
+      mpfr_mul_z(tmp, tmp, alpha_r, MPFR_RNDN); /* tmp = d * alpha_r */
+      mpfr_div_z(tmp, tmp, distribution->parameters.r, MPFR_RNDN);
+        /* tmp = (d / r) * alpha_r */
+
+      mpfr_set_z(tmp2, alpha_d, MPFR_RNDN); /* tmp2 = alpha_d */
+      mpfr_sub(tmp, tmp2, tmp, MPFR_RNDN); /* tmp = alpha_d - (d / r) alpha_r */
+
+      mpfr_const_pi(tmp2, MPFR_RNDN); /* tmp2 = pi */
+      mpfr_mul_ui(tmp2, tmp2, 2, MPFR_RNDN); /* tmp2 = 2 pi */
+      mpfr_div_z(tmp2, tmp2, tmp_z, MPFR_RNDN);
+        /* tmp2 = 2 pi / 2^(m + sigma) */
+      mpfr_mul(tmp, tmp2, tmp, MPFR_RNDN);
+        /* tmp = (2 pi / 2^(m + sigma)) (alpha_d - (d / r) alpha_r) */
+
+      diagonal_probability_approx_h(tmp2, tmp, &(distribution->parameters));
+
+      pivot -= mpfr_get_ld(tmp2, MPFR_RNDN);
+
+      if (pivot <= 0) {
+        break;
+      }
+    }
+
+    if (pivot <= 0) {
+      break;
+    }
+  }
+
   /* Clear memory. */
-  mpz_clear(alpha_d);
   mpz_clear(alpha_r);
+  mpz_clear(alpha_d);
+
+  mpz_clear(k0);
+  mpz_clear(tmp_z);
+
+  mpfr_clear(tmp);
+  mpfr_clear(tmp2);
+
+  if (pivot > 0) {
+    mpz_set_ui(j, 0);
+    mpz_set_ui(k, 0);
+
+    /* Signal sampling error in h. */
+    return FALSE;
+  }
 
   /* Signal success. */
   return TRUE;

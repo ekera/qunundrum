@@ -16,9 +16,6 @@
 #ifndef LATTICE_H
 #define LATTICE_H
 
-#include "parameters.h"
-#include "random.h"
-
 /*!
  * \brief   The default precision to use when performing Gram-Schmidt
  *          orthogonalization and executing Babai's algorithm.
@@ -36,29 +33,29 @@
  */
 typedef enum {
   /*!
-   * \brief   Indicates that the quantity was not recovered.
+   * \brief   Indicates that the solution was not recovered.
    */
   LATTICE_STATUS_NOT_RECOVERED = 0,
 
   /*!
-   * \brief   Indicates that the quantity was immediately recovered by either
-   *          extracting the shortest vector in the reduced lattice basis or
-   *          by mapping a target vector to the closest vector in the lattice
-   *          using the reduced basis and Babai's nearest plane algorithm.
+   * \brief   Indicates that the solution was immediately recovered, either by
+   *          extracting the shortest non-zero vector from the reduced lattice
+   *          basis, or by mapping the target vector to the closest vector in
+   *          the lattice using Babai's nearest plane algorithm.
    */
   LATTICE_STATUS_RECOVERED_IMMEDIATE = 1,
 
   /*!
-   * \brief   Indicates that the quantity was recovered by either extracting the
-   *          shortest vector in the reduced lattice basis, or by mapping a
-   *          target vector to the closest vector in the lattice using the
-   *          reduced basis and Babai's nearest plane algorithm, and performing
-   *          a small linear search in the last lattice component.
+   * \brief   Indicates that the solution was recovered, either by extracting
+   *          the shortest non-zero vector from the reduced lattice basis, or by
+   *          mapping the target vector to the closest vector in the lattice
+   *          using Babai's nearest plane algorithm, and then performing a small
+   *          linear search in the last lattice component.
    */
   LATTICE_STATUS_RECOVERED_SEARCH = 2,
 
   /*!
-   * \brief   Indicates that the quantity was recovered by enumerating the 
+   * \brief   Indicates that the solution was recovered by enumerating the
    *          lattice.
    */
   LATTICE_STATUS_RECOVERED_ENUMERATION = 3,
@@ -69,14 +66,14 @@ typedef enum {
   LATTICE_STATUS_TIMEOUT = 4,
 
   /*!
-   * \brief   Indicates that the quantity was recovered, except for a cm-smooth
-   *          factor that may be efficiently found in an additional classical 
-   *          post-processing step. */ 
+   * \brief   Indicates that the solution was recovered, except for a cm-smooth
+   *          factor that may be efficiently found in an additional classical
+   *          post-processing step. */
   LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH = 5,
 
   /*!
-   * \brief   Indicates that the discrete logarithm, modularly reduced by r/z
-   *          for some smooth z > 1, was recovered by enumerating the lattice.
+   * \brief   Indicates that the discrete logarithm, reduced modulo (r / z) for
+   *          some smooth z > 1, was recovered by enumerating the lattice.
    */
   LATTICE_STATUS_RECOVERED_ENUMERATION_SMOOTH = 6
 } Lattice_Status_Recovery;
@@ -92,8 +89,8 @@ typedef enum {
   REDUCTION_ALGORITHM_LLL = 1,
 
   /*!
-   * \brief  Specifies that the block Korkin-Zolotarev (BKZ) reduction
-   *         algorithm should be used to reduce the lattice basis.
+   * \brief   Specifies that the block Korkin-Zolotarev (BKZ) reduction
+   *          algorithm should be used to reduce the lattice basis.
    *
    * A reduced BKZ basis is more strongly reduced than a Lenstra-Lenstra-Lovász-
    * reduced (LLL) basis. However a BKZ-reduced basis takes longer time to
@@ -119,8 +116,8 @@ typedef enum {
   REDUCTION_ALGORITHM_LLL_BKZ = 3,
 
   /*!
-   * \brief  Specifies that the Hermite Korkin-Zolotarev (BKZ) reduction
-   *         algorithm should be used to reduce the lattice basis.
+   * \brief   Specifies that the Hermite Korkin-Zolotarev (BKZ) reduction
+   *          algorithm should be used to reduce the lattice basis.
    */
   REDUCTION_ALGORITHM_HKZ = 4,
 

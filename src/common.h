@@ -1,6 +1,6 @@
 /*!
  * \file    common.h
- * 
+ *
  * \brief   The definition of various commonly used constants.
  */
 
@@ -106,10 +106,10 @@
  */
 
 /*!
- * \brief   An MPI tag used to send and receive an arbitrary signed logarithmic
- *          argument interval.
+ * \brief   An MPI tag used to send and receive min_log_alpha_d, min_log_alpha_r
+ *          or the pair (min_log_alpha_d, min_log_alpha_r) for a slice.
  */
-#define MPI_TAG_SLICE_ALPHAS                      17021
+#define MPI_TAG_SLICE_MIN_LOG_ALPHA               17021
 
 /*!
  * \brief   An MPI tag used to send and receive slice norm vectors or matrices.
@@ -117,9 +117,9 @@
 #define MPI_TAG_SLICE_NORM_MATRIX                 17022
 
 /*!
- * \brief   An MPI tag used to send and receive the total error in a slice.
+ * \brief   An MPI tag used to send and receive the total error for a slice.
  */
-#define MPI_TAG_SLICE_TOTAL_ERROR                 17022
+#define MPI_TAG_SLICE_TOTAL_ERROR                 17026
 
 /*!
  * \brief   An MPI tag used to send and receive the flags for a slice.
@@ -133,7 +133,7 @@
 
 /*!
  * \brief   An MPI tag used to send and receive the number of samples n that
- *          are to be generated and used to setup the problem instance to solve.
+ *          are to be used to setup the problem instance.
  */
 #define MPI_TAG_SAMPLE_COUNT                      17025
 
@@ -142,19 +142,6 @@
  *          of a problem instance.
  */
 #define MPI_TAG_SOLUTION                          17027
-
-/*!
- * \brief   An MPI tag used to send and receive the low end of a signed
- *          logarithmic argument interval in alpha_r when processing diagonal
- *          distributions.
- */
-#define MPI_TAG_SLICE_MIN_LOG_ALPHA_R             17028
-
-/*!
- * \brief   An MPI tag used to send and receive the offset in the argument
- *          alpha_d when processing diagonal distributions.
- */
-#define MPI_TAG_SLICE_OFFSET_ALPHA_D              17029
 
 /*!
  * \}

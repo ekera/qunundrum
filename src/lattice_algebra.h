@@ -8,31 +8,31 @@
 #ifndef LATTICE_ALGEBRA_H
 #define LATTICE_ALGEBRA_H
 
-#include <fplll/fplll.h>
-
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace fplll;
 
 /*!
  * \brief   Solves a lattice basis matrix to the left for a coordinate vector.
  *
- * For A a (reduced) basis matrix for a lattice L and a target vector t this
- * function solves for a coordinate vector c so that c A = t. If t is in L,
- * the entries in the coordinate vector will be integers, otherwise they will
- * be quotients. An arbitrary precision floating point data type is used to
- * represent the entries to support both cases.
+ * Given a basis matrix A for the lattice L, and a target vector t, this
+ * function solves for a coordinate vector c such that c A = t. If t is in L,
+ * the entries in the coordinate vector will be integers, otherwise they will be
+ * quotients. An arbitrary precision floating point data type is used to
+ * represent the entries of the coordinate vector, so as to support both cases.
  *
  * \param[in, out] coordinates    The coordinate vector.
  * \param[in] target              Target vector in the lattice.
  * \param[in] A                   The basis for the lattice.
  * \param[in] n                   The number of samples used to construct the
- *                                basis matrix A. Otherwise put n + 1 is the 
+ *                                basis matrix A. Otherwise put n + 1 is the
  *                                dimension of A.
  * \param[in] precision           The required floating point precision.
  */

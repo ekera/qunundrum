@@ -8,19 +8,19 @@
 
 #include "distribution_loader.h"
 
+#include "common.h"
 #include "distribution.h"
-#include "thread_pool.h"
 #include "errors.h"
 #include "string_utilities.h"
+#include "thread_pool.h"
 
-#include <pthread.h>
-
-#include <unistd.h>
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
+
+#include <pthread.h>
+#include <unistd.h>
 
 static void * main_load_distributions(void * ptr)
 {
@@ -36,13 +36,13 @@ static void * main_load_distributions(void * ptr)
       pthread_mutex_lock(&(loader->mutex));
       const uint32_t offset = loader->offset;
       pthread_mutex_unlock(&(loader->mutex));
-      
-      if ((i - offset) < 
+
+      if ((i - offset) <
         DISTRIBUTION_LOADER_MAX_SIMULTANEOUSLY_LOADED_DISTRIBUTIONS)
       {
         break;
       }
-      
+
       sleep(1);
     }
 

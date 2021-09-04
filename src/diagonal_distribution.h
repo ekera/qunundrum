@@ -8,13 +8,13 @@
  * Diagonal probability distributions are used to represent the probability
  * distribution induced by Shor's algorithm for computing general discrete
  * logarithms [1] when modified as in [2] to start with a uniform superposition.
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
- * discrete logarithms. In: ArXiv Pre-Print 1905.09084.
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
+ * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
  */
 
 /*!
@@ -26,32 +26,27 @@
  * Diagonal probability distributions are used to represent the probability
  * distribution induced by Shor's algorithm for computing general discrete
  * logarithms [1] when modified as in [2] to start with a uniform superposition.
- * 
- * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and 
- * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific 
- * Computing (SISC), volume 26(5), pp. 1484 (1997). 
- * 
- * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
- * discrete logarithms. In: ArXiv Pre-Print 1905.09084.
+ *
+ * [1] Shor, P.W.: Polynomial-time algorithms for prime factorization and
+ * discrete logarithms on a quantum computer. In: SIAM Journal on Scientific
+ * Computing (SISC), volume 26(5), pp. 1484 (1997).
+ *
+ * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
+ * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
  */
 
 #ifndef DIAGONAL_DISTRIBUTION_H
 #define DIAGONAL_DISTRIBUTION_H
 
-#include "diagonal_distribution_slice.h"
-#include "random.h"
-#include "parameters.h"
 #include "common.h"
+#include "diagonal_distribution_slice.h"
+#include "diagonal_parameters.h"
+#include "random.h"
 
-#include <mpfr.h>
+#include <gmp.h>
+
 #include <stdint.h>
-
-/*!
- * \brief   An upper bound on the largest Delta in absolute value supported.
- * 
- * Delta is the offset from the optimal alpha_d given by round(alpha_r d/r).
- */
-#define DIAGONAL_DISTRIBUTION_MAX_DELTA 500
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of flags indicating how the logarithm d or order r
@@ -68,13 +63,17 @@ enum {
 
   /*!
    * \brief   A flag indicating that the distribution was constructed by
-   *          setting a minimal d or r = 2^(m - 1) + 1.
+   *          setting a minimal r = 2^(m - 1) + 1 and random d.
+   *
+   * \note    This flag is currently not used.
    */
   DIAGONAL_DISTRIBUTION_FLAG_MINIMAL = 4,
 
   /*!
    * \brief   A flag indicating that the distribution was constructed by
-   *          setting a maximal d or r = 2^m - 1.
+   *          setting a maximal r = 2^m - 1 and random d.
+   *
+   * \note    This flag is currently not used.
    */
   DIAGONAL_DISTRIBUTION_FLAG_MAXIMAL = 8,
 
@@ -90,14 +89,7 @@ enum {
    * \brief   A flag indicating that the distribution was constructed by
    *          explicitly setting d or r to a value provided by the caller.
    */
-  DIAGONAL_DISTRIBUTION_FLAG_EXPLICIT = 32,
-
-  /*!
-   * \brief   A flag indicating that the diagonal distribution was constructed
-   *          by setting maximal d = 2^m - 1 where m = n / 2 - 1 for n the
-   *          length in bits of an RSA integer.
-   */
-  DIAGONAL_DISTRIBUTION_FLAG_RSA = 64
+  DIAGONAL_DISTRIBUTION_FLAG_EXPLICIT = 32
 };
 
 /*!
@@ -116,7 +108,7 @@ typedef struct {
   uint32_t count;
 
   /*! \brief  The distribution parameters. */
-  Parameters parameters;
+  Diagonal_Parameters parameters;
 
   /*! \brief  The total probability summed over all slices. */
   long double total_probability;
@@ -185,7 +177,7 @@ void diagonal_distribution_dealloc(
  */
 void diagonal_distribution_init(
   Diagonal_Distribution * const distribution,
-  const Parameters * const parameters,
+  const Diagonal_Parameters * const parameters,
   const uint32_t flags,
   const uint32_t capacity);
 
@@ -342,7 +334,7 @@ void diagonal_distribution_sort_slices(
  * \brief   Samples a slice from the distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -363,7 +355,6 @@ const Diagonal_Distribution_Slice * diagonal_distribution_sample_slice(
  *
  * \param[out] min_log_alpha_r    The minimum signed logarithmic alpha_r.
  * \param[out] max_log_alpha_r    The maximum signed logarithmic alpha_r.
- * \param[out] offset_alpha_d     The offset from the optimal alpha_d.
  *
  * \return  Returns #TRUE if a region was successfully sampled, #FALSE if the
  *          region sampled is outside the range of the distribution.
@@ -372,29 +363,25 @@ bool diagonal_distribution_sample_region(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r,
-  int32_t * const offset_alpha_d);
+  double * const max_log_alpha_r);
 
 /*!
- * \brief   Samples an argument pair (alpha_d, alpha_r) from the probability
- *          distribution.
+ * \brief   Samples an argument alpha_r from the probability distribution.
  *
- * The argument pair (alpha_d, alpha_r) is sampled with high resolution, and is
- * guaranteed to be admissible.
+ * The argument alpha_r is sampled with high resolution, and is guaranteed to be
+ * admissible.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample the pivot.
- * 
- * \param[in, out] alpha_d        The argument alpha_d.
+ * \param[in, out] random_state   The random state to use when sampling.
+ *
  * \param[in, out] alpha_r        The argument alpha_r.
  *
  * \return  Returns #TRUE if the argument alpha was successfully sampled, #FALSE
  *          if the argument sampled is outside the range of the distribution.
  */
-bool diagonal_distribution_sample_alpha_d_r(
+bool diagonal_distribution_sample_alpha_r(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
-  mpz_t alpha_d,
   mpz_t alpha_r);
 
 /*!
@@ -402,8 +389,8 @@ bool diagonal_distribution_sample_alpha_d_r(
  *          returns the components of the pair.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
- * 
+ * \param[in, out] random_state   The random state to use when sampling.
+ *
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.
  */

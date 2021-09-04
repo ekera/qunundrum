@@ -2,7 +2,7 @@
  * \file    lattice_smoothness.cpp
  * \ingroup lattice_solve
  *
- * \brief   The definition of functions for checking if an integer is smooth 
+ * \brief   The definition of functions for checking if an integer is smooth
  *          and for removing smooth factors from partially smooth integers.
  */
 

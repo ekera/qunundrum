@@ -12,7 +12,7 @@
  * \ingroup  lattice
  * \ingroup  sample_distribution
  *
- * \brief    A module for using lattice-based techniques to sample 
+ * \brief    A module for using lattice-based techniques to sample
  *           two-dimensional probability distributions.
  */
 
@@ -21,10 +21,10 @@
 
 #include "parameters.h"
 
-#include <fplll/fplll.h>
-
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
+
+#include <fplll/fplll.h>
 
 /*!
  * \brief   A data structure representing the alpha lattice.

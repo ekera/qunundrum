@@ -17,32 +17,31 @@
 #include "executables.h"
 #include "executables_solve_distribution.h"
 
+#include "common.h"
+#include "errors.h"
+#include "lattice.h"
+#include "lattice_enumerate.h"
+#include "lattice_solve.h"
 #include "linear_distribution.h"
 #include "linear_distribution_loader.h"
-#include "lattice.h"
-#include "lattice_solve.h"
-#include "lattice_enumerate.h"
-#include "random.h"
-#include "common.h"
-#include "sample.h"
-#include "timer.h"
 #include "math.h"
-#include "errors.h"
+#include "random.h"
+#include "sample.h"
 #include "string_utilities.h"
+#include "timer.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing argument entries in the form of
@@ -53,7 +52,7 @@
  */
 typedef struct {
   /*!
-   * \brief   The parameter m.
+   * \brief   The parameter n.
    */
   uint32_t n;
 
@@ -114,7 +113,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -123,12 +122,12 @@ typedef struct {
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Solve_Linear_Distribution_Arguments * const arguments,
@@ -214,7 +213,7 @@ static bool arguments_init_parse_command_line(
     }
 
     /* Parse the reduction algorithm. */
-    Lattice_Reduction_Algorithm reduction_algorithm = 
+    Lattice_Reduction_Algorithm reduction_algorithm =
       REDUCTION_ALGORITHM_DEFAULT;
 
     if (0 == strcmp(argv[i], "-lll")) {
@@ -254,7 +253,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x <= 0) {
         fprintf(stderr, "Error: The timeout must be positive.\n");
         return FALSE;
@@ -294,7 +293,7 @@ static bool arguments_init_parse_command_line(
     arguments->timeout = 300;
   }
 
-  /* Parse tuples {<distribution> <n>}. */
+  /* Parse tuples { <distribution> <n> }. */
   if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -342,7 +341,7 @@ static bool arguments_init_parse_command_line(
     }
 
     /* Parse n. */
-    int n = atoi(argv[i + 1]);
+    const int n = atoi(argv[i + 1]);
     if (n < 1) {
       fprintf(stderr, "Error: Failed to parse <n>.\n");
       return FALSE;
@@ -490,8 +489,8 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Solve_Linear_Distribution_Arguments * const arguments)
@@ -557,7 +556,7 @@ static void main_server(
   /* Print a warning if the -detect-smooth-order flag is used with distributions
    * for short discrete logarithms as it then has no effect. */
   if (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) {
-    if ((distribution->flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
+    if ((distribution->flags & LINEAR_DISTRIBUTION_FLAG_R) == 0) {
       printf("Warning: The -detect-smooth-order flag has no effect for this "
         "distribution.\n");
     }
@@ -568,7 +567,14 @@ static void main_server(
 
   /* Setup a solution status data structure. */
   Solution_Status solution_status;
-  solution_status_init(&solution_status, &(distribution->parameters), entry->n);
+  solution_status_init(
+    &solution_status,
+    distribution->parameters.m,
+    0, /* = sigma */
+    distribution->parameters.s,
+    distribution->parameters.l,
+    entry->n,
+    FALSE); /* = has_sigma */
 
   /* The number of currently running client nodes. */
   int nodes = mpi_size - 1;
@@ -597,10 +603,10 @@ static void main_server(
 
     /* If a solution is done, receive the solution, otherwise proceed. */
     if (MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS == notification) {
-      uint32_t sample_count;
+      uint32_t tmp_n;
 
       if (MPI_SUCCESS != MPI_Recv(
-          &sample_count,
+          &tmp_n,
           1, /* count */
           MPI_UNSIGNED,
           status.MPI_SOURCE,
@@ -608,10 +614,10 @@ static void main_server(
           MPI_COMM_WORLD,
           MPI_STATUS_IGNORE))
       {
-        critical("main_server(): Failed to receive the sample count.");
+        critical("main_server(): Failed to receive n.");
       }
 
-      if (sample_count == solution_status.n) {
+      if (tmp_n == solution_status.n) {
         /* Update the solution status data structure. */
         solution_status.fail_count++;
         solution_status.fail_out_of_bounds_count++;
@@ -797,7 +803,7 @@ static void main_server(
           MPI_TAG_SAMPLE_COUNT,
           MPI_COMM_WORLD))
       {
-        critical("main_server(): Failed to send the sample count.");
+        critical("main_server(): Failed to send n.");
       }
     }
   }
@@ -854,10 +860,10 @@ static void main_server(
 
       /* Ignore the solution as we are to shut down the node. */
     } else if (MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS == notification) {
-      uint32_t samples_count;
+      uint32_t tmp_n;
 
       if (MPI_SUCCESS != MPI_Recv(
-          &samples_count,
+          &tmp_n,
           1, /* count */
           MPI_UNSIGNED,
           status.MPI_SOURCE,
@@ -865,10 +871,10 @@ static void main_server(
           MPI_COMM_WORLD,
           MPI_STATUS_IGNORE))
       {
-        critical("main_server(): Failed to receive the sample count.");
+        critical("main_server(): Failed to receive n.");
       }
 
-      (void)samples_count;
+      (void)tmp_n;
 
       /* Ignore the sampling error as we are to shut down the node. */
     } else if (MPI_NOTIFY_READY != notification) {
@@ -904,7 +910,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments     The parsed command line arguments.
  */
 static void main_client(
@@ -981,7 +987,7 @@ static void main_client(
       critical("main_client(): Unknown job (%u).", job);
     }
 
-    /* Receive the number of regions n to sample. */
+    /* Receive the number n of integers j or pairs (j, k) to sample. */
     uint32_t n;
 
     if (MPI_SUCCESS != MPI_Recv(
@@ -993,7 +999,7 @@ static void main_client(
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_client(): Failed to receive the sample count.");
+      critical("main_client(): Failed to receive n.");
     }
 
     /* Sample. */
@@ -1074,7 +1080,7 @@ static void main_client(
           MPI_TAG_SAMPLE_COUNT,
           MPI_COMM_WORLD))
       {
-        critical("main_client(): Failed to send the sample count.");
+        critical("main_client(): Failed to send n.");
       }
 
       continue;
@@ -1089,10 +1095,10 @@ static void main_client(
     Lattice_Status_Recovery recovery_status;
 
     if ((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
-      /* If the flag for detecting smooth orders has been set, pass TRUE for 
+      /* If the flag for detecting smooth orders has been set, pass TRUE for
        * the detect_smooth_r argument, otherwise pass FALSE. */
-      const bool detect_smooth_r = 
-        (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) ? 
+      const bool detect_smooth_r =
+        (DETECT_SMOOTH_ORDER_TRUE == arguments->detect_smooth_order) ?
           TRUE : FALSE;
 
       if (SOLUTION_METHOD_CLOSEST == arguments->solution_method) {
@@ -1220,7 +1226,7 @@ static void print_synopsis(
           "   [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
           "      [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
           "         [ -detect-smooth-order ] \\\n"
-          "            [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
+          "            [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
           "               <distribution> <n> { <distribution> <n> }\n");
 
   fprintf(file, "\n");
@@ -1325,7 +1331,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

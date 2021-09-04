@@ -18,11 +18,11 @@
 #ifndef DISTRIBUTION_SLICE_H
 #define DISTRIBUTION_SLICE_H
 
-#include "probability.h"
 #include "parameters.h"
-#include "common.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   An enumeration of methods used to compute slices in two-dimensional
@@ -33,15 +33,15 @@ typedef enum {
    * \brief Computes the slice, with Richardson-extrapolation, with the
    *        error-bounded probability approximation by Ekerå, with heuristically
    *        globally selected sigma.
-   * 
-   * The error-bounded approximation in the paper by Ekerå [1] on computing 
-   * general discrete logarithms and orders with tradeoffs is used to compute 
+   *
+   * The error-bounded approximation in the paper by Ekerå [1] on computing
+   * general discrete logarithms and orders with tradeoffs is used to compute
    * the distribution slices. The approximation is parameterized in sigma.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
-   * 
-   * Sigma is selected using the heuristic in [Ekerå18] for fixed tau = 11.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+   *
+   * Sigma is selected using the heuristic in [1] for fixed tau = 11.
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_HEURISTIC_SIGMA = 0,
 
@@ -49,30 +49,30 @@ typedef enum {
    * \brief Computes the slice, with Richardson-extrapolation, with the
    *        error-bounded probability approximation by Ekerå, with adaptively
    *        selected sigma to locally minimize the error bound.
-   * 
-   * The error-bounded approximation in the paper by Ekerå [1] on computing 
-   * general discrete logarithms and orders with tradeoffs is used to compute 
+   *
+   * The error-bounded approximation in the paper by Ekerå [1] on computing
+   * general discrete logarithms and orders with tradeoffs is used to compute
    * the distribution slices. The approximation is parameterized in sigma.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
-   * 
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
+   *
    * Sigma is selected optimally at the outset, and adapted locally in each step
    * by seeing if increasing or decreasing sigma yields a lower error bound.
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_OPTIMAL_LOCAL_SIGMA = 1,
 
   /*!
-   * \brief Computes the slice with the quick and dirty heuristic approximation 
+   * \brief Computes the slice with the quick and dirty heuristic approximation
    *        by Ekerå that lacks an error bound.
-   * 
-   * The heuristic approximation in the paper [1] by Ekerå on revisiting Shor's 
-   * algorithm for general discrete logarithms is used to compute the 
-   * distribution slices. Note that there is currently no error bound available 
+   *
+   * The heuristic approximation in the paper by Ekerå [1] on computing general
+   * discrete logarithms and orders with tradeoffs is used to compute the
+   * distribution slices. Note that there is currently no error bound available
    * for this approximation.
-   * 
-   * [1] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general 
-   * discrete logarithms. In: ArXiv Pre-Print 1905.09084.
+   *
+   * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   DISTRIBUTION_SLICE_COMPUTE_METHOD_QUICK = 2
 } Distribution_Slice_Compute_Method;
@@ -95,9 +95,9 @@ typedef struct {
    * \brief The minimum signed logarithmic alpha_d-coordinate of the slice.
    *
    * The slice covers the interval
-   * 
+   *
    *    [sgn abs(min_log_alpha_d), sgn (abs(min_log_alpha_d) + 1))
-   * 
+   *
    * where sgn = sgn(min_log_alpha_d).
    */
   int32_t min_log_alpha_d;
@@ -106,9 +106,9 @@ typedef struct {
    * \brief The minimum signed logarithmic alpha_r-coordinate of the slice.
    *
    * The slice covers the interval
-   * 
+   *
    *    [sgn abs(min_log_alpha_r), sgn (abs(min_log_alpha_r) + 1))
-   * 
+   *
    * where sgn = sgn(min_log_alpha_r).
    */
   int32_t min_log_alpha_r;
@@ -348,17 +348,17 @@ void distribution_slice_bcast_send(
 
 /*!
  * \brief Computes a slice using Simpson's method of numerical integration.
- * 
+ *
  * \param[in, out] slice        The slice to compute.
  * \param[in] parameters        The parameters for which to compute the slice.
- * \param[in] method            The method to use to compute the size, with 
- *                              respect to which approximation method to use 
- *                              and how to select parameters. See the 
- *                              Distribution_Slice_Compute_Method enumeration 
+ * \param[in] method            The method to use to compute the size, with
+ *                              respect to which approximation method to use
+ *                              and how to select parameters. See the
+ *                              Distribution_Slice_Compute_Method enumeration
  *                              for more information on the available options.
  * \param[in] min_log_alpha_d   The signed logarithmic alpha_d-coordinate of the
  *                              slice to compute.
- * \param[in] min_log_alpha_r   The signed logarithmic alpha_r-coordinate of the 
+ * \param[in] min_log_alpha_r   The signed logarithmic alpha_r-coordinate of the
  *                              slice to compute.
  */
 void distribution_slice_compute(
@@ -369,15 +369,15 @@ void distribution_slice_compute(
   const int32_t min_log_alpha_r);
 
 /*!
- * \brief Computes a slice using Simpson's method of numerical integration, 
+ * \brief Computes a slice using Simpson's method of numerical integration,
  *        followed by Richardson-extrapolation to cancel linear error terms.
- * 
+ *
  * \param[in, out] slice        The slice to compute.
  * \param[in] parameters        The parameters for which to compute the slice.
- * \param[in] method            The method to use to compute the size, with 
- *                              respect to which approximation method to use 
- *                              and how to select parameters. See the 
- *                              Distribution_Slice_Compute_Method enumeration 
+ * \param[in] method            The method to use to compute the size, with
+ *                              respect to which approximation method to use
+ *                              and how to select parameters. See the
+ *                              Distribution_Slice_Compute_Method enumeration
  *                              for more information on the available options.
  * \param[in] min_log_alpha_d   The signed logarithmic alpha_d-coordinate of the
  *                              slice to compute.
@@ -433,13 +433,13 @@ void distribution_slice_sample_region(
  *
  * \param[in] slice             The slice for which to return the coordinates.
  *
- * \param[out] min_log_alpha_d  The minimum signed logarithmic alpha_d. May be 
+ * \param[out] min_log_alpha_d  The minimum signed logarithmic alpha_d. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_d  The maximum signed logarithmic alpha_d. May be 
+ * \param[out] max_log_alpha_d  The maximum signed logarithmic alpha_d. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
  */
 void distribution_slice_coordinates(
@@ -458,13 +458,13 @@ void distribution_slice_coordinates(
  *                              index in the norm matrix stored in the data
  *                              structure for the slice.
  *
- * \param[out] min_log_alpha_d  The minimum signed logarithm of alpha_d. May be 
+ * \param[out] min_log_alpha_d  The minimum signed logarithm of alpha_d. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_d  The maximum signed logarithm of alpha_d. May be 
+ * \param[out] max_log_alpha_d  The maximum signed logarithm of alpha_d. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] min_log_alpha_r  The minimum signed logarithm of alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithm of alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithm of alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithm of alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
  */
 void distribution_slice_region_coordinates(

@@ -9,10 +9,10 @@
 #include "diagonal_distribution.h"
 
 #include "diagonal_distribution_slice.h"
-#include "parameters.h"
 #include "errors.h"
 
 #include <mpi.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -21,8 +21,8 @@ void diagonal_distribution_init_bcast_recv(
   const int root)
 {
   /* Broadcast the parameters. */
-  parameters_init(&(distribution->parameters));
-  parameters_bcast_recv(&(distribution->parameters), root);
+  diagonal_parameters_init(&(distribution->parameters));
+  diagonal_parameters_bcast_recv(&(distribution->parameters), root);
 
   /* Broadcast the precision. */
   if (MPI_SUCCESS != MPI_Bcast(
@@ -33,7 +33,7 @@ void diagonal_distribution_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_init_bcast_recv(): "
-      "Failed to broadcast precision.");
+      "Failed to broadcast the precision.");
   }
 
   /* Broadcast the flags. */
@@ -45,7 +45,7 @@ void diagonal_distribution_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_init_bcast_recv(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
   /* Broadcast the capacity. */
@@ -59,7 +59,7 @@ void diagonal_distribution_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_init_bcast_recv(): "
-      "Failed to broadcast capacity.");
+      "Failed to broadcast the capacity.");
   }
 
   /* Store the capacity and zeroize the count. */
@@ -79,7 +79,7 @@ void diagonal_distribution_init_bcast_recv(
     distribution->slices[i] = NULL;
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count;
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -90,7 +90,7 @@ void diagonal_distribution_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_init_bcast_recv(): "
-      "Failed to broadcast count.");
+      "Failed to broadcast the slice count.");
   }
 
   /* Broadcast the slices. */
@@ -114,7 +114,7 @@ void diagonal_distribution_bcast_send(
   const int root)
 {
   /* Broadcast the parameters. */
-  parameters_bcast_send(&(distribution->parameters), root);
+  diagonal_parameters_bcast_send(&(distribution->parameters), root);
 
   /* Broadcast the precision. */
   uint32_t precision = distribution->precision;
@@ -127,7 +127,7 @@ void diagonal_distribution_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_bcast_send(): "
-      "Failed to broadcast precision.");
+      "Failed to broadcast the precision.");
   }
 
   /* Broadcast the flags. */
@@ -141,7 +141,7 @@ void diagonal_distribution_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_bcast_send(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
   /* Broadcast the capacity. */
@@ -155,10 +155,10 @@ void diagonal_distribution_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("diagonal_distribution_bcast_send(): "
-      "Failed to broadcast capacity.");
+      "Failed to broadcast the capacity.");
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count = distribution->count;
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -168,7 +168,8 @@ void diagonal_distribution_bcast_send(
       root,
       MPI_COMM_WORLD))
   {
-    critical("diagonal_distribution_bcast_send(): Failed to broadcast count.");
+    critical("diagonal_distribution_bcast_send(): "
+      "Failed to broadcast the slice count.");
   }
 
   /* Broadcast the slices. */

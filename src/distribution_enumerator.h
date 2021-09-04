@@ -28,8 +28,6 @@
 
 #include "parameters.h"
 
-#include <mpfr.h>
-
 #include <stdint.h>
 
 /*!
@@ -47,22 +45,22 @@ typedef struct {
   int32_t min_log_alpha_r;
 
   /*!
-   * \brief   A distance measure used to sort the coordinates so that 
+   * \brief   A distance measure used to sort the coordinates so that
    *          coordinates for slices that are more likely to capture a large
    *          fraction of the total probability mass are processed first.
-   * 
+   *
    * The distance is sum_{x in {d, r}} abs(abs(min_log_alpha_x) - m)^2 with the
-   * caveat that the distance is forced to zero for diagonal element. 
-   * 
+   * caveat that the distance is forced to zero for diagonal element.
+   *
    * This entry is not really needed, as it can be computed from the values of
-   * the parameter m, Linear_Distribution_Coordinate::min_log_alpha_d and 
-   * Linear_Distribution_Coordinate::min_log_alpha_r. The entry is included to 
-   * make the distance available to qsort(), as m cannot be passed to qsort(), 
-   * and as qsort_r() that does take an additional parameter is non-portable in 
+   * the parameter m, Linear_Distribution_Coordinate::min_log_alpha_d and
+   * Linear_Distribution_Coordinate::min_log_alpha_r. The entry is included to
+   * make the distance available to qsort(), as m cannot be passed to qsort(),
+   * and as qsort_r() that does take an additional parameter is non-portable in
    * that it has different prototypes on different platforms(!)
-   * 
-   * Previously sorting was implemented natively using bubble sort, but this is 
-   * inefficient. In the future, we may consider adding a native efficient 
+   *
+   * Previously sorting was implemented natively using bubble sort, but this is
+   * inefficient. In the future, we may consider adding a native efficient
    * sorting algorithm to get rid of this entry.
    */
   uint32_t distance;
@@ -143,7 +141,7 @@ void distribution_enumerator_clear(
  *                              logarithmic alpha_r-coordinate.
  * \param[in, out] enumerator   An initialized enumerator.
  *
- * \return True if the coordinates of the next slice was returned, False
+ * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.
  */
 bool distribution_enumerator_next(

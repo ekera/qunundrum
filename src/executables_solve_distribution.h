@@ -16,6 +16,7 @@
 #ifndef EXECUTABLES_SOLVE_DISTRIBUTION_H
 #define EXECUTABLES_SOLVE_DISTRIBUTION_H
 
+#include "common.h"
 #include "parameters.h"
 #include "timer.h"
 
@@ -115,19 +116,19 @@ typedef enum {
  */
 typedef enum {
   /*!
-   * \brief   Indicates that smooth orders should be detected and leveraged to 
+   * \brief   Indicates that smooth orders should be detected and leveraged to
    *          faciliate solving when possible.
    */
   DETECT_SMOOTH_ORDER_TRUE = 1,
 
   /*!
-   * \brief   Indicates that smooth orders should not be detected, and hence 
+   * \brief   Indicates that smooth orders should not be detected, and hence
    *          not leveraged to faciliate solving.
    */
   DETECT_SMOOTH_ORDER_FALSE = 2,
 
   /*!
-   * \brief   Indicates that no option for detecting smooth orders has been 
+   * \brief   Indicates that no option for detecting smooth orders has been
    *          specified.
    */
   DETECT_SMOOTH_ORDER_DEFAULT = 0
@@ -144,7 +145,12 @@ typedef struct {
   uint32_t m;
 
   /*!
-   * \brief   The tradeoff factor s used to set l = ceil(m / s).
+   * \brief   The parameter sigma.
+   */
+  uint32_t sigma;
+
+  /*!
+   * \brief   The tradeoff factor s.
    *
    * Set to zero if l is explicitly specified.
    */
@@ -162,6 +168,12 @@ typedef struct {
    * executable via the command line if an adaptive search strategy is used.
    */
   uint32_t n;
+
+  /*!
+   * \brief   A flag that is set to #TRUE if sigma is to be printed, and to
+   *          #FALSE otherwise.
+   */
+  bool has_sigma;
 
   /*!
    * \brief   The number of jobs issued for the current n.
@@ -208,17 +220,28 @@ typedef struct {
  * \brief   Initializes a solution status data structure.
  *
  * \param[in, out] status   The solution status data structure to initialize.
- * \param[in] parameters    The parameters for the distribution for which to
- *                          initialize the data structure.
+ * \param[in] m             The bit length m of d or r.
+ * \param[in] sigma         The parameter sigma.
+ * \param[in] s             The tradeoff factor s, or zero if not specified.
+ * \param[in] l             The parameter l.
  * \param[in] n             The initial number of runs n for which to solve.
+ * \param[in] has_sigma     A flag that should be set to #TRUE if sigma should
+ *                          be printed, and to #FALSE otherwise.
  */
 void solution_status_init(
   Solution_Status * const status,
-  const Parameters * const parameters,
-  const uint32_t n);
+  const uint32_t m,
+  const uint32_t sigma,
+  const uint32_t s,
+  const uint32_t l,
+  const uint32_t n,
+  const bool has_sigma = FALSE);
 
 /*!
  * \brief   Clears a solution status data structure.
+ *
+ * This function currently performs no operation. It is reserved for future
+ * use, and should be called to ensure forward compatibility.
  *
  * \param[in, out] status   The solution status data structure to clear.
  */

@@ -18,30 +18,29 @@
 #include "executables.h"
 #include "executables_solve_distribution.h"
 
+#include "common.h"
+#include "continued_fractions.h"
 #include "diagonal_distribution.h"
 #include "diagonal_distribution_loader.h"
-#include "continued_fractions.h"
-#include "random.h"
-#include "common.h"
-#include "sample.h"
-#include "timer.h"
-#include "math.h"
 #include "errors.h"
+#include "math.h"
+#include "random.h"
+#include "sample.h"
 #include "string_utilities.h"
+#include "timer.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing parsed command line arguments.
@@ -74,7 +73,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -83,12 +82,12 @@ typedef struct {
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Solve_Diagonal_Distribution_Arguments * const arguments,
@@ -115,12 +114,12 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound.\n");
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x < 0) {
         fprintf(stderr, "Error: The search bound must be non-negative.\n");
         return FALSE;
@@ -156,7 +155,7 @@ static bool arguments_init_parse_command_line(
   for (uint32_t j = 0; j < arguments->count; j++) {
     arguments->paths[j] = NULL;
   }
-  
+
   /* Iterate over the distributions. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
     /* Parse the path. */
@@ -293,8 +292,8 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Solve_Diagonal_Distribution_Arguments * const arguments)
@@ -359,7 +358,14 @@ static void main_server(
 
   /* Setup a solution status data structure. */
   Solution_Status solution_status;
-  solution_status_init(&solution_status, &(distribution->parameters), 1);
+  solution_status_init(
+    &solution_status,
+    distribution->parameters.m,
+    distribution->parameters.sigma,
+    distribution->parameters.s,
+    distribution->parameters.l,
+    1, /* = n */
+    TRUE); /* = has_sigma */
 
   /* The number of currently running client nodes. */
   int nodes = mpi_size - 1;
@@ -569,7 +575,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments     The parsed command line arguments.
  */
 static void main_client(
@@ -583,18 +589,22 @@ static void main_client(
   const uint32_t search_bound = arguments->search_bound;
 
   /* Declare constants. */
-  mpz_t pow2_lm;
-  mpz_init(pow2_lm);
-  mpz_set_ui(pow2_lm, 0);
-  mpz_setbit(pow2_lm, distribution.parameters.l + distribution.parameters.m);
+  mpz_t pow2_msigma;
+  mpz_init(pow2_msigma);
+  mpz_set_ui(pow2_msigma, 0);
+  mpz_setbit(pow2_msigma,
+    distribution.parameters.m + distribution.parameters.sigma);
 
   /* Declare variables. */
+  const uint32_t precision =
+    2 * (max_ui(distribution.parameters.m +
+      distribution.parameters.sigma, PRECISION));
+
   mpz_t tmp;
   mpz_init(tmp);
 
   mpfr_t tmp_f;
-  mpfr_init2(tmp_f,
-      2 * (distribution.parameters.l + distribution.parameters.m));
+  mpfr_init2(tmp_f, precision);
 
   mpz_t j;
   mpz_init(j);
@@ -716,10 +726,11 @@ static void main_client(
     /* Set z = (rj - {rj}_{2^(m + l)}) / 2^(m + l). */
     mpz_mul(z, distribution.parameters.r, j); /* z = rj */
     mpz_set(tmp, z); /* tmp = z = rj */
-    mod_reduce(tmp, pow2_lm); /* tmp = {rj}_{2^(m + l)} */
-    mpz_sub(z, z, tmp); /* z = rj - {rj}_{2^(m + l)} */
-    mpz_div(z, z, pow2_lm); /* z = (rj - {rj}_{2^(m + l)}) / 2^(m + l) */
-  
+    mod_reduce(tmp, pow2_msigma); /* tmp = {rj}_{2^(m + sigma)} */
+    mpz_sub(z, z, tmp); /* z = rj - {rj}_{2^(m + sigma)} */
+    mpz_div(z, z, pow2_msigma);
+      /* z = (rj - {rj}_{2^(m + sigma)}) / 2^(m + sigma) */
+
     /* Compute r' = r / tau for the smallest tau such that gcd(r', z) = 1. */
     mpz_set(rp, distribution.parameters.r);
     mpz_set_ui(tau, 1);
@@ -733,7 +744,7 @@ static void main_client(
         mpz_mul(tau, tau, tmp);
         mpz_div(rp, rp, tmp);
     }
-  
+
     /* Set z = z^-1 (mod r'). */
     if (0 == mpz_invert(z, z, rp)) {
       /* Note: This should never occur given how we select r'. */
@@ -745,11 +756,11 @@ static void main_client(
 
     mpfr_set_z(tmp_f, distribution.parameters.r, MPFR_RNDN);
     mpfr_mul_z(tmp_f, tmp_f, k, MPFR_RNDN);
-    mpfr_div_z(tmp_f, tmp_f, pow2_lm, MPFR_RNDN);
+    mpfr_div_z(tmp_f, tmp_f, pow2_msigma, MPFR_RNDN);
     mpfr_round(tmp_f, tmp_f);
     mpfr_get_z(tmp, tmp_f, MPFR_RNDN);
-    mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + l)) */
-  
+    mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + sigma)) */
+
     /* Search for the candidate d. */
     bool found = FALSE;
 
@@ -825,7 +836,7 @@ static void main_client(
 
   mpz_clear(tmp);
   mpfr_clear(tmp_f);
-  mpz_clear(pow2_lm);
+  mpz_clear(pow2_msigma);
   mpz_clear(z);
   mpz_clear(rp);
   mpz_clear(tau);
@@ -853,7 +864,7 @@ static void print_synopsis(
   fprintf(file, "Search bound: -- defaults to zero\n");
   fprintf(file,
     " -search-bound     sets the search <bound> on |t| related to the\n"
-    "                   maximum offset in alpha_d searched\n");
+    "                   maximum offset in alpha_d\n");
 }
 
 /*!
@@ -861,7 +872,7 @@ static void print_synopsis(
  */
 
 /*!
- * \brief The main entry point to the solve_diagonal_distribution_shor 
+ * \brief The main entry point to the solve_diagonal_distribution_shor
  *        executable.
  *
  * \param[in, out] argc   The arguments count.
@@ -926,7 +937,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "
@@ -996,7 +1007,7 @@ int main(int argc, char ** argv) {
     }
 
     diagonal_distribution_loader_clear(&loader);
-  
+
     arguments_clear(&arguments);
   } else {
     /* Broadcast the command line arguments. */

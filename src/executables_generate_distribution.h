@@ -129,28 +129,28 @@ typedef enum {
 
 typedef enum {
   /*!
-   * \brief   Indicates that the error-bounded probability approximation of 
+   * \brief   Indicates that the error-bounded probability approximation of
    *          Ekerå is used to compute the distribution.
    *
-   * The error-bounded approximation in the paper by Ekerå [1] on computing 
-   * general discrete logarithms and orders with tradeoffs is used to compute 
+   * The error-bounded approximation in the paper by Ekerå [1] on computing
+   * general discrete logarithms and orders with tradeoffs is used to compute
    * the distribution.
    *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   PROBABILITY_ESTIMATE_BOUNDED_ERROR = 1,
 
   /*!
-   * \brief   Indicates that the quick and dirty heuristic approximation of 
+   * \brief   Indicates that the quick and dirty heuristic approximation of
    *          Ekerå is used to compute the distribution.
    *
-   * The quick and dirty approximation in the introduction to the paper [1] by 
+   * The quick and dirty approximation in the introduction to the paper [1] by
    * Ekerå on computing general discrete logarithms and orders with tradeoffs is
    * used to compute the distribution.
-   * 
+   *
    * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
-   * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+   * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
    */
   PROBABILITY_ESTIMATE_QUICK = 2,
 

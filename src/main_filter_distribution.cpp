@@ -17,16 +17,17 @@
 #include "executables.h"
 #include "executables_filter_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
 #include "errors.h"
 #include "string_utilities.h"
 
+#include <mpfr.h>
+
 #include <stdio.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Prints the command line synopsis.
@@ -55,7 +56,7 @@ int main(int argc, char ** argv) {
     print_synopsis(stdout);
     return 0;
   }
-  
+
   /* Check that the output directory exists and is accessible. */
   if (0 != access(DISTRIBUTIONS_DIRECTORY, F_OK)) {
     if (0 != mkdir(DISTRIBUTIONS_DIRECTORY, DIRECTORY_PERMISSIONS)) {
@@ -76,19 +77,19 @@ int main(int argc, char ** argv) {
 
   for (int i = 1; i < argc; i++) {
     printf("Processing \"%s\"...\n", argv[i]);
-  
+
     /* Import the distribution. */
     FILE * file = fopen(argv[i], "rb");
     if (NULL == file) {
       critical("main(): Unable to open \"%s\" for reading.", argv[i]);
     }
-  
+
     distribution_init_import(&distribution, file);
 
     fclose(file);
     file = NULL;
 
-    /* Filter the distribution. */    
+    /* Filter the distribution. */
     distribution_filter_slices(&distribution);
     distribution_sort_slices(&distribution);
 
@@ -101,7 +102,7 @@ int main(int argc, char ** argv) {
                   "%s/filtered-%s",
                   DISTRIBUTIONS_DIRECTORY,
                   filename);
-    
+
     /* Export the filtered distribution. */
     file = fopen(path, "wb+");
     if (NULL == file) {

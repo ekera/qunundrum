@@ -11,14 +11,14 @@
 
 #include "keccak_random.h"
 
-#include "keccak.h"
 #include "errors.h"
+#include "keccak.h"
 
 #include "debug_common.h"
 
 #include <stdint.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 /*!
  * \brief   A random initialization canary value.

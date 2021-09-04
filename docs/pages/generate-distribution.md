@@ -3,9 +3,9 @@
 ## Synopsis
 ```console
 Synopsis: mpirun generate_distribution \
-   [ -det | -rnd | -exp <d> <r> ] [ -dim-heuristic | -dim <dimension> ] \
-      [ -approx-quick | [ -sigma-heuristic | -sigma-optimal ] ] \
-        ( <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
+   [ -det | -rnd | -exp <d> <r> ] [ -dim-heuristic | -dim <dimension> ] \
+      [ -approx-quick | [ -sigma-heuristic | -sigma-optimal ] ] \
+         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )
 ```
 
 Computes the distribution induced by Ekerå's algorithm for general discrete logarithms and orders with tradeoffs.
@@ -16,12 +16,12 @@ The distribution generated will be assigned an appropriate name and written to t
 
 ### Mandatory command line arguments
 Tuples <code>\<m\></code> <code>\<s\></code> where
-- <code>\<m\></code> is the bit length of the order r
-- <code>\<s\></code> is the tradeoff factor, so that l = ceil(m/s)
+- <code>\<m\></code> is the length m in bits of the order r
+- <code>\<s\></code> is the tradeoff factor s; used to set l = ceil(m / s)
 
 or, if the <code>-l</code> flag is specified, tuples <code>\<m\></code> <code>\<l\></code> where
 - <code>\<m\></code> is as above
-- <code>\<l\></code> is the number of padding bits l
+- <code>\<l\></code> is the parameter l
 
 ### Optional command line arguments
 Flags controlling the values of d and r (defaults to <code>-det</code>):

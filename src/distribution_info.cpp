@@ -9,13 +9,14 @@
 #include "distribution.h"
 
 #include "common.h"
-#include "parameters.h"
 #include "errors.h"
 #include "math.h"
 
+#include <gmp.h>
+
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 /*!
 * \brief   The maximum supported slice dimension when exporting information
@@ -77,7 +78,7 @@ void distribution_export_info(
 
       if (distribution->slices[i]->dimension > MAX_SLICE_DIMENSION) {
         critical("distribution_export_info(): The dimension (%u) of slice %u "
-          "exceeds MAX_SLICE_DIMENSION (%u).", 
+          "exceeds MAX_SLICE_DIMENSION (%u).",
             distribution->slices[i]->dimension, i, MAX_SLICE_DIMENSION);
       }
 

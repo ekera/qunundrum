@@ -19,6 +19,7 @@ OBJECTS += $(OBJ_DIR)/diagonal_distribution_slice_compute.o
 OBJECTS += $(OBJ_DIR)/diagonal_distribution_slice_import_export.o
 OBJECTS += $(OBJ_DIR)/diagonal_distribution_slice.o
 OBJECTS += $(OBJ_DIR)/diagonal_distribution.o
+OBJECTS += $(OBJ_DIR)/diagonal_parameters.o
 OBJECTS += $(OBJ_DIR)/diagonal_probability.o
 OBJECTS += $(OBJ_DIR)/parameters_selection.o
 OBJECTS += $(OBJ_DIR)/probability.o
@@ -88,6 +89,7 @@ EXECS   += filter_distribution
 EXECS   += solve_distribution
 EXECS   += solve_linear_distribution
 EXECS   += solve_linear_distribution_shor
+EXECS   += solve_diagonal_distribution
 EXECS   += solve_diagonal_distribution_shor
 
 EXECS   += info_distribution

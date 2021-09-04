@@ -3,31 +3,31 @@
  * \ingroup parameters
  *
  * \brief   The definition of data structures representing parameters for
- *          probability distributions, and the declarations of functions for
- *          manipulating such parameters.
+ *          linear and two-dimensional probability distributions, and the
+ *          declarations of functions for manipulating such parameters.
  */
 
 /*!
  * \defgroup parameters Parameters
  * \ingroup  distribution
  *
- * \brief    A module for parameters for probability distributions.
+ * \brief    A module for parameters for linear and two-dimensional probability
+ *           distributions.
  */
 
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
-#include "random.h"
 #include "common.h"
 
 #include <gmp.h>
-#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
- * \brief   A data structure that holds the parameters used to compute a linear
- *          or two-dimensional probability distribution.
+ * \brief   A data structure that holds the parameters for linear and
+ *          two-dimensional probability distributions.
  * \ingroup parameters
  */
 typedef struct {
@@ -39,14 +39,14 @@ typedef struct {
   /*!
    * \brief The parameter l.
    *
-   * For s a tradeoff factor l = ceil(m / s).
+   * If s is explicitly specified, the parameter l is set to ceil(m / s).
    */
   uint32_t l;
 
   /*!
    * \brief The tradeoff factor s.
    *
-   * If l is explicitly specified the tradeoff factor is set to zero.
+   * If l is explicitly specified, the tradeoff factor s is set to zero.
    */
   uint32_t s;
 
@@ -76,12 +76,12 @@ typedef struct {
   mpz_t r;
 
   /*!
-   * \brief The discrete logarithm d.
+   * \brief The logarithm d.
    */
   mpz_t d;
 
   /*!
-   * \brief The minimum logarithmic unsigned alpha_d.
+   * \brief The minimum logarithmic unsigned alpha_d value.
    *
    * The region min_alpha_d <= log_alpha_d <= max_alpha_d + 1 is considered
    * on either side of the alpha_d-axis.
@@ -89,7 +89,7 @@ typedef struct {
   uint32_t min_alpha_d;
 
   /*!
-   * \brief The maximum logarithmic unsigned alpha_d.
+   * \brief The maximum logarithmic unsigned alpha_d value.
    *
    * The region min_alpha_d <= log_alpha_d <= max_alpha_d + 1 is considered
    * on either side of the alpha_d-axis.
@@ -97,7 +97,7 @@ typedef struct {
   uint32_t max_alpha_d;
 
   /*!
-   * \brief The minimum logarithmic unsigned alpha_r.
+   * \brief The minimum logarithmic unsigned alpha_r value.
    *
    * The region min_alpha_r <= log_alpha_r <= max_alpha_r + 1 is considered
    * on either side of the alpha_r-axis.
@@ -105,7 +105,7 @@ typedef struct {
   uint32_t min_alpha_r;
 
   /*!
-   * \brief The maximum logarithmic unsigned alpha_r.
+   * \brief The maximum logarithmic unsigned alpha_r value.
    *
    * The region min_alpha_r <= log_alpha_r <= max_alpha_r + 1 is considered
    * on either side of the alpha_r-axis.
@@ -144,12 +144,10 @@ void parameters_clear(
  */
 
 /*!
- * \brief   Sets up linear distribution parameters for an explicit d or r and
- *          explicit values of m and s.
+ * \brief   Sets up the parameters for an explicitly specified d or r, and
+ *          explicitly specified values of m and s.
  *
- * This function sets r = d and l = ceil(m / s).
- *
- * \remark May only be used to setup parameters for linear distributions.
+ * This function sets l = ceil(m / s).
  *
  * \param[in, out] parameters   The parameters to setup.
  * \param[in] d                 The logarithm d.
@@ -167,12 +165,10 @@ void parameters_explicit_m_s(
   const uint32_t t);
 
 /*!
- * \brief   Sets up linear distribution parameters for an explicit d or r and
- *          explicit values of m and l.
+ * \brief   Sets up the parameters for an explicitly specified d or r, and
+ *          explicit specified values of m and l.
  *
- * This function sets r = d and s = 0.
- *
- * \remark May only be used to setup parameters for linear distributions.
+ * This function sets s = 0.
  *
  * \param[in, out] parameters   The parameters to setup.
  * \param[in] d                 The logarithm d.

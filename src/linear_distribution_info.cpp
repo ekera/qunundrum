@@ -9,13 +9,14 @@
 #include "linear_distribution.h"
 
 #include "common.h"
-#include "parameters.h"
 #include "errors.h"
 #include "math.h"
 
+#include <gmp.h>
+
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 /*!
  * \brief   The maximum supported slice dimension when exporting information on
@@ -86,7 +87,8 @@ void linear_distribution_export_info(
       i - 1,
       region_probability);
 
-    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++) {
+    for (uint32_t dimension = 0; dimension <= MAX_SLICE_DIMENSION; dimension++)
+    {
       if (dimensions[dimension] != 0) {
         fprintf(file, "  Dimension %u: %u slice(s)\n",
           dimension,

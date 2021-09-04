@@ -8,15 +8,12 @@
 
 #include "mpfr_mpi.h"
 
-#include "errors.h"
 #include "common.h"
+#include "errors.h"
 
 #include <mpfr.h>
-#include <mpi.h>
 
-#include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <mpi.h>
 
 /*!
  * \brief   An MPI tag used to send the length of the serialized representation
@@ -31,7 +28,7 @@
 #define MPI_MPFR_DATA_TAG                         11022
 
 /*!
- * \brief   The length in bytes of the buffer used to serialize arbitrary 
+ * \brief   The length in bytes of the buffer used to serialize arbitrary
  *          precision floating point integers.
  */
 #define MPFR_LENGTH_BUFFER                        32768

@@ -16,14 +16,10 @@
  */
 
 #include "linear_distribution.h"
-#include "parameters.h"
-#include "errors.h"
 #include "math.h"
 
-#include <mpfr.h>
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   Prints the command line synopsis.

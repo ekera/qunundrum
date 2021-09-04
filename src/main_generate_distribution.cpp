@@ -17,35 +17,30 @@
 #include "executables.h"
 #include "executables_generate_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
-#include "distribution_slice.h"
 #include "distribution_enumerator.h"
+#include "distribution_slice.h"
+#include "errors.h"
 #include "linear_distribution.h"
+#include "math.h"
 #include "parameters.h"
 #include "parameters_selection.h"
-#include "thread_pool.h"
-#include "probability.h"
-#include "math.h"
-#include "errors.h"
-#include "random.h"
 #include "string_utilities.h"
+#include "thread_pool.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <pthread.h>
-
-#include <memory.h>
-
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   The minimum probability mass in a slice for it to be kept.
@@ -214,7 +209,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -223,12 +218,12 @@ typedef struct {
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Generate_Distribution_Arguments * const arguments,
@@ -395,7 +390,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if ((x < 16) || (x > 8192) || (!is_pow2((uint32_t)x))) {
         fprintf(stderr, "Error: The <dimension> passed to -dim must be a power "
           "of two on the interval [16, 8192].\n");
@@ -454,7 +449,7 @@ static bool arguments_init_parse_command_line(
     }
   }
 
-  /* Parse tuples {<m> <s>} or {<m> <l>}. */
+  /* Parse tuples { <m> <s> } or { <m> <l> }. */
   if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -496,7 +491,7 @@ static bool arguments_init_parse_command_line(
 
   /* Iterate over the tuples. */
   for (uint32_t j = 0; j < arguments->count; j++, i += 2) {
-    int m = atoi(argv[i]);
+    const int m = atoi(argv[i]);
     if (m <= 1) {
       fprintf(stderr, "Error: Failed to parse <m>.\n");
       return FALSE;
@@ -505,16 +500,16 @@ static bool arguments_init_parse_command_line(
     arguments->entries[j].m = (uint32_t)m;
 
     if (TRADEOFF_METHOD_FACTOR == arguments->tradeoff_method) {
-      int s = atoi(argv[i + 1]);
+      const int s = atoi(argv[i + 1]);
       if (s <= 0) {
         fprintf(stderr, "Error: Failed to parse <s>.\n");
         return FALSE;
       }
 
       arguments->entries[j].s = (uint32_t)s;
-      arguments->entries[j].l = ceil((uint32_t)m / (uint32_t)s);
+      arguments->entries[j].l = (uint32_t)ceil((double)m / (double)s);
     } else {
-      int l = atoi(argv[i + 1]);
+      const int l = atoi(argv[i + 1]);
       if (l <= 0) {
         fprintf(stderr, "Error: Failed to parse <l>.\n");
         return FALSE;
@@ -652,8 +647,8 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Generate_Distribution_Arguments * const arguments)
@@ -666,7 +661,7 @@ static void arguments_clear(
       mpz_clear(arguments->entries[i].d);
       mpz_clear(arguments->entries[i].r);
     }
-          
+
     free(arguments->entries);
     arguments->entries = NULL;
   }
@@ -803,7 +798,7 @@ static void * main_server_export_distribution(void * ptr)
   if (NULL == file) {
     critical("main_server_export_distribution(): Failed to open \"%s\".", path);
   }
-  
+
   if (distribution_is_filtered(distribution)) {
     distribution_export_clear_dealloc(distribution, file);
     printf("Finished exporting the distribution to \"%s\".\n", path);
@@ -820,7 +815,7 @@ static void * main_server_export_distribution(void * ptr)
 
     printf("Sorting the slices in the distribution...\n");
     distribution_sort_slices(distribution); /* Not strictly necessary. */
-  
+
     /* Setup the name of the filtered distribution. */
     char filtered_name[MAX_SIZE_PATH_BUFFER];
     safe_snprintf(filtered_name, MAX_SIZE_PATH_BUFFER, "filtered-%s", name);
@@ -973,10 +968,11 @@ static void main_server(
             2, /* count */
             MPI_INT,
             status.MPI_SOURCE, /* destination */
-            MPI_TAG_SLICE_ALPHAS,
+            MPI_TAG_SLICE_MIN_LOG_ALPHA,
             MPI_COMM_WORLD))
         {
-          critical("main_server(): Failed to send MPI_TAG_SLICE_ALPHAS.");
+          critical("main_server(): "
+            "Failed to send min_log_alpha_d and min_log_alpha_r.");
         }
       } else {
         uint32_t job = MPI_JOB_STOP;
@@ -1056,6 +1052,8 @@ static void main_server(
   /* Clear memory. */
   distribution_enumerator_clear(&enumerator);
 
+  parameters_clear(&parameters);
+
   /* Setup an export job. */
   Distribution_Export_Job * export_job =
     (Distribution_Export_Job *)malloc(sizeof(Distribution_Export_Job));
@@ -1097,7 +1095,7 @@ static void main_client_compute_slice(
   const Probability_Estimate probability_estimate,
   const Sigma_Selection_Method sigma_method)
 {
-  Distribution_Slice_Compute_Method method = 
+  Distribution_Slice_Compute_Method method =
     DISTRIBUTION_SLICE_COMPUTE_METHOD_QUICK;
 
   if (PROBABILITY_ESTIMATE_BOUNDED_ERROR == probability_estimate) {
@@ -1184,11 +1182,12 @@ static void main_client(
         2, /* count */
         MPI_INT,
         MPI_RANK_ROOT,
-        MPI_TAG_SLICE_ALPHAS,
+        MPI_TAG_SLICE_MIN_LOG_ALPHA,
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_client(): Failed to receive MPI_TAG_SLICE_ALPHAS.");
+      critical("main_client(): "
+        "Failed to receive min_log_alpha_d and min_log_alpha_r.");
     }
 
     const int32_t min_log_alpha_d = min_log_alpha[0];
@@ -1240,7 +1239,7 @@ static void main_client(
         }
       }
 
-      /* Compute the slice for the selected dimension. Note that we divide the 
+      /* Compute the slice for the selected dimension. Note that we divide the
        * dimension by two below as it will be doubled in the Richardson
        * extrapolation when the slice is computed. */
       distribution_slice_init(&slice, required_dimension / 2);
@@ -1257,11 +1256,11 @@ static void main_client(
 
       /* To eliminate noise in the tail we need high resolution not only for
        * the tail itself but also the low probability area around it; otherwise
-       * these areas will erroneously sum to a significant probability. The 
+       * these areas will erroneously sum to a significant probability. The
        * below inferred and fairly coarse heuristic fixes such problems. */
-      
+
       bool dimension_updated = FALSE;
-  
+
       if (slice.total_probability >= 1e-7) {
         if (max_alpha >= m) {
           if (required_dimension < 512) {
@@ -1376,10 +1375,10 @@ static void print_synopsis(
 {
   fprintf(file, "Synopsis: mpirun generate_distribution \\\n"
           "   [ -det | -rnd | -exp <d> <r> ] "
-            "[ -dim-heuristic | -dim <dimension> ] \\\n"
+            "[ -dim-heuristic | -dim <dimension> ] \\\n"
           "      [ -approx-quick | "
-            "[ -sigma-heuristic | -sigma-optimal ] ] \\\n"
-          "        ( <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
+            "[ -sigma-heuristic | -sigma-optimal ] ] \\\n"
+          "         ( [ -s ] <m> <s> { <m> <s> } | -l <m> <l> { <m> <l> } )\n");
 
   fprintf(file, "\n");
   fprintf(file, "Selection method for d and r: -- defaults to -det\n");
@@ -1426,17 +1425,17 @@ static void print_synopsis(
     "Tuples <m> <s> or <m> <l>: -- one distribution is generated for each "
       "tuple\n");
   fprintf(file,
-    " <m>   the length in bits of r\n");
+    " <m>   the length m in bits of r\n");
   fprintf(file,
     " <s>   the tradeoff factor s; used to set l = ceil(m / s)\n");
   fprintf(file,
-    " <l>   the length in bits of the prefix\n");
+    " <l>   the parameter l\n");
 
   fprintf(file,
     "\nNote: If -rnd is specified and m is kept constant for consecutive "
       "tuples\n");
   fprintf(file,
-    "<m> <s> or <m> <l>, the same value of d and r will be re-used.\n");
+    "<m> <s> or <m> <l>, the same values of d and r will be re-used.\n");
 
   fprintf(file,
     "\nNote: This implementation is optimized for small to medium kappa. If ");
@@ -1514,7 +1513,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

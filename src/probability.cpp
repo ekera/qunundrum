@@ -8,11 +8,13 @@
 
 #include "probability.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "math.h"
+#include "parameters.h"
 
 #include <mpfr.h>
 
+#include <stdint.h>
 #include <stdlib.h>
 
 bool probability_approx_adjust_sigma(
@@ -41,7 +43,7 @@ bool probability_approx_adjust_sigma(
                         parameters);
   mpfr_set(best_error, error, MPFR_RNDN);
   mpfr_set(best_norm, norm, MPFR_RNDN);
-  
+
   bool best_bounded_error = bounded_error;
 
   /* Attempt to decrease sigma and see if we obtain better values. */
@@ -170,43 +172,43 @@ bool probability_approx(
     /* tmp2 = theta_r * ceil(-2^sigma d / r) */
 
   mpfr_mul(tmp, theta_d, tmp, MPFR_RNDN); /* tmp = theta_d 2^sigma */
-  mpfr_add(tmp, tmp, tmp2, MPFR_RNDN); 
+  mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
     /* tmp = theta_d 2^sigma + theta_r * ceil(-2^sigma d / r) */
 
   mpfr_set_ui_2exp(tmp2, 1, (mpfr_exp_t)(parameters->l - sigma), MPFR_RNDN);
     /* tmp2 = 2^(l - sigma) */
-  
+
   if (0 == mpfr_cmp_ui(tmp, 0)) {
     mpfr_sqr(norm, tmp2, MPFR_RNDN); /* norm = 2^(2 (l - sigma)) */
   } else {
-    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision 
+    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision
      * requirements when evaluating the the quotient
-     * 
+     *
      * (1 - cos(phi L)) / (1 - cos(phi)) = (sin(phi L / 2) / sin(phi / 2))^2.
-     * 
+     *
      * It is tricky to evaluate cos(phi) for very small phi, as cos(phi) is then
-     * extremely close to 1, requiring extremely high precision in c when the 
-     * value of cos(phi) is represented as c * 2^-e in the intermediary step 
-     * prior to subtracting one. It is advantageous therefore to perform the 
+     * extremely close to 1, requiring extremely high precision in c when the
+     * value of cos(phi) is represented as c * 2^-e in the intermediary step
+     * prior to subtracting one. It is advantageous therefore to perform the
      * computation using the expression in sin(phi / 2). */
 
     mpfr_div_ui(tmp, tmp, 2, MPFR_RNDN);
       /* tmp = (theta_d 2^sigma + theta_r * ceil(-2^sigma d / r)) / 2 */
     mpfr_mul(tmp2, tmp2, tmp, MPFR_RNDN);
-      /* tmp2 = ((theta_d 2^sigma + 
+      /* tmp2 = ((theta_d 2^sigma +
        *            theta_r * ceil(-2^sigma d / r)) / 2) 2^(l-sigma) */
     mpfr_sin(tmp2, tmp2, MPFR_RNDN);
-      /* tmp2 = sin(((theta_d 2^sigma + 
+      /* tmp2 = sin(((theta_d 2^sigma +
        *                theta_r * ceil(-2^sigma d / r)) / 2) 2^(l-sigma)) */
     mpfr_sin(tmp, tmp, MPFR_RNDN);
       /* tmp = sin((theta_d 2^sigma + theta_r * ceil(-2^sigma d / r)) / 2) */
     mpfr_div(tmp, tmp2, tmp, MPFR_RNDN);
-      /* tmp = sin(((theta_d 2^sigma + 
+      /* tmp = sin(((theta_d 2^sigma +
        *                theta_r * ceil(-2^sigma d / r)) / 2) 2^(l-sigma)) /
        *          sin((theta_d 2^sigma + theta_r * ceil(-2^sigma d / r)) / 2) */
 
     mpfr_sqr(norm, tmp, MPFR_RNDN);
-      /* norm = (sin(((theta_d 2^sigma + 
+      /* norm = (sin(((theta_d 2^sigma +
        *                 theta_r * ceil(-2^sigma d / r)) / 2) 2^(l-sigma)) /
        *       sin((theta_d 2^sigma + theta_r * ceil(-2^sigma d / r)) / 2))^2 */
   }
@@ -222,7 +224,7 @@ bool probability_approx(
 
     mpfr_mul(norm, norm, tmp2, MPFR_RNDN);
   } else {
-    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision 
+    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision
      * requirements when evaluating the probability. */
 
     mpfr_div_ui(tmp, theta_r, 2, MPFR_RNDN); /* tmp = theta_r / 2 */
@@ -239,7 +241,7 @@ bool probability_approx(
     mpfr_mul(norm, norm, tmp, MPFR_RNDN);
   }
 
-  mpfr_set_ui_2exp(tmp2, 1, (mpfr_exp_t)(2 * sigma) - 
+  mpfr_set_ui_2exp(tmp2, 1, (mpfr_exp_t)(2 * sigma) -
     (mpfr_exp_t)(2 * (parameters->m + 2 * parameters->l)), MPFR_RNDN);
       /* tmp2 = 2^(2 sigma) / 2^(2 (m + 2l)) */
   mpfr_mul_z(tmp2, tmp2, parameters->r, MPFR_RNDN);
@@ -264,16 +266,16 @@ bool probability_approx(
   mpfr_mul(tmp, tmp, norm, MPFR_RNDN);
     /* tmp2 = (2^sigma / 2) (abs(theta_d) + abs(theta_r)) *
      *          (2 + (2^sigma / 2) (abs(theta_d) + abs(theta_r)) * norm */
-  
+
   mpfr_set_ui_2exp(tmp2, 1,
     (mpfr_exp_t)(4) - (mpfr_exp_t)(parameters->m + sigma), MPFR_RNDN);
       /* tmp2 = 2^4 / 2^(m + sigma) */
   mpfr_add(tmp, tmp, tmp2, MPFR_RNDN);
-  mpfr_set_ui_2exp(tmp2, 1, 
+  mpfr_set_ui_2exp(tmp2, 1,
     (mpfr_exp_t)(3) - (mpfr_exp_t)(parameters->m + parameters->l), MPFR_RNDN);
       /* tmp2 = 2^3 / 2^(m + l) */
   mpfr_add(error, tmp, tmp2, MPFR_RNDN);
-  
+
   /* Check the stated bound on the relative error. */
   mpfr_div(tmp, error, norm, MPFR_RNDN);
   const bool bounded_error = (mpfr_cmp_d(tmp, (double)0.01f) <= 0);
@@ -281,7 +283,7 @@ bool probability_approx(
   /* Clear memory. */
   mpfr_clear(tmp);
   mpfr_clear(tmp2);
-  
+
   return bounded_error ? TRUE : FALSE;
 }
 
@@ -311,8 +313,8 @@ void probability_approx_quick(
     mpfr_set_ui_2exp(tmp2, 1, parameters->l, MPFR_RNDN); /* tmp2 = 2^l */
     mpfr_mul(tmp2, tmp, tmp2, MPFR_RNDN);
       /* tmp2 = 2^l (theta_d - theta_r d / r) / 2 */
-    
-    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision 
+
+    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision
      * requirements when evaluating the probability. */
 
     mpfr_sin(tmp, tmp, MPFR_RNDN);
@@ -320,10 +322,10 @@ void probability_approx_quick(
     mpfr_sin(tmp2, tmp2, MPFR_RNDN);
       /* tmp2 = sin(2^l (theta_d - theta_r d / r) / 2) */
     mpfr_div(tmp, tmp2, tmp, MPFR_RNDN);
-      /* tmp = sin(2^l (theta_d - theta_r d / r) / 2) / 
+      /* tmp = sin(2^l (theta_d - theta_r d / r) / 2) /
        *          sin((theta_d - theta_r d / r) / 2) */
     mpfr_sqr(norm, tmp, MPFR_RNDN);
-      /* norm = (sin(2^l (theta_d - theta_r d / r) / 2) / 
+      /* norm = (sin(2^l (theta_d - theta_r d / r) / 2) /
        *            sin((theta_d - theta_r d / r) / 2))^2 */
   }
 
@@ -342,14 +344,14 @@ void probability_approx_quick(
     mpfr_mul(tmp, tmp, tmp2, MPFR_RNDN);
       /* tmp = ceil(2^(m + l) / r) theta_r / 2 */
 
-    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision 
+    /* We use that 2 * sin(phi / 2)^2 = 1 - cos(phi) to reduce the precision
      * requirements when evaluating the probability. */
 
     mpfr_sin(tmp, tmp, MPFR_RNDN);
       /* tmp = sin(ceil(2^(m + l) / r) theta_r / 2) */
     mpfr_sin(tmp2, tmp2, MPFR_RNDN);
       /* tmp2 = sin(theta_r / 2) */
-    
+
     mpfr_div(tmp, tmp, tmp2, MPFR_RNDN);
       /* tmp = sin(ceil(2^(m + l) / r) theta_r / 2) / sin(theta_r / 2) */
     mpfr_sqr(tmp, tmp, MPFR_RNDN);
@@ -363,7 +365,7 @@ void probability_approx_quick(
     (mpfr_exp_t)(2 * (parameters->m + 2 * parameters->l)), MPFR_RNDN);
       /* tmp = 2^(2(m + 2l)) */
   mpfr_div(norm, norm, tmp, MPFR_RNDN);
-  
+
   /* Clear memory. */
   mpfr_clear(tmp);
   mpfr_clear(tmp2);

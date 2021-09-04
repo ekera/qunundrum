@@ -9,17 +9,17 @@
 
 #include "lattice_babai.h"
 
-#include "lattice.h"
 #include "errors.h"
-
-#include <fplll/fplll.h>
+#include "lattice.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace std;
 using namespace fplll;
@@ -61,7 +61,7 @@ void babai_closest_vector(
 
   mpfr_t factor_f;
   mpfr_init2(factor_f, precision);
-  
+
   mpz_t tmp_z;
   mpz_init(tmp_z);
 

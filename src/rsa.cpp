@@ -7,9 +7,9 @@
 
 #include "rsa.h"
 
-#include "random.h"
-#include "errors.h"
 #include "common.h"
+#include "errors.h"
+#include "random.h"
 
 #include <gmp.h>
 
@@ -42,7 +42,7 @@ void rsa_generate_modulus(
     mpz_setbit(p, n / 2 - 1);
     mpz_setbit(p, 0);
 
-    result = mpz_probab_prime_p(p, RSA_RABIN_MILLER_ITERATIONS);
+    result = mpz_probab_prime_p(p, RSA_MILLER_RABIN_ITERATIONS);
     /* Note: Returns 2 if n is prime, return 1 if n is probably prime (without
      * being certain), or return 0 if n is definitely non-prime. */
     if ((1 != result) && (2 != result)) {
@@ -55,7 +55,7 @@ void rsa_generate_modulus(
       mpz_setbit(q, n / 2 - 1);
       mpz_setbit(q, 0);
 
-      result = mpz_probab_prime_p(q, RSA_RABIN_MILLER_ITERATIONS);
+      result = mpz_probab_prime_p(q, RSA_MILLER_RABIN_ITERATIONS);
       /* Note: Returns 2 if n is prime, return 1 if n is probably prime (without
        * being certain), or return 0 if n is definitely non-prime. */
       if ((1 != result) && (2 != result)) {
@@ -71,7 +71,7 @@ void rsa_generate_modulus(
         continue;
       }
     }
-  
+
     break;
   }
 

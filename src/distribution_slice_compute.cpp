@@ -8,31 +8,28 @@
 
 #include "distribution_slice.h"
 
-#include "probability.h"
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
+#include "parameters.h"
+#include "probability.h"
 
 #include <mpfr.h>
-#include <gmp.h>
 
 #include <math.h>
-
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
-/* Note that the implementation of this function is fairly explicit. Performance 
+/* Note that the implementation of this function is fairly explicit. Performance
  * and memory is sacrificed for explicitness and ease of verification.
- * 
+ *
  * For instance, we first compute norms (and errors when applicable) and store
- * them in a matrix to explicitly iterate over sub-matrices when performing 
- * Simpson's method. It would be enough to keep the current two endpoints and 
- * the midpoint in temporary registers, but since we are operating in two 
+ * them in a matrix to explicitly iterate over sub-matrices when performing
+ * Simpson's method. It would be enough to keep the current two endpoints and
+ * the midpoint in temporary registers, but since we are operating in two
  * dimensions such a change would make the code harder to follow.
- * 
- *If we really want to optimize this, we could incrementally compute the 
+ *
+ *If we really want to optimize this, we could incrementally compute the
  * probability, by using that we can keep theta_r fixed whilst varying theta_d
  * and so forth. We could also decrease the precision further in some operations
  * and we could integrate this function better with the Richardson extrapolation
@@ -89,7 +86,7 @@ void distribution_slice_compute(
   /* Constants. */
   mpfr_t scale_factor_theta;
   mpfr_init2(scale_factor_theta, PRECISION);
-  
+
   {
     /* Setup the scale factor when mapping alpha to theta. */
     mpfr_t tmp;
@@ -98,7 +95,7 @@ void distribution_slice_compute(
     mpfr_const_pi(scale_factor_theta, MPFR_RNDN);
     mpfr_mul_ui(scale_factor_theta, scale_factor_theta, 2, MPFR_RNDN);
 
-    mpfr_set_ui_2exp(tmp, 1, 
+    mpfr_set_ui_2exp(tmp, 1,
       (mpfr_exp_t)(parameters->l + parameters->m), MPFR_RNDN);
     mpfr_div(scale_factor_theta, scale_factor_theta, tmp, MPFR_RNDN);
 
@@ -148,46 +145,53 @@ void distribution_slice_compute(
 
   /* Setup the sigma parameter. */
   uint32_t sigma;
-  
+
   if (DISTRIBUTION_SLICE_COMPUTE_METHOD_HEURISTIC_SIGMA == method) {
     const uint32_t tau = 11;
 
-    /* Note that we could extract tau from the parameters above. However, we  
-     * have also imposed a hard limit on t not growing past 10 when generating 
-     * the distribution, and this limit is not accounted for when reading from 
-     * the parameters. Note also that we set tau to the maximum possible value 
+    /* Note that we could extract tau from the parameters above. However, we
+     * have also imposed a hard limit on t not growing past 10 when generating
+     * the distribution, and this limit is not accounted for when reading from
+     * the parameters. Note also that we set tau to the maximum possible value
      * above. It may be possible to do even better by varying tau. */
 
     sigma = round(((float)parameters->l + tau + 4 - 1.6515f) / 2.0f);
   }
 
-  /* Evaluate the norm (and error when applicable, depending on the method) in 
+  /* Evaluate the norm (and error when applicable, depending on the method) in
    * the (dimension + 1)^2 main the points given by
-   * 
-   *      (alpha_d, alpha_r) = (2^(min_log_alpha_d + i * step),
-   *                            2^(min_log_alpha_r + j * step)),
-   * 
-   * where 0 <= i, j <= dimension and step = 1 / dimension. Also evaluate in 
-   * the average points inbetween the main points, given by
-   * 
-   * ((2^(min_log_alpha_d + i * step) + 2^(min_log_alpha_d + (i+1) * step))/2)
-   *  (2^(min_log_alpha_r + j * step) + 2^(min_log_alpha_r + (j+1) * step))/2))
-   * 
-   * and store the results in an interleaved fashion in the norm (and error) 
-   * matrix. For X the main points, and A the averages inbetween, store as:
-   * 
-   *      X A X : X
-   *      A A A : A
-   *      X A X : X
-   *      A A A : A
-   *      : : : : : 
-   *      X A X : X
-   *  
-   * Note: To interleave we let i, j run through 0 <= i, j <= 2 * dimension 
+   *
+   *  (alpha_d, alpha_r) =
+   *    (sgn(min_log_alpha_d) * 2^(abs(min_log_alpha_d) + i * step),
+   *     sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + j * step)),
+   *
+   * where 0 <= i, j <= dimension and step = 1 / dimension. Also evaluate the
+   * norm in the average points inbetween the main points, given by
+   *
+   *   (alpha_d, alpha_r) = (sgn(min_log_alpha_d) *
+   *                           (2^(abs(min_log_alpha_d) + i * step) +
+   *                            2^(abs(min_log_alpha_d) + (i + 1) * step)) / 2),
+   *                         sgn(min_log_alpha_r) *
+   *                           (2^(abs(min_log_alpha_r) + j * step) +
+   *                            2^(min_log_alpha_r + (j + 1) * step)) / 2))
+   *
+   * and store the results in an interleaved fashion in the norm (and error)
+   * matrices. For X the main points, and A the averages inbetween, store as:
+   *
+   *   X A X : X
+   *   A A A : A
+   *   X A X : X
+   *   A A A : A
+   *   : : : : :
+   *   X A X : X.
+   *
+   * Note: To interleave we let i, j run through 0 <= i, j <= 2 * dimension
    * below, and use for the main points that
-   * 
-   *      (alpha_d, alpha_r) = (2^(min_log_alpha_d + (i / 2) * step),
-   *                            2^(min_log_alpha_r + (j / 2) * step)). */
+   *
+   * (alpha_d, alpha_r) =
+   *    (sgn(min_log_alpha_d) * 2^(abs(min_log_alpha_d) + (i / 2) * step),
+   *     sgn(min_log_alpha_r) * 2^(abs(min_log_alpha_r) + (j / 2) * step)).
+   */
 
   /* Bootstrap the exponentiation in alpha_d. */
   mpfr_set_ui_2exp(max_alpha_d, 1, abs_i(min_log_alpha_d), MPFR_RNDN);
@@ -243,7 +247,7 @@ void distribution_slice_compute(
 
       /* Compute and store the probability (and error when applicable). */
       mpfr_init2(norm_matrix[i][j], PRECISION);
-      
+
       switch (method) {
         case DISTRIBUTION_SLICE_COMPUTE_METHOD_HEURISTIC_SIGMA:
           mpfr_init2(error_matrix[i][j], PRECISION);
@@ -255,12 +259,12 @@ void distribution_slice_compute(
                               theta_d,
                               theta_r,
                               parameters);
-          
+
           break;
 
         case DISTRIBUTION_SLICE_COMPUTE_METHOD_OPTIMAL_LOCAL_SIGMA:
           mpfr_init2(error_matrix[i][j], PRECISION);
-          
+
           if ((0 == i) && (0 == j)) {
             /* For the first sample in the slice we find the optimal sigma. */
             bounded_error &= probability_approx_optimal_sigma(
@@ -271,7 +275,7 @@ void distribution_slice_compute(
                                 theta_r,
                                 parameters);
           } else {
-            /* For all samples in the slice but the first, we adaptively adjust 
+            /* For all samples in the slice but the first, we adaptively adjust
             * sigma find the local optimum, by increasing or decreasing it. */
             bounded_error &= probability_approx_adjust_sigma(
                                 norm_matrix[i][j],
@@ -290,9 +294,9 @@ void distribution_slice_compute(
             theta_d,
             theta_r,
             parameters);
-          
+
           break;
-        
+
         default:
           critical("distribution_slice_compute(): "
             "Unknown method specified for computing the slice.");
@@ -300,30 +304,30 @@ void distribution_slice_compute(
     }
   }
 
-  /* Apply Simpson's method to each 9 x 9 sub-matrix, with main points X at the 
-   * edges, to sum up the probabilities in the norm matrix, and when applicable 
+  /* Apply Simpson's method to each 9 x 9 sub-matrix, with main points X at the
+   * edges, to sum up the probabilities in the norm matrix, and when applicable
    * also the error bounds in the error matrix.
-   * 
+   *
    * This is easy as we have stored the points in an interleaved fashion
-   * 
-   *      X A X : X
-   *      A A A : A
-   *      X A X : X
-   *      A A A : A
-   *      : : : : : 
-   *      X A X : X.
-   * 
-   * For each 3 x 3 sub-matrix, 
-   * 
-   *      X A X                           1  4 1
-   *      A A A      we apply weights     4 16 4
-   *      A A A                           1  4 1,
-   * 
+   *
+   *   X A X : X
+   *   A A A : A
+   *   X A X : X
+   *   A A A : A
+   *   : : : : :
+   *   X A X : X.
+   *
+   * For each 3 x 3 sub-matrix,
+   *
+   *   X A X                      1  4 1
+   *   A A A   we apply weights   4 16 4
+   *   X A X                      1  4 1,
+   *
    * sum up the results, and divide by 4 * 1 + 4 * 4 + 16 = 36. */
 
   slice->total_probability = 0;
   slice->total_error = 0;
-  
+
   /* Bootstrap the exponentiation in alpha_d. */
   mpfr_set_ui_2exp(max_alpha_d, 1, abs_i(min_log_alpha_d), MPFR_RNDN);
 
@@ -378,10 +382,10 @@ void distribution_slice_compute(
         mpfr_div_ui(avg_error, avg_error, 36, MPFR_RNDN);
       }
 
-      /* Account for the number of alpha-values in this square. */      
+      /* Account for the number of alpha-values in this square. */
       mpfr_mul(avg_norm, avg_norm, alpha_d, MPFR_RNDN);
       mpfr_mul(avg_norm, avg_norm, alpha_r, MPFR_RNDN);
-      
+
       /* Account for the density. */
       mpfr_div(avg_norm, avg_norm, pow_2m, MPFR_RNDN);
 

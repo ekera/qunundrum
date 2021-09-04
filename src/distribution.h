@@ -6,13 +6,13 @@
  *          probability distributions, and of functions for manipulating such
  *          distributions.
  *
- * Two-dimensional probability distributions in the signed 
- * (alpha_d, alpha_r)-plane are used to represent the probability distribution 
- * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
+ * Two-dimensional probability distributions in the signed
+ * (alpha_d, alpha_r)-plane are used to represent the probability distribution
+ * induced by Ekerå's algorithm [1] for computing general discrete logarithms
  * and orders with tradeoffs.
  *
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  */
 
 /*!
@@ -22,26 +22,29 @@
  *
  * \brief   A module for two-dimensional probability distributions.
  *
- * Two-dimensional probability distributions in the signed 
- * (alpha_d, alpha_r)-plane are used to represent the probability distribution 
- * induced by Ekerå's algorithm [1] for computing general discrete logarithms 
+ * Two-dimensional probability distributions in the signed
+ * (alpha_d, alpha_r)-plane are used to represent the probability distribution
+ * induced by Ekerå's algorithm [1] for computing general discrete logarithms
  * and orders with tradeoffs.
  *
- * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms 
- * and orders with tradeoffs. In: IACR ePrint Archive, 2018/797.
+ * [1] Ekerå, M.: Quantum algorithms for computing general discrete logarithms
+ * and orders with tradeoffs. J. Math. Cryptol. 15, pp. 359–407 (2021).
  */
 
 #ifndef DISTRIBUTION_H
 #define DISTRIBUTION_H
 
+#include "common.h"
 #include "distribution_slice.h"
 #include "lattice_sample.h"
-#include "random.h"
 #include "parameters.h"
-#include "common.h"
+#include "random.h"
 
+#include <gmp.h>
 #include <mpfr.h>
+
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   A data structure representing a two-dimensional probability
@@ -319,10 +322,10 @@ void distribution_sort_slices(
 
 /*!
  * \brief   Filters the slices in the distribution by removing all slices such
- *          that p = 0 or e / p > 0.01, for p the total probability and e the 
+ *          that p = 0 or e / p > 0.01, for p the total probability and e the
  *          total error in the slice.
- * 
- * \param[in, out] distribution   The distribution in which to filter the 
+ *
+ * \param[in, out] distribution   The distribution in which to filter the
  *                                slices.
  */
 void distribution_filter_slices(
@@ -330,11 +333,11 @@ void distribution_filter_slices(
 
 /*!
  * \brief   Tests if filtering the distribution would leave it intact.
- * 
- * \param[in] distribution        The distribution for which to test if 
+ *
+ * \param[in] distribution        The distribution for which to test if
  *                                filtering would leave it intact.
- * 
- * \return  Returns #TRUE if filtering the distribution would not remove any 
+ *
+ * \return  Returns #TRUE if filtering the distribution would not remove any
  *          slices, #FALSE otherwise.
  */
 bool distribution_is_filtered(
@@ -353,7 +356,7 @@ bool distribution_is_filtered(
  * \brief   Samples a slice from the probability distribution.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  *
  * \return    A pointer to the slice sampled, or NULL if the slice sampled
  *            is outside the range of the distribution.
@@ -370,7 +373,7 @@ const Distribution_Slice * distribution_sample_slice(
  *          log_alpha such that alpha = sgn(log_alpha) 2^(abs(log_alpha)).
  *
  * \param[in] distribution          The distribution to sample.
- * \param[in, out] random_state     The random state to use to sample pivots.
+ * \param[in, out] random_state     The random state to use when sampling.
  *
  * \param[out] min_log_alpha_d      The minimum signed logarithmic alpha_d.
  * \param[out] max_log_alpha_d      The maximum signed logarithmic alpha_d.
@@ -395,7 +398,7 @@ bool distribution_sample_region(
  * The pair is coarsely sampled, and is not guaranteed to be admissible.
  *
  * \param[in] distribution          The distribution to sample.
- * \param[in, out] random_state     The random state to use to sample pivots.
+ * \param[in, out] random_state     The random state to use when sampling.
  * \param[in, out] alpha_d          The approximate argument alpha_d.
  * \param[in, out] alpha_r          The approximate argument alpha_r.
  *
@@ -414,12 +417,12 @@ bool distribution_sample_approximate_alpha_d_r(
  *
  * The pair is sampled with high resolution, and is guaranteed to be admissible.
  *
- * To map outputs from this function to pairs (j, k), see the function 
+ * To map outputs from this function to pairs (j, k), see the function
  * sample_j_k_from_alpha_d_r(). See also the conveniency function
  * distribution_sample_pair_j_k() in this module.
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] alpha_d        The argument alpha_d.
  * \param[in, out] alpha_r        The argument alpha_r.
  *
@@ -441,7 +444,7 @@ bool distribution_sample_alpha_d_r(
  * sample_j_k_from_alpha_d_r().
  *
  * \param[in] distribution        The distribution to sample.
- * \param[in, out] random_state   The random state the use to sample pivots.
+ * \param[in, out] random_state   The random state to use when sampling.
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.
  */

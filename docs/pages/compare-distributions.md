@@ -35,7 +35,7 @@ Loading distribution "distributions/distribution-det-dim-heuristic-sigma-optimal
 On each line of the printout, we find (±m1+td, ±m1+tr) (±m2+td, ±m2+tr): p1 p2 -- delta where
 - m1 is the order length in bits for the first distribution
 - m2 is the order length in bits for the second distribution
-- td, tr are integer parameters that runs from -30 to 30
+- td, tr are integer parameters that run over a sub-interval of [-30, 30]
 - p1 is the probability mass captured by the slice for which m1+td <= alpha_d < m1+td+1 and m1+tr <= alpha_r < m1+tr+1 in the first distribution
 - p2 is the probability mass captured by the slice for which m2+td <= alpha_d < m2+td+1 and m2+tr <= alpha_r < m2+tr+1 in the second distribution
 - delta = abs(p1 - p2) is the absolute value of the difference between p1 and p2

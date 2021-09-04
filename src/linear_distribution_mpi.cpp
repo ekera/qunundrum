@@ -8,11 +8,11 @@
 
 #include "linear_distribution.h"
 
-#include "linear_distribution_slice.h"
-#include "parameters.h"
 #include "errors.h"
+#include "linear_distribution_slice.h"
 
 #include <mpi.h>
+
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -45,7 +45,7 @@ void linear_distribution_init_bcast_recv(
       MPI_COMM_WORLD))
   {
     critical("linear_distribution_init_bcast_recv(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
   /* Broadcast the capacity. */
@@ -79,7 +79,7 @@ void linear_distribution_init_bcast_recv(
     distribution->slices[i] = NULL;
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count;
 
   if (MPI_SUCCESS != MPI_Bcast(
@@ -141,7 +141,7 @@ void linear_distribution_bcast_send(
       MPI_COMM_WORLD))
   {
     critical("linear_distribution_bcast_send(): "
-      "Failed to broadcast flags.");
+      "Failed to broadcast the flags.");
   }
 
   /* Broadcast the capacity. */
@@ -158,7 +158,7 @@ void linear_distribution_bcast_send(
       "Failed to broadcast the capacity.");
   }
 
-  /* Broadcast the number of slices. */
+  /* Broadcast the slice count. */
   uint32_t count = distribution->count;
 
   if (MPI_SUCCESS != MPI_Bcast(

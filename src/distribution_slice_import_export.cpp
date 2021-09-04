@@ -8,17 +8,12 @@
 
 #include "distribution_slice.h"
 
-#include "parameters.h"
+#include "common.h"
 #include "errors.h"
 #include "math.h"
-#include "common.h"
-
-#include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 
 static void distribution_slice_import_common(
   Distribution_Slice * const slice,

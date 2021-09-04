@@ -17,30 +17,25 @@
 #include "executables.h"
 #include "executables_plot_distribution.h"
 
+#include "common.h"
+#include "errors.h"
 #include "linear_distribution.h"
 #include "linear_distribution_slice.h"
-#include "linear_distribution_enumerator.h"
-#include "random.h"
-#include "common.h"
+#include "math.h"
+#include "plot_distribution.h"
+#include "plot_distribution_axis.h"
+#include "plot_distribution_common.h"
 #include "string_utilities.h"
 
-#include "plot_distribution.h"
-#include "plot_distribution_common.h"
-#include "plot_distribution_axis.h"
-
-#include "errors.h"
-#include "math.h"
-
+#include <gmp.h>
 #include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 static void plot_linear_distribution(
   Linear_Distribution * const distribution,
@@ -61,7 +56,7 @@ static void plot_linear_distribution(
     }
   }
 
-  /* Extract m and s. */
+  /* Extract m, s and l. */
   const uint32_t m = distribution->parameters.m;
   const uint32_t s = distribution->parameters.s;
   const uint32_t l = distribution->parameters.l;
@@ -92,19 +87,6 @@ static void plot_linear_distribution(
       m,
       (0 != s) ? 's' : 'l',
       (0 != s) ?  s  :  l);
-  } else if (0 != ((distribution->flags) &
-    LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL))
-  {
-    /* Sanity check. */
-    if (0 != s) {
-      critical("plot_linear_distribution(): "
-        "Expected s to be zero for diagonal distributions.");
-    }
- 
-    safe_snprintf(path, MAX_SIZE_PATH_BUFFER,
-      "%s/plot-collapsed-diagonal-distribution-m-%u-l-%u.tex",
-      PLOTS_DIRECTORY,
-      m, l);
   } else {
     safe_snprintf(path, MAX_SIZE_PATH_BUFFER,
       "%s/plot-linear-distribution-%c-m-%u-%c-%u.tex",
@@ -127,7 +109,7 @@ static void plot_linear_distribution(
     critical("plot_linear_distribution(): Failed to open \"%s\".", path);
   }
 
-  printf("Writing the distribution to \"%s\"...\n", path);
+  printf("Writing the plot to \"%s\"...\n", path);
 
   /* Write the file header. */
   fprintf(file, "%% m = %u\n", m);

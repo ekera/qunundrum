@@ -18,30 +18,29 @@
 #include "executables.h"
 #include "executables_solve_distribution.h"
 
+#include "common.h"
+#include "continued_fractions.h"
+#include "errors.h"
 #include "linear_distribution.h"
 #include "linear_distribution_loader.h"
-#include "continued_fractions.h"
-#include "random.h"
-#include "common.h"
-#include "sample.h"
-#include "timer.h"
 #include "math.h"
-#include "errors.h"
+#include "random.h"
+#include "sample.h"
 #include "string_utilities.h"
+#include "timer.h"
 
 #include <gmp.h>
 #include <mpfr.h>
+
 #include <mpi.h>
 
-#include <stdio.h>
 #include <stdint.h>
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing parsed command line arguments.
@@ -78,7 +77,7 @@ typedef struct {
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -87,12 +86,12 @@ typedef struct {
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Solve_Linear_Distribution_Arguments * const arguments,
@@ -122,12 +121,12 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound-j.\n");
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x < 0) {
         fprintf(stderr, "Error: The search bound on j must be non-negative.\n");
         return FALSE;
@@ -152,14 +151,14 @@ static bool arguments_init_parse_command_line(
       }
 
       if ((i + 1) >= argc) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: Expected value to follow after -search-bound-cofactors.\n");
         return FALSE;
       }
 
-      int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i+1]);
       if (x <= 0) {
-        fprintf(stderr, 
+        fprintf(stderr,
           "Error: The search bound on cofactors must be positive.\n");
         return FALSE;
       }
@@ -172,7 +171,7 @@ static bool arguments_init_parse_command_line(
 
       continue;
     }
-  
+
     /* Stop parsing. */
     break;
   }
@@ -194,7 +193,7 @@ static bool arguments_init_parse_command_line(
   for (uint32_t j = 0; j < arguments->count; j++) {
     arguments->paths[j] = NULL;
   }
-  
+
   /* Iterate over the distributions. */
   for (uint32_t j = 0; j < arguments->count; j++, i++) {
     /* Parse the path. */
@@ -334,8 +333,8 @@ static void arguments_init_bcast_recv(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Solve_Linear_Distribution_Arguments * const arguments)
@@ -405,7 +404,14 @@ static void main_server(
 
   /* Setup a solution status data structure. */
   Solution_Status solution_status;
-  solution_status_init(&solution_status, &(distribution->parameters), 1);
+  solution_status_init(
+    &solution_status,
+    distribution->parameters.m,
+    0, /* = sigma */
+    distribution->parameters.s,
+    distribution->parameters.l,
+    1, /* = n */
+    FALSE); /* = has_sigma */
 
   /* The number of currently running client nodes. */
   int nodes = mpi_size - 1;
@@ -615,7 +621,7 @@ static void main_server(
  * \brief   The main function on the client node.
  *
  * This function is called once by main() for each distribution to process.
- * 
+ *
  * \param[in] arguments     The parsed command line arguments.
  */
 static void main_client(
@@ -742,7 +748,7 @@ static void main_client(
 
     mpz_t candidate_j;
     mpz_init(candidate_j);
-    
+
     for (uint32_t t = 0; t <= arguments->search_bound_j; t++) {
       mpz_add_ui(candidate_j, j, t);
 
@@ -915,7 +921,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "
@@ -985,7 +991,7 @@ int main(int argc, char ** argv) {
     }
 
     linear_distribution_loader_clear(&loader);
-  
+
     arguments_clear(&arguments);
   } else {
     /* Broadcast the command line arguments. */

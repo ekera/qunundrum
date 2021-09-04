@@ -17,30 +17,27 @@
 #include "executables.h"
 #include "executables_estimate_runs_distribution.h"
 
-#include "tau_ordered_list.h"
-#include "tau_volume_quotient.h"
-#include "tau_estimate.h"
+#include "common.h"
 #include "distribution.h"
 #include "distribution_loader.h"
-#include "string_utilities.h"
-#include "random.h"
 #include "errors.h"
-#include "common.h"
+#include "random.h"
+#include "string_utilities.h"
+#include "tau_estimate.h"
+#include "tau_ordered_list.h"
+#include "tau_volume_quotient.h"
 
-#include <float.h>
-
-#include <gmp.h>
 #include <mpfr.h>
 
 #include <mpi.h>
+
+#include <float.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   A data structure representing parsed command line arguments.
@@ -605,7 +602,7 @@ main_server_clear:
 /*!
  * \brief   Parses the command line arguments.
  *
- * \param[in, out] arguments   The argument data structure in which to store
+ * \param[in, out] arguments   The arguments data structure in which to store
  *                             the parsed command line arguments.
  *
  * \param[in, out] argc   The arguments count.
@@ -614,12 +611,12 @@ main_server_clear:
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Estimate_Runs_Distribution_Arguments * const arguments,
@@ -705,8 +702,8 @@ static bool arguments_init_parse_command_line(
 
 /*!
  * \brief   Clears an initialized command line arguments data structure.
- * 
- * \param[in, out] arguments   The argument data structure to clear.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
   Estimate_Runs_Distribution_Arguments * const arguments)
@@ -797,7 +794,7 @@ int main(int argc, char ** argv) {
       (uint32_t)arguments_init_parse_command_line(&arguments, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

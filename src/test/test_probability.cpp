@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_probability.cpp
  * \ingroup unit_tests_two_dimensional_distribution
- * 
- * \brief   The definition of unit tests for the probability functions in the 
+ *
+ * \brief   The definition of unit tests for the probability functions in the
  *          \ref two_dimensional_distribution_probability module.
  */
 
@@ -10,23 +10,20 @@
 
 #include "test_common.h"
 
-#include "../probability.h"
-#include "../parameters_selection.h"
-#include "../parameters.h"
 #include "../errors.h"
 #include "../math.h"
+#include "../parameters.h"
+#include "../parameters_selection.h"
+#include "../probability.h"
 
 #include <gmp.h>
 #include <mpfr.h>
 
 #include <math.h>
-
-#include <string.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
 
-/*! 
+/*!
  * \brief   The maximum buffer size in bytes.
  */
 #define MAX_BUFFER_SIZE 8192
@@ -38,12 +35,12 @@ void test_probability_approx_heuristic_sigma_kat() {
   mpfr_set_default_prec(PRECISION);
 
   /* As set in main() in main_generate_distribution.cpp. */
-  const static uint32_t m_s_entries[8][2] = {
+  const uint32_t m_s_entries[8][2] = {
     { 128,  2}, { 256,  4}, { 384,  6}, { 512,  8},
     {1024, 10}, {2048, 30}, {4096, 50}, {8192, 80}
   };
-  
-  const static uint32_t s_entries[14] = {
+
+  const uint32_t s_entries[14] = {
     1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 80
   };
 
@@ -62,27 +59,27 @@ void test_probability_approx_heuristic_sigma_kat() {
 
       mpz_t r;
       mpz_init(r);
-      
+
       parameters_selection_deterministic_d_r(d, r, m);
 
       const uint32_t t = 30;
-  
+
       Parameters parameters;
       parameters_init(&parameters);
       parameters_explicit_m_s(&parameters, d, r, m, s, t);
-        
+
       /* Select sigma heuristically as in generate_distribution. */
       const uint32_t t_sigma = 11;
 
-      /* Note that we could extract t from the parameters above. However, we 
+      /* Note that we could extract t from the parameters above. However, we
        * have also imposed a hard limit on t not growing past 10 when generating
        * the distribution, and this limit is not accounted for when reading from
-       * the parameters. Note also that we set t to the maximum possible value 
+       * the parameters. Note also that we set t to the maximum possible value
        * above. It may be possible to do even better by varying t. */
 
       const uint32_t sigma =
         round(((float)parameters.l + t_sigma + 4 - 1.6515f) / 2.0f);
-      
+
       mpfr_t norm;
       mpfr_init2(norm, PRECISION);
 
@@ -117,7 +114,7 @@ void test_probability_approx_heuristic_sigma_kat() {
       for (uint32_t k = 0; k < 1764; k++) {
         test_mpfr_load(theta_d, file);
         test_mpfr_load(theta_r, file);
-        
+
         probability_approx(
           norm,
           error,
@@ -164,7 +161,7 @@ void test_probability_approx_heuristic_sigma_kat() {
           critical("test_probability_approx_heuristic_sigma_kat(): "
             "Failed to verify probability estimate.");
         }
-        
+
         if (!test_cmp_tol_ld(norm_ld, quick_norm_ld, 1e-4)) {
           critical("test_probability_approx_heuristic_sigma_kat(): "
             "Failed to verify ** quick ** probability estimate.");
@@ -183,10 +180,10 @@ void test_probability_approx_heuristic_sigma_kat() {
       mpfr_clear(exp_norm);
       mpfr_clear(exp_error);
       mpfr_clear(quick_norm);
-      
+
       mpz_clear(d);
       mpz_clear(r);
-      
+
       parameters_clear(&parameters);
     }
   }

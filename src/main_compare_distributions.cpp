@@ -15,15 +15,11 @@
  * \brief    A module for the compare_distributions executable.
  */
 
-#include "linear_distribution.h"
-#include "parameters.h"
-#include "errors.h"
+#include "distribution.h"
 #include "math.h"
 
-#include <mpfr.h>
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   Prints the command line synopsis.

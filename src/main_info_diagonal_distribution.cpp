@@ -14,18 +14,14 @@
  * \brief    A module for the info_diagonal_distribution executable.
  */
 
-#include "diagonal_distribution.h"
-#include "random.h"
 #include "common.h"
-
+#include "diagonal_distribution.h"
 #include "errors.h"
 #include "math.h"
 
 #include <mpfr.h>
 
 #include <stdio.h>
-#include <string.h>
-#include <stdint.h>
 
 /*!
  * \brief   Prints the command line synopsis.

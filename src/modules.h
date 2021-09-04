@@ -1,12 +1,12 @@
 /*!
  * \file    modules.h
- * 
+ *
  * \brief   The definition of modules for the source code documentation.
  */
 
 /*!
  * \defgroup unit_tests_debug_tracing Unit tests and debug tracing
- * 
+ *
  * \brief   A module for unit testing and debug trace printouts.
  */
 

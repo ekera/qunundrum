@@ -38,21 +38,21 @@ typedef struct {
   int32_t min_log_alpha;
 
   /*!
-   * \brief   A distance measure used to sort the coordinates so that 
+   * \brief   A distance measure used to sort the coordinates so that
    *          coordinates for slices that are more likely to capture a large
    *          fraction of the total probability mass are processed first.
-   * 
+   *
    * The distance is abs(abs(min_log_alpha) - m).
-   * 
+   *
    * This entry is not really needed, as it can be computed from the values of
-   * the parameter m and Linear_Distribution_Coordinate::min_log_alpha. The 
+   * the parameter m and Linear_Distribution_Coordinate::min_log_alpha. The
    * entry is included to make the distance available to qsort(), as m cannot be
-   * passed to qsort(), and as qsort_r() that does take an additional parameter 
-   * is non-portable in that it has different prototypes on different 
+   * passed to qsort(), and as qsort_r() that does take an additional parameter
+   * is non-portable in that it has different prototypes on different
    * platforms(!)
-   * 
-   * Previously sorting was implemented natively using bubble sort, but this is 
-   * inefficient. In the future, we may consider adding a native efficient 
+   *
+   * Previously sorting was implemented natively using bubble sort, but this is
+   * inefficient. In the future, we may consider adding a native efficient
    * sorting algorithm to get rid of this entry.
    */
   uint32_t distance;
@@ -70,7 +70,7 @@ typedef struct {
   Linear_Distribution_Coordinate ** coordinates;
 
   /*!
-   * \brief   The total number of entries in the
+   * \brief   The offset within the
    *          Linear_Distribution_Enumerator::coordinates vector.
    */
   uint32_t offset;
@@ -125,7 +125,7 @@ void linear_distribution_enumerator_clear(
  *                            logarithmic alpha_d- or alpha_r-coordinate.
  * \param[in] enumerator      An initialized enumerator.
  *
- * \return True if the coordinate of the next slice was returned, False
+ * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.
  */
 bool linear_distribution_enumerator_next(

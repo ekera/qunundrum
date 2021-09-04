@@ -9,8 +9,8 @@
 #include "parameters_selection.h"
 
 #include "common.h"
-#include "random.h"
 #include "errors.h"
+#include "random.h"
 #include "rsa.h"
 
 #include <gmp.h>
@@ -33,7 +33,7 @@ void parameters_selection_deterministic_d_r(
 
   {
     const uint32_t precision = 3 * 8192;
-  
+
     mpfr_t data;
     mpfr_init2(data, precision);
     mpfr_const_catalan(data, MPFR_RNDN);
@@ -95,7 +95,7 @@ void parameters_selection_random_d_or_r(
   random_generate_mpz(value, half_modulus_minus_one, &random_state);
 
   /* Add 2^(m-1) + 1 to value, so that it is on
-   * 
+   *
    *    [2^(m-1) + 1, 2^(m-1) - 2 + 2^(m-1) + 1] =
    *      [2^(m-1) + 1, 2^m - 1] = (2^(m-1), 2^m).
    */

@@ -8,17 +8,15 @@
 
 #include "linear_distribution_slice.h"
 
-#include "sample.h"
-#include "parameters.h"
-#include "errors.h"
 #include "common.h"
-#include "sample.h"
+#include "errors.h"
 #include "math.h"
-
-#include <mpfr.h>
-#include <gmp.h>
+#include "parameters.h"
+#include "random.h"
+#include "sample.h"
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -160,7 +158,7 @@ void linear_distribution_slice_region_coordinates(
   }
 
   if (NULL != max_log_alpha) {
-    (*max_log_alpha) = 
+    (*max_log_alpha) =
       abs_d((double)slice->min_log_alpha) + (double)(j + 1) * step;
     (*max_log_alpha) *= d_sgn;
   }
@@ -179,7 +177,7 @@ void linear_distribution_slice_sample_region(
   printf("linear_distribution_slice_sample_region(): "
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
-  
+
   pivot *= slice->total_probability;
 
   #ifdef DEBUG_TRACE_SAMPLING

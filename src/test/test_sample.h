@@ -1,8 +1,8 @@
 /*!
  * \file    test/test_sample.h
  * \ingroup unit_tests_sample_distribution
- * 
- * \brief   The declaration of unit tests for the \ref sample_distribution 
+ *
+ * \brief   The declaration of unit tests for the \ref sample_distribution
  *          module.
  */
 
@@ -11,7 +11,7 @@
  *              Unit tests for sampling distributions
  * \ingroup  unit_tests
  * \ingroup  sample_distribution
- * 
+ *
  * \brief    A module for unit tests for sampling probability distributions.
  */
 

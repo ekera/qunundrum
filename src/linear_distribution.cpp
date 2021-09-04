@@ -8,20 +8,20 @@
 
 #include "linear_distribution.h"
 
+#include "common.h"
 #include "distribution.h"
-#include "distribution_slice.h"
-#include "linear_distribution_slice.h"
-#include "linear_distribution.h"
-#include "diagonal_distribution_slice.h"
-#include "diagonal_distribution.h"
-#include "parameters.h"
-#include "probability.h"
-#include "random.h"
 #include "errors.h"
-#include "sample.h"
+#include "linear_distribution_slice.h"
 #include "math.h"
+#include "parameters.h"
+#include "random.h"
+#include "sample.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -322,188 +322,6 @@ void linear_distribution_init_collapse_r(
   dst->total_error = src->total_error;
 }
 
-void linear_distribution_init_collapse_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src)
-{
-  /* Initialize the distribution. */
-  uint32_t flags;
-
-  flags = LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL;
-
-  linear_distribution_init(dst, &(src->parameters), flags, src->count);
-
-  /* If there are no slices in the distribution, we need not do anything. */
-  if (0 == src->count) {
-    return;
-  }
-
-  /* Find the maximum dimension of slices in the distribution. */
-  uint32_t max_dimension = src->slices[0]->dimension;
-
-  for (uint32_t i = 1; i < src->count; i++) {
-    if (src->slices[i]->dimension > max_dimension) {
-      max_dimension = src->slices[i]->dimension;
-    }
-  }
-
-  /* Assert that all slice dimensions equal the maximum dimension. */
-  for (uint32_t i = 0; i < src->count; i++) {
-    if ((max_dimension % src->slices[i]->dimension) != 0) {
-      critical("linear_distribution_init_collapse_diagonal(): All slices in "
-        "the source distribution must be of dimension that divides the maximum "
-        "slice dimension.");
-    }
-  }
-
-  /* Iterate over all slices in the source distribution. */
-  for (uint32_t i = 0; i < src->count; i++) {
-    /* Check if there is a slice in dst for this alpha_r-range. */
-    uint32_t j;
-
-    for (j = 0; j < dst->count; j++) {
-      if (src->slices[i]->min_log_alpha_r == dst->slices[j]->min_log_alpha) {
-        break;
-      }
-    }
-
-    Linear_Distribution_Slice * slice = NULL;
-
-    if (j == dst->count) {
-      /* No slice was found. Create and insert a slice. */
-      slice = linear_distribution_slice_alloc();
-      linear_distribution_slice_init(slice, max_dimension);
-
-      slice->min_log_alpha = src->slices[i]->min_log_alpha_r;
-
-      linear_distribution_insert_slice(dst, slice);
-    } else {
-      /* An existing slice was found. */
-      slice = dst->slices[j];
-    }
-
-    /* Add total probability and error to the slice. */
-    slice->total_probability += src->slices[i]->total_probability;
-    slice->total_error += src->slices[i]->total_error;
-
-    /* Add the norm matrix to the slice. */
-    const uint32_t dimension = src->slices[i]->dimension;
-    const uint32_t divisor = max_dimension / dimension;
-
-    for (uint32_t x = 0; x < dimension; x++) {
-      const long double probability =
-        src->slices[i]->norm_vector[x];
-
-      for (uint32_t j = 0; j < divisor; j++) {
-        slice->norm_vector[divisor * x + j] +=
-          probability / (long double)divisor;
-      }
-    }
-  }
-
-  dst->total_probability = src->total_probability;
-  dst->total_error = src->total_error;
-}
-
-void linear_distribution_init_extract_diagonal(
-  Linear_Distribution * const dst,
-  const Diagonal_Distribution * const src,
-  const int32_t offset_alpha_d)
-{
-  /* Initialize the distribution. */
-  uint32_t flags;
-
-  flags = LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL;
-
-  linear_distribution_init(dst, &(src->parameters), flags, src->count);
-
-  /* If there are no slices in the distribution, we need not do anything. */
-  if (0 == src->count) {
-    return;
-  }
-
-  /* Find the maximum dimension of slices in the distribution. */
-  uint32_t max_dimension = 0;
-
-  for (uint32_t i = 0; i < src->count; i++) {
-    /* Check if this slice is to be extracted from the source distribution. */
-    if (src->slices[i]->offset_alpha_d != offset_alpha_d) {
-      continue;
-    }
-
-    if (src->slices[i]->dimension > max_dimension) {
-      max_dimension = src->slices[i]->dimension;
-    }
-  }
-
-  /* Assert that all slice dimensions equal the maximum dimension. */
-  for (uint32_t i = 0; i < src->count; i++) {
-    /* Check if this slice is to be extracted from the source distribution. */
-    if (src->slices[i]->offset_alpha_d != offset_alpha_d) {
-      continue;
-    }
-
-    if ((max_dimension % src->slices[i]->dimension) != 0) {
-      critical("linear_distribution_init_extract_diagonal(): All slices in "
-        "the source distribution must be of dimension that divides the maximum "
-        "slice dimension.");
-    }
-  }
-
-  /* Iterate over all slices in the source distribution. */
-  for (uint32_t i = 0; i < src->count; i++) {
-    /* Check if this slice is to be extracted from the source distribution. */
-    if (src->slices[i]->offset_alpha_d != offset_alpha_d) {
-      continue;
-    }
-
-    /* Check if there is a slice in dst for this alpha_r-range. */
-    uint32_t j;
-
-    for (j = 0; j < dst->count; j++) {
-      if (src->slices[i]->min_log_alpha_r == dst->slices[j]->min_log_alpha) {
-        break;
-      }
-    }
-
-    Linear_Distribution_Slice * slice = NULL;
-
-    if (j == dst->count) {
-      /* No slice was found. Create and insert a slice. */
-      slice = linear_distribution_slice_alloc();
-      linear_distribution_slice_init(slice, max_dimension);
-
-      slice->min_log_alpha = src->slices[i]->min_log_alpha_r;
-
-      linear_distribution_insert_slice(dst, slice);
-    } else {
-      /* An existing slice was found. */
-      slice = dst->slices[j];
-    }
-
-    /* Add total probability and error to the slice. */
-    slice->total_probability += src->slices[i]->total_probability;
-    slice->total_error += src->slices[i]->total_error;
-
-    /* Add the norm matrix to the slice. */
-    const uint32_t dimension = src->slices[i]->dimension;
-    const uint32_t divisor = max_dimension / dimension;
-
-    for (uint32_t x = 0; x < dimension; x++) {
-      const long double probability =
-        src->slices[i]->norm_vector[x];
-
-      for (uint32_t j = 0; j < divisor; j++) {
-        slice->norm_vector[divisor * x + j] +=
-          probability / (long double)divisor;
-      }
-    }
-  }
-
-  dst->total_probability = src->total_probability;
-  dst->total_error = src->total_error;
-}
-
 void linear_distribution_clear(
   Linear_Distribution * const distribution)
 {
@@ -540,25 +358,25 @@ void linear_distribution_insert_slice(
 }
 
 /*!
- * \brief Compares two linear slices with respect to the total probability  
- *        they capture, for the purpose of enabling slices to be sorted in 
+ * \brief Compares two linear slices with respect to the total probability
+ *        they capture, for the purpose of enabling slices to be sorted in
  *        descending order with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first slice.
  * \param[in] b   A pointer to a pointer to the second slice.
- * 
- * \return Returns -1 if the total probability captured by the first slice is 
- *         greater than that captured by the second slice, 1 if the inverse is 
+ *
+ * \return Returns -1 if the total probability captured by the first slice is
+ *         greater than that captured by the second slice, 1 if the inverse is
  *         true, and 0 if the probabilities are equal.
  */
 static int linear_distribution_sort_slices_cmp(
   const void * const a,
   const void * const b)
 {
-  const Linear_Distribution_Slice * const slice_a = 
+  const Linear_Distribution_Slice * const slice_a =
     *((const Linear_Distribution_Slice * const *)a);
 
-  const Linear_Distribution_Slice * const slice_b = 
+  const Linear_Distribution_Slice * const slice_b =
     *((const Linear_Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
@@ -578,9 +396,9 @@ void linear_distribution_sort_slices(
   }
 
   qsort(
-    distribution->slices, 
-    distribution->count, 
-    sizeof(Linear_Distribution_Slice *), 
+    distribution->slices,
+    distribution->count,
+    sizeof(Linear_Distribution_Slice *),
     linear_distribution_sort_slices_cmp);
 }
 
@@ -619,12 +437,12 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
 
-  /* Normalize if the total probability exceeds one. Of course, this should 
+  /* Normalize if the total probability exceeds one. Of course, this should
    * never occur in practice, unless the dimension that controls the resolution
    * of the distribution is set very low. This check handles such cases. */
   if (distribution->total_probability > 1) {
     pivot *= distribution->total_probability;
-    
+
     #ifdef DEBUG_TRACE_SAMPLING
     printf("linear_distribution_sample_slice(): "
       "Debug: Warning: Scaled pivot: %Lf\n", pivot);
@@ -651,7 +469,7 @@ const Linear_Distribution_Slice * linear_distribution_sample_slice(
       return slice;
     }
   }
-  
+
   #ifdef DEBUG_TRACE_SAMPLING
   printf("linear_distribution_sample_slice(): Debug: Out of bounds.\n");
   #endif

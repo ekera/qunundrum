@@ -8,22 +8,20 @@
 
 #include "lattice_sample.h"
 
-#include "lattice_gso.h"
+#include "errors.h"
 #include "lattice_babai.h"
-
+#include "lattice_gso.h"
+#include "math.h"
 #include "parameters.h"
 
-#include "math.h"
-#include "errors.h"
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <fplll/fplll.h>
 
-#include <mpfr.h>
-#include <gmp.h>
+#include <stdint.h>
 
 #include <vector>
-
-#include <stdint.h>
 
 using namespace fplll;
 using namespace std;
@@ -66,7 +64,7 @@ void lattice_alpha_init(
   mpz_set_ui(lattice->A[1][1].get_data(), 0);
 
   /* Reduce the basis matrix using LLL. We previously used HKZ for this purpose
-   * but the fpLLL implementation of HKZ sometimes seemingly hangs. Since the 
+   * but the fpLLL implementation of HKZ sometimes seemingly hangs. Since the
    * lattice is two-dimensional, the choice is not very significant. */
   int status = lll_reduction(
                 lattice->A,
@@ -75,7 +73,7 @@ void lattice_alpha_init(
                 LM_WRAPPER, /* method */
                 FT_DEFAULT, /* floating point */
                 0, /* precision */
-                0); /* flags */
+                LLL_DEFAULT); /* flags */
   if (RED_SUCCESS != status) {
     critical("lattice_alpha_init(): Failed to reduce matrix A using LLL.");
   }

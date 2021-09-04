@@ -8,26 +8,24 @@
 
 #include "linear_distribution_slice.h"
 
-#include "linear_probability.h"
-#include "parameters.h"
-#include "errors.h"
-#include "math.h"
 #include "common.h"
+#include "errors.h"
+#include "linear_probability.h"
+#include "math.h"
+#include "parameters.h"
 
 #include <mpfr.h>
-#include <gmp.h>
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
-/* Note that the implementation of this function is fairly explicit. Performance 
+/* Note that the implementation of this function is fairly explicit. Performance
  * and memory is sacrificed for explicitness and ease of verification.
- * 
+ *
  * For instance, we first compute norms and store them in a vector to explicitly
  * iterate over sub-vectors when performing Simpson's method. It would be enough
- * to keep the current two endpoints and the midpoint in temporary registers, 
- * but we have kept this design for now to keep everything analogous with the 
+ * to keep the current two endpoints and the midpoint in temporary registers,
+ * but we have kept this design for now to keep everything analogous with the
  * two-dimensional implementation in distribution_slice_compute(). */
 void linear_distribution_slice_compute(
   Linear_Distribution_Slice * const slice,
@@ -51,7 +49,7 @@ void linear_distribution_slice_compute(
   /* Constants. */
   mpfr_t scale_factor_theta;
   mpfr_init2(scale_factor_theta, PRECISION);
-  
+
   {
     /* Setup the scale factor when mapping alpha to theta. */
     mpfr_t tmp;
@@ -60,7 +58,7 @@ void linear_distribution_slice_compute(
     mpfr_const_pi(scale_factor_theta, MPFR_RNDN);
     mpfr_mul_ui(scale_factor_theta, scale_factor_theta, 2, MPFR_RNDN);
 
-    mpfr_set_ui_2exp(tmp, 1, 
+    mpfr_set_ui_2exp(tmp, 1,
       (mpfr_exp_t)(parameters->l + parameters->m), MPFR_RNDN);
     mpfr_div(scale_factor_theta, scale_factor_theta, tmp, MPFR_RNDN);
 
@@ -93,24 +91,26 @@ void linear_distribution_slice_compute(
   mpfr_t max_alpha;
   mpfr_init2(max_alpha, PRECISION);
 
-  /* Evaluate the norm in the dimension + 1 main the points given by
-   * 
-   *      alpha = 2^(min_log_alpha + i * step,
-   * 
-   * where 0 <= i <= dimension and step = 1 / dimension. Also evaluate in the 
-   * average points inbetween the main points, given by
-   * 
-   * (2^(min_log_alpha + i * step) + 2^(min_log_alpha + (i + 1) * step)) / 2
-   * 
-   * and store the results in an interleaved fashion in the norm vector. For X 
+  /* Evaluate the norm in the dimension + 1 main points given by
+   *
+   *   alpha = sgn(min_log_alpha) * 2^(abs(min_log_alpha) + i * step),
+   *
+   * where 0 <= i <= dimension and step = 1 / dimension. Also evaluate the norm
+   * in the average points inbetween the main points, given by
+   *
+   *  alpha = sgn(min_log_alpha) (2^(abs(min_log_alpha) + i * step) + \
+   *                              2^(abs(min_log_alpha) + (i + 1) * step)) / 2
+   *
+   * and store the results in an interleaved fashion in the norm vector. For X
    * the main points, and A the averages inbetween, store as:
-   * 
-   *      X A X A X : X
-   * 
+   *
+   *   X A X A X : X.
+   *
    * Note: To interleave we let i run through 0 <= i <= 2 * dimension below,
    * and use for the main points that
-   * 
-   *      alpha = 2^(min_log_alpha_d + (i / 2) * step). */
+   *
+   *  alpha = sgn(min_log_alpha) 2^(abs(min_log_alpha) + (i / 2) * step).
+   */
 
   /* Bootstrap the exponentiation in alpha. */
   mpfr_set_ui_2exp(max_alpha, 1, abs_i(min_log_alpha), MPFR_RNDN);
@@ -137,7 +137,7 @@ void linear_distribution_slice_compute(
 
     /* Compute theta. */
     mpfr_mul(theta, alpha, scale_factor_theta, MPFR_RNDN);
-  
+
     /* Compute and store the probability. */
     mpfr_init2(norm_vector[i], PRECISION);
 
@@ -149,20 +149,20 @@ void linear_distribution_slice_compute(
       case LINEAR_DISTRIBUTION_SLICE_COMPUTE_TARGET_R:
         linear_probability_r(norm_vector[i], theta, parameters);
         break;
-      
+
       default:
         critical("linear_distribution_slice_compute(): Unknown target.");
     }
   }
 
-  /* Apply Simpson's method to each 3 element sub-vector, with main points X at  
+  /* Apply Simpson's method to each 3 element sub-vector, with main points X at
    * the edges, to sum up the probabilities in the norm vector.
-   * 
+   *
    * This is easy as we have stored the points in an interleaved fashion
-   * 
-   *      X A X : X
-   * 
-   * For each sub-vector X A X, we apply weights 1 4 1, sum up the results, and 
+   *
+   *   X A X A X : X.
+   *
+   * For each sub-vector X A X, we apply weights 1 4 1, sum up the results, and
    * divide by 2 * 1 + 4 = 6. */
 
   slice->total_probability = 0;
@@ -175,7 +175,7 @@ void linear_distribution_slice_compute(
     mpfr_set(min_alpha, max_alpha, MPFR_RNDN);
     mpfr_mul(max_alpha, min_alpha, pow_2step, MPFR_RNDN);
     mpfr_sub(alpha, max_alpha, min_alpha, MPFR_RNDN);
-    
+
     /* Compute the norm using Simpson's rule. */
     mpfr_set_ui(avg_norm, 4, MPFR_RNDN);
     mpfr_mul(avg_norm, avg_norm, norm_vector[i + 1], MPFR_RNDN);
@@ -185,34 +185,34 @@ void linear_distribution_slice_compute(
 
     /* Account for the number of alpha-values in this region. */
     mpfr_mul(avg_norm, avg_norm, alpha, MPFR_RNDN);
-    
+
     if (LINEAR_DISTRIBUTION_SLICE_COMPUTE_TARGET_D == target) {
-      /* There are 2^(l + kappa) pairs (j, k) that yield each admissible 
-       * argument alpha. Only the arguments alpha that are multiples of 2^kappa  
-       * are admissible. Hence we have a multiplicity of 2^(l+kappa), and a 
+      /* There are 2^(l + kappa) pairs (j, k) that yield each admissible
+       * argument alpha. Only the arguments alpha that are multiples of 2^kappa
+       * are admissible. Hence we have a multiplicity of 2^(l+kappa), and a
        * density of 2^kappa, so we have to multiply by 2^l to compensate below.
-       * 
-       * Recall that in the above context, kappa = kappa_d is the largest 
+       *
+       * Recall that in the above context, kappa = kappa_d is the largest
        * integer such that 2^kappa_d divides the logarithm d. */
       mpfr_mul(avg_norm, avg_norm, pow_2l, MPFR_RNDN);
     }
-    
-    /* Note that when performing order-finding, there are 2^(m+l-kappa) integers 
-     * j that yield each admissible argument alpha. Only the arguments alpha 
-     * that are multiples of 2^kappa are admissible. Hence we have a 
+
+    /* Note that when performing order-finding, there are 2^(m+l-kappa) integers
+     * j that yield each admissible argument alpha. Only the arguments alpha
+     * that are multiples of 2^kappa are admissible. Hence we have a
      * multiplicity of 2^kappa, and a density of 2^kappa, and these two factors
      * cancel. Hence, we need not multiply or divide to compensate.
-     * 
-     * Recall that in the order-finding context, kappa = kappa_r is the largest 
+     *
+     * Recall that in the order-finding context, kappa = kappa_r is the largest
      * integer such that 2^kappa_r divides the order r. */
 
-    /* Note that we do not account for the case where kappa is artificially 
-     * large when constructing the histograms. If kappa is close to m in size, 
-     * some bins will become unavailable, requiring us to compute the histogram 
-     * in a slightly different way. This is explained in the papers. 
-     * 
-     * Artificially large kappa is a special case. It does not occur in practice 
-     * in cryptographic applications, as d may be presumed to be random in such 
+    /* Note that we do not account for the case where kappa is artificially
+     * large when constructing the histograms. If kappa is close to m in size,
+     * some bins will become unavailable, requiring us to compute the histogram
+     * in a slightly different way. This is explained in the papers.
+     *
+     * Artificially large kappa is a special case. It does not occur in practice
+     * in cryptographic applications, as d may be presumed to be random in such
      * applications, and as the order r may in general be assumed to be prime.
      * Also d may be randomized if necessary. */
 

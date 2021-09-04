@@ -7,19 +7,16 @@
 
 #include "plot_distribution.h"
 
+#include "common.h"
+#include "errors.h"
+#include "linear_distribution.h"
+#include "linear_distribution_slice.h"
+#include "math.h"
 #include "plot_distribution_axis.h"
 #include "plot_distribution_common.h"
 
-#include "linear_distribution.h"
-#include "linear_distribution_slice.h"
-#include "parameters.h"
-#include "common.h"
-#include "errors.h"
-
-#include "math.h"
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 void plot_linear_distribution_horizontal(
   Linear_Distribution * const distribution,
@@ -35,7 +32,7 @@ void plot_linear_distribution_horizontal(
 
   plot_linear_distribution_detailed_horizontal(
     distribution,
-    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file,
     absolute);
@@ -44,9 +41,7 @@ void plot_linear_distribution_horizontal(
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 
-  if (((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) ||
-      ((flags & LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL) != 0))
-  {
+  if ((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
     if (absolute) {
       fprintf(file,  "\\draw (%f, %f) "
         "node[above, rotate=-90] "
@@ -329,7 +324,7 @@ void plot_linear_distribution_vertical(
 
   plot_linear_distribution_detailed_vertical(
     distribution,
-    offset_x - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+    offset_x - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file);
 
@@ -337,20 +332,18 @@ void plot_linear_distribution_vertical(
   const uint32_t m = distribution->parameters.m;
   const uint32_t flags = distribution->flags;
 
-  if (((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) ||
-      ((flags & LINEAR_DISTRIBUTION_FLAG_COLLAPSED_DIAGONAL) != 0))
-  {
+  if ((flags & LINEAR_DISTRIBUTION_FLAG_R) != 0) {
     fprintf(file, "\\draw (%f, %f) node[above]"
       "{\\tiny $\\text{sgn}(\\alpha_r) \\log_2(|\\alpha_r|)$};\n",
         offset_x -
-          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
             PLOT_DISTRIBUTION_SCALE / 2.0f,
         plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m));
   } else {
     fprintf(file, "\\draw (%f, %f) node[above]"
       "{\\tiny $\\text{sgn}(\\alpha_d) \\log_2(|\\alpha_d|)$};\n",
         offset_x-
-          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) / 
+          (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
             PLOT_DISTRIBUTION_SCALE / 2.0f,
         plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m));
   }

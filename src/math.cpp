@@ -37,11 +37,35 @@ int32_t sgn_ld(const long double x) {
   return (x < 0) ? -1 : 1;
 }
 
+int32_t min_i(const int32_t a, const int32_t b) {
+  return (a < b) ? a : b;
+}
+
+uint32_t min_ui(const uint32_t a, const uint32_t b) {
+  return (a < b) ? a : b;
+}
+
+double min_d(const double a, const double b) {
+  return (a < b) ? a : b;
+}
+
+long double min_ld(const long double a, const long double b) {
+  return (a < b) ? a : b;
+}
+
 int32_t max_i(const int32_t a, const int32_t b) {
   return (a > b) ? a : b;
 }
 
 uint32_t max_ui(const uint32_t a, const uint32_t b) {
+  return (a > b) ? a : b;
+}
+
+double max_d(const double a, const double b) {
+  return (a > b) ? a : b;
+}
+
+long double max_ld(const long double a, const long double b) {
   return (a > b) ? a : b;
 }
 
@@ -52,8 +76,8 @@ void mod_reduce(mpz_t x, const mpz_t n) {
   mpz_init(tmp);
   mpz_mul_ui(tmp, x, 2); /* tmp = 2 * x */
 
-  if (mpz_cmp(tmp, n) >= 0) { /* if 2 * x >= n  <=> x >= n/2 */
-    mpz_sub(x, x, n); /* subtract n from x */
+  if (mpz_cmp(tmp, n) >= 0) { /* 2 * x >= n  <=>  x >= n/2 */
+    mpz_sub(x, x, n); /* Subtract n from x. */
   }
 
   /* Clear memory. */

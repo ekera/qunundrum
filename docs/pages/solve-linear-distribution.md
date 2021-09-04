@@ -6,7 +6,7 @@ Synopsis: mpirun solve_linear_distribution \
    [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \
       [ -closest | -enumerate ] [ -timeout <timeout> ] \
          [ -detect-smooth-order ] \
-            [ -lll | -lll-then-bkz | -bkz | -hkz ] \
+            [ -lll | -lll-then-bkz | -bkz | -hkz ] \
                <distribution> <n> { <distribution> <n> }
 ```
 
@@ -36,7 +36,7 @@ Flags specifying whether an enumeration is performed (defaults to <code>-closest
 Flags specifying whether smooth orders are detected (defaults to no detection):
 - <code>-detect-smooth-order</code> detects and leverages smooth orders when solving
 
-Flags specifying the enumeration timeout (defaults to 300s):
+Flags specifying the enumeration timeout (defaults to 300 s):
 - <code>-timeout \<timeout\></code> sets the enumeration timeout to <code>\<timeout\></code> seconds
 
 Once this timeout is elapsed the enumeration is aborted. This is reported as a failure to solve.

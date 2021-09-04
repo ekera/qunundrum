@@ -2,44 +2,47 @@
  * \file    lattice_solve.cpp
  * \ingroup lattice_solve
  *
- * \brief   The definition of functions for solving for d and r using Babai's
- *          nearest plane algorithm and lattice basis reduction techniques.
+ * \brief   The definition of functions for recovering d and r by using nearest
+ *          plane solvers, and similar techniques, that do not require
+ *          enumerating vectors in the lattice L.
  */
 
 #include "lattice_solve.h"
 
+#include "common.h"
+#include "diagonal_parameters.h"
+#include "errors.h"
 #include "lattice.h"
-#include "lattice_gso.h"
-#include "lattice_babai.h"
 #include "lattice_algebra.h"
+#include "lattice_babai.h"
+#include "lattice_gso.h"
 #include "lattice_reduce.h"
 #include "lattice_smoothness.h"
-
+#include "math.h"
 #include "parameters.h"
 #include "sample.h"
-#include "errors.h"
 #include "timer.h"
-#include "math.h"
-
-#include <fplll/fplll.h>
 
 #include <gmp.h>
 #include <mpfr.h>
 
-#include <vector>
+#include <fplll/fplll.h>
 
 #include <stdint.h>
+
+#include <vector>
 
 using namespace std;
 using namespace fplll;
 
 /*!
- * \brief A bound on the largest multiple of the last component of the 
- *        shortest vector in the reduced basis matrix of the lattice to be 
- *        added to or subtracted from the candidate for d.
- * 
- * The last component of the shortest vector in the reduced basis matrix of 
- * the lattice is expected to be a divisor of r.
+ * \brief   A bound on the largest multiple of the last component of the
+ *          shortest non-zero vector in the reduced basis to be added to or
+ *          subtracted from the candidate for d.
+ *
+ * Note that the last component of the shortest non-zero vector in the reduced
+ * lattice basis is expected to be a divisor of r when solving for an order or
+ * for a general discrete logarithm.
  */
 #define SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE 256
 
@@ -103,23 +106,8 @@ void lattice_solve_reduced_basis_for_d(
   /* Solve for the closest vector. */
   vector<Z_NR<mpz_t>> solution;
 
-  #ifdef CLOSEST_VECTOR_FPLLL
-    vector<Z_NR<mpz_t>> solution_coordinates;
-
-    status = closest_vector(A, target, solution_coordinates, flags);
-    if (0 != status) {
-      critical("lattice_solve_reduced_basis_for_d(): "
-        "Failed to find the closest vector.");
-    }
-
-    vector_matrix_product(solution, solution_coordinates, A);
-
-    /* Clear memory. */
-    solution_coordinates.clear();
-  #else
-    /* Compute the closest vector. */
-    babai_closest_vector(solution, target, G, A, n, precision);
-  #endif
+  /* Compute the closest vector. */
+  babai_closest_vector(solution, target, G, A, n, precision);
 
   /* Extract the candidate d. */
   mpz_abs(candidate_d, solution[n].get_data());
@@ -171,11 +159,17 @@ void lattice_solve_reduced_basis_for_d(
 
     /* Extract the candidate r. */
     mpz_abs(candidate_r, A[0][n].get_data());
+
+    /* Test if r is a multiple of the candidate r. */
     mpz_mod(test_r, parameters->r, candidate_r);
 
     if (mpz_cmp_ui(test_r, 0) == 0) { /* candidate_r divides r */
-      mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
-      
+      /* Let test_r be the multiple of the candidate r required to form r. */
+      mpz_div(test_r, parameters->r, candidate_r);
+        /* test_r = r / candidate_r */
+
+      /* If the multiple is greater than one but smooth, check if we have
+       * recovered d modulo the non-smooth part of r. */
       if (mpz_cmp_ui(test_r, 1) > 0) {
         if (lattice_smoothness_is_smooth(
               test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
@@ -237,23 +231,31 @@ void lattice_solve_reduced_basis_for_r(
 
   /* Extract the candidate r. */
   mpz_abs(candidate_r, A[0][n].get_data());
+
+  /* Test if r is a multiple of the candidate r. */
   mpz_mod(test_r, parameters->r, candidate_r);
 
   if (mpz_cmp_ui(test_r, 0) != 0) {
+    /* If not, we fail to recover r. */
     (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
   } else {
-    mpz_div(test_r, parameters->r, candidate_r); /* r / candidate_r */
+    /* Let test_r be the multiple of the candidate r required to form r. */
+    mpz_div(test_r, parameters->r, candidate_r); /* test_r = r / candidate_r */
 
     if (mpz_cmp_ui(test_r, 1) == 0) {
+      /* If the multiple is one, we recover r immediately. */
       (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
     } else if (mpz_cmp_ui(test_r, SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE) <= 0) {
+      /* If the multiple is small, we recover r by performing a small search. */
       (*status_r) = LATTICE_STATUS_RECOVERED_SEARCH;
-    } else if (detect_smooth_r && 
+    } else if (detect_smooth_r &&
                 lattice_smoothness_is_smooth(
                   test_r, LATTICE_SMOOTHNESS_CONSTANT_C, parameters->m))
     {
+      /* If the multiple is smooth, we recover by exponentiating to powers. */
       (*status_r) = LATTICE_STATUS_RECOVERED_IMMEDIATE_SMOOTH;
     } else {
+      /* Otherwise, we fail to recover r. */
       (*status_r) = LATTICE_STATUS_NOT_RECOVERED;
     }
   }
@@ -426,10 +428,193 @@ void lattice_solve_for_d_r(
         detect_smooth_r);
     }
 
-    /* Check if both d and r have been recovered. Note that timeouts cannot 
+    /* Check if both d and r have been recovered. Note that timeouts cannot
      * occur when solving without enumerating, so the below check suffices. */
     if ((LATTICE_STATUS_NOT_RECOVERED != (*status_d)) &&
         (LATTICE_STATUS_NOT_RECOVERED != (*status_r)))
+    {
+      break;
+    }
+
+    if (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) {
+      algorithm = REDUCTION_ALGORITHM_BKZ;
+    } else {
+      break;
+    }
+  }
+
+  /* Clear memory. */
+  A.clear();
+  G.clear();
+  M.clear();
+}
+
+void lattice_solve_reduced_basis_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const ZZ_mat<mpz_t> &A,
+  const FP_mat<mpfr_t> &G,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  const uint32_t precision)
+{
+  /* Check dimensions. */
+  if ((A.get_rows() != (int)(n + 1)) || (A.get_cols() != (int)(n + 1))) {
+    critical("lattice_solve_reduced_basis_for_d_given_r(): "
+      "Incorrect dimensions for the matrix A.");
+  }
+
+  if ((G.get_rows() != (int)(n + 1)) || (G.get_cols() != (int)(n + 1))) {
+    critical("lattice_solve_reduced_basis_for_d_given_r(): "
+      "Incorrect dimensions for the matrix G.");
+  }
+
+  /* Setup constants. */
+  mpz_t pow2m;
+  mpz_init(pow2m);
+  mpz_set_ui(pow2m, 0);
+  mpz_setbit(pow2m, parameters->m);
+
+  mpz_t rpow2lm;
+  mpz_init(rpow2lm);
+  mpz_set_ui(rpow2lm, 0);
+  mpz_setbit(rpow2lm, parameters->l + parameters->m);
+  mpz_mul(rpow2lm, rpow2lm, parameters->r);
+
+  mpz_t rpow2lsigma;
+  mpz_init(rpow2lsigma);
+  mpz_set_ui(rpow2lsigma, 0);
+  mpz_setbit(rpow2lsigma, parameters->l - parameters->sigma);
+  mpz_mul(rpow2lsigma, rpow2lsigma, parameters->r);
+
+  /* Setup variables. */
+  mpz_t candidate_d;
+  mpz_init(candidate_d);
+
+  mpz_t target_d;
+  mpz_init(target_d);
+
+  /* Setup the target vector. */
+  vector<Z_NR<mpz_t>> target;
+  target.resize(n + 1);
+
+  for (uint32_t j = 0; j < n; j++) {
+    mpz_mul(target[j].get_data(), ks[j], pow2m);
+    mpz_mul(target[j].get_data(), target[j].get_data(), parameters->r);
+    mpz_neg(target[j].get_data(), target[j].get_data());
+
+    mod_reduce(target[j].get_data(), rpow2lm);
+  }
+
+  mpz_set_ui(target[n].get_data(), 0);
+
+  /* Solve for the closest vector. */
+  vector<Z_NR<mpz_t>> solution;
+
+  /* Compute the closest vector. */
+  babai_closest_vector(solution, target, G, A, n, precision);
+
+  /* Compute the target. */
+  mpz_mul(target_d, parameters->d, parameters->r);
+
+  /* Extract the candidate d. */
+  mpz_abs(candidate_d, solution[n].get_data());
+
+  if (mpz_cmp(candidate_d, target_d) == 0) {
+    (*status_d) = LATTICE_STATUS_RECOVERED_IMMEDIATE;
+  } else {
+    /* Setup variables. */
+    mpz_t multiple;
+    mpz_init(multiple);
+
+    mpz_t tmp_d;
+    mpz_init(tmp_d);
+
+    (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
+
+    mpz_set(candidate_d, solution[n].get_data());
+
+    for (uint32_t i = 1; i <= SEARCH_BOUND_SHORTEST_VECTOR_MULTIPLE; i++) {
+      mpz_mul_ui(multiple, A[0][n].get_data(), i);
+
+      mpz_add(tmp_d, candidate_d, multiple);
+      mpz_abs(tmp_d, tmp_d);
+      if (mpz_cmp(tmp_d, target_d) == 0) {
+        (*status_d) = LATTICE_STATUS_RECOVERED_SEARCH;
+        break;
+      }
+
+      mpz_sub(tmp_d, candidate_d, multiple);
+      mpz_abs(tmp_d, tmp_d);
+      if (mpz_cmp(tmp_d, target_d) == 0) {
+        (*status_d) = LATTICE_STATUS_RECOVERED_SEARCH;
+        break;
+      }
+    }
+
+    /* Clear memory. */
+    mpz_clear(multiple);
+    mpz_clear(tmp_d);
+  }
+
+  /* Clear memory. */
+  target.clear();
+  solution.clear();
+
+  mpz_clear(pow2m);
+  mpz_clear(rpow2lm);
+  mpz_clear(rpow2lsigma);
+
+  mpz_clear(target_d);
+  mpz_clear(candidate_d);
+}
+
+void lattice_solve_for_d_given_r(
+  Lattice_Status_Recovery * const status_d,
+  const mpz_t * const js,
+  const mpz_t * const ks,
+  const uint32_t n,
+  const Diagonal_Parameters * const parameters,
+  Lattice_Reduction_Algorithm algorithm,
+  const uint32_t precision)
+{
+  /* Setup the A matrix. */
+  ZZ_mat<mpz_t> A(n + 1, n + 1);
+
+  /* Setup the Gram-Schmidt matrices. */
+  FP_mat<mpfr_t> G(n + 1, n + 1);
+  FP_mat<mpfr_t> M(n + 1, n + 1);
+
+  /* Initially set the status to not recovered. */
+  (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
+
+  while (TRUE) {
+    /* Reduce the A matrix. */
+    lattice_compute_reduced_diagonal_basis(
+      A,
+      js,
+      n,
+      parameters,
+      (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) ?
+        REDUCTION_ALGORITHM_LLL : algorithm,
+      2 * parameters->m); /* red_precision */
+
+    if (LATTICE_STATUS_NOT_RECOVERED == (*status_d)) {
+      /* Compute the Gram-Schmidt matrices. */
+      gram_schmidt_orthogonalization(M, G, A, n, precision);
+
+      /* Solve for d. */
+      lattice_solve_reduced_basis_for_d_given_r(
+        status_d,
+        A,
+        G,
+        ks,
+        n,
+        parameters,
+        precision);
+    }
+
+    if (LATTICE_STATUS_NOT_RECOVERED != (*status_d))
     {
       break;
     }

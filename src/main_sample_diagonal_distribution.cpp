@@ -3,7 +3,8 @@
  * \ingroup sample_diagonal_distribution_exe
  *
  * \brief   The definition of the main entry point to the
- *          sample_diagonal_distribution executable, and of associated functions.
+ *          sample_diagonal_distribution executable, and of associated
+ *          functions.
  */
 
 /*!
@@ -14,24 +15,20 @@
  * \brief    A module for the sample_diagonal_distribution executable.
  */
 
-#include "diagonal_distribution.h"
-#include "sample.h"
-#include "random.h"
 #include "common.h"
+#include "diagonal_distribution.h"
+#include "math.h"
+#include "random.h"
+#include "sample.h"
 
-#include "errors.h"
-
-#include <mpfr.h>
 #include <gmp.h>
+#include <mpfr.h>
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include <unistd.h>
-
-#include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   Prints the command line synopsis.
@@ -87,7 +84,7 @@ int main(int argc, char ** argv) {
   uint32_t n = 1000;
 
   if (3 == argc) {
-    int tmp = atoi(argv[2]);
+    const int tmp = atoi(argv[2]);
 
     if (tmp < 1) {
       fprintf(stderr, "Error: Failed to parse <n>.\n");
@@ -128,33 +125,49 @@ int main(int argc, char ** argv) {
   mpz_t k;
   mpz_init(k);
 
+  mpz_t tmp;
+  mpz_init(tmp);
+
   for (uint32_t i = 0; i < n; i++) {
     printf("sample: %u / %u\n", i + 1, n);
 
     bool result;
 
-    result = diagonal_distribution_sample_alpha_d_r(
+    result = diagonal_distribution_sample_pair_j_k(
       &distribution,
       &random_state,
-      alpha_d,
-      alpha_r);
+      j,
+      k);
 
     if (TRUE != result) {
       printf("*** out of bounds\n\n");
       continue;
     }
 
+    /* Compute alpha_r. */
+    mpz_mul(alpha_r, distribution.parameters.r, j);
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m + distribution.parameters.sigma);
+    mod_reduce(alpha_r, tmp);
+
+    /* Compute alpha_d. */
+    mpz_mul(alpha_d, distribution.parameters.d, j);
+
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m +
+                    distribution.parameters.sigma -
+                    distribution.parameters.l);
+    mpz_mul(tmp, tmp, k);
+
+    mpz_add(alpha_d, alpha_d, tmp);
+
+    mpz_set_ui(tmp, 0);
+    mpz_setbit(tmp, distribution.parameters.m + distribution.parameters.sigma);
+    mod_reduce(alpha_d, tmp);
+
+    /* Perform the printout. */
     gmp_printf("alpha_d: %Zd\n", alpha_d);
     gmp_printf("alpha_r: %Zd\n", alpha_r);
-
-    sample_j_k_from_diagonal_alpha_d_r(
-      j,
-      k,
-      alpha_d,
-      alpha_r,
-      &(distribution.parameters),
-      &random_state);
-
 
     gmp_printf("j: %Zd\n", j);
     gmp_printf("k: %Zd\n", k);
@@ -172,7 +185,9 @@ int main(int argc, char ** argv) {
   mpz_clear(j);
   mpz_clear(k);
 
+  mpz_clear(tmp);
+
   diagonal_distribution_clear(&distribution);
-  
+
   return 0;
 }

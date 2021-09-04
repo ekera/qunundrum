@@ -8,10 +8,11 @@
 
 #include "gmp_mpi.h"
 
-#include "errors.h"
 #include "common.h"
+#include "errors.h"
 
 #include <gmp.h>
+
 #include <mpi.h>
 
 #include <stdint.h>

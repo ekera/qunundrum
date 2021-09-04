@@ -15,6 +15,7 @@
 #ifndef SAMPLE_H
 #define SAMPLE_H
 
+#include "diagonal_parameters.h"
 #include "parameters.h"
 #include "random.h"
 
@@ -36,7 +37,7 @@
  * \param[in, out] alpha          The argument alpha sampled.
  * \param[in] min_log_alpha       The minimum signed logarithmic alpha.
  * \param[in] max_log_alpha       The maximum signed logarithmic alpha.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_approximate_alpha_from_region(
   mpfr_t alpha,
@@ -51,15 +52,15 @@ void sample_approximate_alpha_from_region(
  * Alpha is sampled with high precision, uniformly at random from the interval
  *
  *  [2^abs(min_log_alpha), 2^abs(max_log_alpha)),
- * 
- * after which alpha is reduced by (alpha % 2^kappa) to ensure that that 
+ *
+ * after which alpha is reduced by (alpha % 2^kappa) to ensure that that
  * alpha is admissible. The sign is then flipped if min_log_alpha is negative.
  *
  * \param[in, out] alpha          The argument alpha sampled.
  * \param[in] min_log_alpha       The minimum signed logarithmic alpha.
  * \param[in] max_log_alpha       The maximum signed logarithmic alpha.
  * \param[in] kappa               The integer kappa.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_alpha_from_region(
   mpz_t alpha,
@@ -88,7 +89,7 @@ void sample_alpha_from_region(
  * \param[in, out] j              The integer j.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_from_alpha_r(
   mpz_t j,
@@ -108,7 +109,7 @@ void sample_j_from_alpha_r(
  * \param[in, out] k              The integer k.
  * \param[in] alpha_d             The argument alpha_d.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_k_from_alpha_d(
   mpz_t j,
@@ -119,14 +120,14 @@ void sample_j_k_from_alpha_d(
 
 /*!
  * \brief   Samples an integer pair (j, k) uniformly at random from the set of
- *          all pairs that yield the admissible argument pair 
+ *          all pairs that yield the admissible argument pair
  *          (alpha_d, alpha_r).
  *
  * This function assumes (alpha_d, alpha_r) to be from a two-dimensional
  * distribution. The argument pair must be admissible. You may use lattice-based
- * techniques to map high resolution independent estimate of alpha_d and 
- * alpha_r, respectively, to an admissible pair (alpha_d, alpha_r), from which 
- * (j, k) may then be sampled using this function. Calling this function with 
+ * techniques to map high resolution independent estimate of alpha_d and
+ * alpha_r, respectively, to an admissible pair (alpha_d, alpha_r), from which
+ * (j, k) may then be sampled using this function. Calling this function with
  * inadmissible argument pairs may produce unexpected behavior.
  *
  * \param[in, out] j              The integer j.
@@ -134,7 +135,7 @@ void sample_j_k_from_alpha_d(
  * \param[in] alpha_d             The argument alpha_d.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
 void sample_j_k_from_alpha_d_r(
   mpz_t j,
@@ -145,25 +146,20 @@ void sample_j_k_from_alpha_d_r(
   Random_State * const random_state);
 
 /*!
- * \brief   Samples an integer pair (j, k) uniformly at random from the set of 
- *          all pairs (j, k) that yield the admissible argument pair 
- *          (alpha_d, alpha_r).
+ * \brief   Samples an integer j uniformly at random from the set of all
+ *          integers j that yield the admissible argument alpha_r.
  *
- * This function assumes (alpha_d, alpha_r) to be from a diagonal distribution.
+ * This function assumes alpha_r to be from a diagonal distribution.
  *
  * \param[in, out] j              The integer j.
- * \param[in, out] k              The integer k.
- * \param[in] alpha_d             The argument alpha_d.
  * \param[in] alpha_r             The argument alpha_r.
  * \param[in] parameters          The probability distribution parameters.
- * \param[in, out] random_state   The random state to use to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
  */
-void sample_j_k_from_diagonal_alpha_d_r(
+void sample_j_from_diagonal_alpha_r(
   mpz_t j,
-  mpz_t k,
-  const mpz_t alpha_d,
   const mpz_t alpha_r,
-  const Parameters * const parameters,
+  const Diagonal_Parameters * const parameters,
   Random_State * const random_state);
 
 /*!

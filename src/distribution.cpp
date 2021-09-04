@@ -8,17 +8,20 @@
 
 #include "distribution.h"
 
-#include "distribution_enumerator.h"
+#include "common.h"
 #include "distribution_slice.h"
-#include "parameters.h"
-#include "probability.h"
-#include "sample.h"
-#include "lattice_sample.h"
-#include "random.h"
 #include "errors.h"
+#include "lattice_sample.h"
 #include "math.h"
+#include "parameters.h"
+#include "random.h"
+#include "sample.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -222,25 +225,25 @@ bool distribution_replace_slice(
 }
 
 /*!
- * \brief Compares two slices with respect to the total probability they 
+ * \brief Compares two slices with respect to the total probability they
  *        capture, for the purpose of enabling slices to be sorted in descending
  *        order with qsort().
- * 
+ *
  * \param[in] a   A pointer to a pointer to the first slice.
  * \param[in] b   A pointer to a pointer to the second slice.
- * 
- * \return Returns -1 if the total probability captured by the first slice is 
- *         greater than that captured by the second slice, 1 if the inverse is 
+ *
+ * \return Returns -1 if the total probability captured by the first slice is
+ *         greater than that captured by the second slice, 1 if the inverse is
  *         true, and 0 if the probabilities are equal.
  */
 static int distribution_sort_slices_cmp(
   const void * const a,
   const void * const b)
 {
-  const Distribution_Slice * const slice_a = 
+  const Distribution_Slice * const slice_a =
     *((const Distribution_Slice * const *)a);
 
-  const Distribution_Slice * const slice_b = 
+  const Distribution_Slice * const slice_b =
     *((const Distribution_Slice * const *)b);
 
   if ((slice_a->total_probability) > (slice_b->total_probability)) {
@@ -260,9 +263,9 @@ void distribution_sort_slices(
   }
 
   qsort(
-    distribution->slices, 
-    distribution->count, 
-    sizeof(Distribution_Slice *), 
+    distribution->slices,
+    distribution->count,
+    sizeof(Distribution_Slice *),
     distribution_sort_slices_cmp);
 }
 
@@ -365,7 +368,7 @@ const Distribution_Slice * distribution_sample_slice(
     "Debug: Sampled pivot: %Lf\n", pivot);
   #endif
 
-  /* Normalize if the total probability exceeds one. Of course, this should 
+  /* Normalize if the total probability exceeds one. Of course, this should
    * never occur in practice, unless the dimension that controls the resolution
    * of the distribution is set very low. This check handles such cases. */
   if (distribution->total_probability > 1) {

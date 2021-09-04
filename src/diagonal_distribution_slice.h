@@ -17,10 +17,11 @@
 #ifndef DIAGONAL_DISTRIBUTION_SLICE_H
 #define DIAGONAL_DISTRIBUTION_SLICE_H
 
-#include "probability.h"
-#include "parameters.h"
+#include "diagonal_parameters.h"
+#include "random.h"
 
 #include <stdint.h>
+#include <stdio.h>
 
 /*!
  * \brief   A data structure representing slices in diagonal probability
@@ -40,19 +41,12 @@ typedef struct {
    * \brief   The minimum signed logarithmic alpha_r-coordinate of the slice.
    *
    * The slice covers the interval
-   * 
+   *
    *    [sgn abs(min_log_alpha_r), sgn (abs(min_log_alpha_r) + 1))
-   * 
+   *
    * where sgn = sgn(min_log_alpha_r).
    */
   int32_t min_log_alpha_r;
-
-  /*!
-   * \brief   The offset from the optimal value of alpha_d.
-   *
-   * The argument alpha_d(alpha_r) = round( (d/r) alpha_r ) + offset_alpha_d.
-   */
-  int32_t offset_alpha_d;
 
   /*!
    * \brief   The total probability mass summed over all regions in the slice.
@@ -292,37 +286,29 @@ void diagonal_distribution_slice_bcast_send(
 /*!
  * \brief Computes a slice using Simpson's method of numerical integration.
  *
- * \remark  This function is still a work in progress. It is quite sensitive
- *          precision-wise, in that small changes in alpha_d have large impact
- *          on the probability obtained for a given alpha_r.
- * 
  * \param[in, out] slice      The slice to compute.
  * \param[in] parameters      The parameters for which to compute the slice.
  * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the
  *                            slice to compute.
- * \param[in] offset_alpha_d  The offset from the optimal value of alpha_d.
  */
 void diagonal_distribution_slice_compute(
   Diagonal_Distribution_Slice * const slice,
-  const Parameters * const parameters,
-  const int32_t min_log_alpha_r,
-  const int32_t offset_alpha_d);
+  const Diagonal_Parameters * const parameters,
+  const int32_t min_log_alpha_r);
 
 /*!
- * \brief Computes a slice using Simpson's method of numerical integration, 
+ * \brief Computes a slice using Simpson's method of numerical integration,
  *        followed by Richardson-extrapolation to cancel linear error terms.
  *
  * \param[in, out] slice      The slice to compute.
  * \param[in] parameters      The parameters for which to compute the slice.
- * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the 
+ * \param[in] min_log_alpha_r The signed logarithmic alpha_r-coordinate of the
  *                            slice to compute.
- * \param[in] offset_alpha_d  The offset from the optimal value of alpha_d.
  */
 void diagonal_distribution_slice_compute_richardson(
   Diagonal_Distribution_Slice * const slice,
-  const Parameters * const parameters,
-  const int32_t min_log_alpha_r,
-  const int32_t offset_alpha_d);
+  const Diagonal_Parameters * const parameters,
+  const int32_t min_log_alpha_r);
 
 /*!
  * \}
@@ -338,18 +324,15 @@ void diagonal_distribution_slice_compute_richardson(
  *
  * \param[in] slice             The slice for which to return the coordinates.
  *
- * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] offset_alpha_d   The offset from the optimal value of alpha_d.
- *                              May be set to NULL if the offset is not needed.
  */
 void diagonal_distribution_slice_coordinates(
   const Diagonal_Distribution_Slice * const slice,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r,
-  int32_t * const offset_alpha_d);
+  double * const max_log_alpha_r);
 
 /*!
  * \brief   Returns the coordinates of j:th region in the slice in the signed
@@ -360,19 +343,16 @@ void diagonal_distribution_slice_coordinates(
  *                              index in the norm vector stored in the data
  *                              structure for the slice.
  *
- * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be 
+ * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be 
+ * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r. May be
  *                              set to NULL if this coordinate is not needed.
- * \param[out] offset_alpha_d   The offset from the optimal value of alpha_d.
- *                              May be set to NULL if the offset is not needed.
  */
 void diagonal_distribution_slice_region_coordinates(
   const Diagonal_Distribution_Slice * const slice,
   const uint32_t j,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r,
-  int32_t * const offset_alpha_d);
+  double * const max_log_alpha_r);
 
 /*!
  * \}
@@ -391,14 +371,12 @@ void diagonal_distribution_slice_region_coordinates(
  *
  * \param[out] min_log_alpha_r  The minimum signed logarithmic alpha_r.
  * \param[out] max_log_alpha_r  The maximum signed logarithmic alpha_r.
- * \param[out] offset_alpha_d  The offset from the optimal value of alpha_d.
  */
 void diagonal_distribution_slice_sample_region(
   const Diagonal_Distribution_Slice * const slice,
   Random_State * const random_state,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r,
-  int32_t * const offset_alpha_d);
+  double * const max_log_alpha_r);
 
 /*!
  * \}

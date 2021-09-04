@@ -20,6 +20,7 @@ obj/test/*.o
 /solve_distribution
 /solve_linear_distribution
 /solve_linear_distribution_shor
+/solve_diagonal_distribution
 /solve_diagonal_distribution_shor
 /info_distribution
 /info_linear_distribution

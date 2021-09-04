@@ -15,27 +15,25 @@
 
 #include "executables.h"
 
-#include "string_utilities.h"
+#include "common.h"
+#include "errors.h"
 #include "gmp_mpi.h"
 #include "random.h"
-#include "errors.h"
-#include "common.h"
 #include "rsa.h"
+#include "string_utilities.h"
+
+#include <gmp.h>
+#include <mpfr.h>
 
 #include <mpi.h>
 
-#include <mpfr.h>
-#include <gmp.h>
-
 #include <stdint.h>
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <unistd.h>
-
 #include <sys/stat.h>
-#include <sys/types.h>
 
 /*!
  * \brief   The maximum tau for which to collect statistics.
@@ -135,12 +133,12 @@ static void main_client()
   }
 
   uint32_t primes_count = 0;
-  
+
   uint32_t * sieve = (uint32_t *)malloc(MAX_PRIME * sizeof(uint32_t));
   if (NULL == sieve) {
       critical("main_client(): Failed to allocate memory.");
   }
-  
+
   for (uint32_t i = 2; i < MAX_PRIME; i++) {
     sieve[i] = i;
   }
@@ -159,7 +157,7 @@ static void main_client()
 
   free(sieve);
   sieve = NULL;
-  
+
   while (TRUE) {
     /* Receive job. */
     uint32_t job;
@@ -193,7 +191,7 @@ static void main_client()
       rsa_generate_modulus(
         p, q, modulus_length, check_modulus_size, &random_state);
       mpz_mul(N, p, q);
-      
+
       /* Pick a generator. */
       while (TRUE) {
         random_generate_mpz(g, N, &random_state);
@@ -221,14 +219,14 @@ static void main_client()
 
         mpz_div_ui(tmp, r, primes[j]);
         mpz_powm(tmp, g, tmp, N);
-        
+
         if (0 == mpz_cmp_ui(tmp, 1)) {
           mpz_div_ui(r, r, primes[j]); /* Remove prime from r. */
         } else {
           j++; /* Process next prime. */
         }
       }
-  
+
       /* Test the size of the order. */
       mpz_sub_ui(d, p, 1);
       mpz_sub_ui(tmp, q, 1);
@@ -290,7 +288,7 @@ static void main_client()
  * This function is called once by main().
  *
  * \param[in] modulus_length      The modulus length in bits.
- * \param[in] check_modulus_size  A flag that should be set to #TRUE if the 
+ * \param[in] check_modulus_size  A flag that should be set to #TRUE if the
  *                                modulus must be of length exactly n bit, and
  *                                to #FALSE otherwise.
  * \param[in] records             The number of records to generate.
@@ -409,7 +407,7 @@ static void main_server(
     }
 
     if (count > 0) {
-      printf("Total Count: %u / %u\n", 
+      printf("Total Count: %u / %u\n",
         count * SAMPLES_PER_RECORD, records * SAMPLES_PER_RECORD);
 
       for (uint32_t tau = 0; tau <= MAX_TAU; tau++) {
@@ -509,7 +507,7 @@ static void main_server(
  *
  * \param[in, out] modulus_length     The modulus length in bits.
  * \param[in, out] check_modulus_size A flag that is set to #TRUE if the modulus
- *                                    must be of length exactly n bit, and to 
+ *                                    must be of length exactly n bit, and to
  *                                    #FALSE otherwise.
  * \param[in, out] records            The number of records.
  *
@@ -519,7 +517,7 @@ static void main_server(
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
  * \return   #TRUE if the command line arguments were successfully parsed,
@@ -537,7 +535,7 @@ static bool parse_command_line(
     fprintf(stderr, "Error: Incorrect command line arguments.\n");
     return FALSE;
   }
-  
+
   uint32_t argv_offset = 1;
 
   if (4 == argc) {
@@ -596,7 +594,8 @@ static void print_synopsis(
     "<modulus_length>/2. You must \n");
   fprintf(file, "specify an even value for <modulus_length>. A total of "
     "%u * <records>\n", SAMPLES_PER_RECORD);
-  fprintf(file, "random moduli N are generated when statistics is collected.\n");
+  fprintf(file, "random moduli N are generated when statistics is "
+    "collected.\n");
 }
 
 /*!
@@ -666,7 +665,7 @@ int main(int argc, char ** argv) {
         &modulus_length, &check_modulus_size, &records, argc, argv);
   }
 
-  if (MPI_SUCCESS != 
+  if (MPI_SUCCESS !=
     MPI_Bcast(&result, 1, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
   {
     critical("main(): "

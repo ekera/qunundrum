@@ -7,14 +7,12 @@
 
 #include "plot_distribution_axis.h"
 
+#include "common.h"
+#include "math.h"
 #include "plot_distribution_common.h"
 
-#include "common.h"
-
-#include "math.h"
-
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 void plot_distribution_vertical_axis(
   const double x,

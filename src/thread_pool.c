@@ -9,10 +9,10 @@
 
 #include "errors.h"
 
-#include <pthread.h>
-
-#include <string.h>
 #include <stdint.h>
+#include <string.h>
+
+#include <pthread.h>
 
 void thread_pool_init(
   Thread_Pool * const pool)
