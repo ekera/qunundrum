@@ -517,7 +517,7 @@ static void main_server(
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
  * \return   #TRUE if the command line arguments were successfully parsed,

@@ -611,12 +611,12 @@ main_server_clear:
  * \remark   So as to allow parallelized executables to be shut down gracefully,
  *           this function does not call critical() to signal a critical error.
  *           Rather it prints an informative error message to stderr and returns
- *           False. When returning False, this function expects the caller to
+ *           #FALSE. When returning #FALSE, this function expects the caller to
  *           terminate the executable.
  *
- * \return   True if the command line arguments were successfully parsed, False
- *           otherwise. If False is returned, the data structure may be only
- *           partially initialized and memory only partially allocated.
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
   Estimate_Runs_Distribution_Arguments * const arguments,

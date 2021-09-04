@@ -53,7 +53,7 @@ void test_mpz_load(
  * \param[in] a   The long double a.
  * \param[in] b   The long double b.
  *
- * \return  True if the doubles are equal or almost equal, false otherwise.
+ * \return  #TRUE if the doubles are equal or almost equal, #FALSE otherwise.
  */
 bool test_cmp_ld(
   const long double a,
@@ -73,8 +73,8 @@ bool test_cmp_ld(
  * \param[in] b           The long double b.
  * \param[in] tolerance   The tolerance.
  *
- * \return  True if the doubles are equal or almost equal as defined by the
- *          tolerance, false otherwise.
+ * \return  #TRUE if the doubles are equal or almost equal as defined by the
+ *          tolerance, #FALSE otherwise.
  */
 bool test_cmp_tol_ld(
   const long double a,

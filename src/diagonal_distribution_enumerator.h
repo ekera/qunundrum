@@ -125,7 +125,7 @@ void diagonal_distribution_enumerator_clear(
  *                              logarithmic alpha_r-coordinate of the slice.
  * \param[in] enumerator        An initialized enumerator.
  *
- * \return True if the coordinate of the next slice was returned, False
+ * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.
  */
 bool diagonal_distribution_enumerator_next(

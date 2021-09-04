@@ -125,7 +125,7 @@ void linear_distribution_enumerator_clear(
  *                            logarithmic alpha_d- or alpha_r-coordinate.
  * \param[in] enumerator      An initialized enumerator.
  *
- * \return True if the coordinate of the next slice was returned, False
+ * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.
  */
 bool linear_distribution_enumerator_next(

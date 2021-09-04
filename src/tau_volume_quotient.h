@@ -48,7 +48,7 @@
  *                    the last component of the sum to 2^m.
  * \param[in, out] v  The volume quotient estimate.
  *
- * \return  True if the volume quotient is less than two, false otherwise.
+ * \return  #TRUE if the volume quotient is less than two, #FALSE otherwise.
  */
 bool tau_volume_quotient(
   const uint32_t m,
