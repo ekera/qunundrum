@@ -1090,18 +1090,18 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
     /* Execute the enumeration. */
     (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
 
-    mpz_t min_d;
-    mpz_init(min_d);
-    mpz_set_ui(min_d, 0); /* min_d = 0 */
+    mpz_t min_dr;
+    mpz_init(min_dr);
+    mpz_set_ui(min_dr, 0); /* min_dr = 0 */
 
-    mpz_t max_d;
-    mpz_init(max_d);
-    mpz_set_ui(max_d, 0);
-    mpz_setbit(max_d, 2 * parameters->m); /* max_d = 2^(2m) > d * r */
+    mpz_t max_dr;
+    mpz_init(max_dr);
+    mpz_set_ui(max_dr, 0);
+    mpz_setbit(max_dr, 2 * parameters->m); /* max_dr = 2^(2m) > d * r */
 
-    mpz_t d;
-    mpz_init(d);
-    mpz_mul(d, parameters->d, parameters->r);
+    mpz_t dr;
+    mpz_init(dr);
+    mpz_mul(dr, parameters->d, parameters->r);
 
     for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
       lattice_enumerate_inner(
@@ -1114,9 +1114,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
         M,
         n + 1, /* = k */
         n,
-        min_d,
-        max_d,
-        d,
+        min_dr,
+        max_dr,
+        dr,
         parameters->m, /* = m */
         precision,
         FALSE, /* = detect_smooth */
@@ -1139,9 +1139,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
     }
 
     /* Clear memory. */
-    mpz_clear(d);
-    mpz_clear(min_d);
-    mpz_clear(max_d);
+    mpz_clear(dr);
+    mpz_clear(min_dr);
+    mpz_clear(max_dr);
 
     cu_coordinates.clear();
 
