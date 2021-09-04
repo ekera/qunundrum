@@ -364,7 +364,7 @@ static void main_server(
     distribution->parameters.sigma,
     distribution->parameters.s,
     distribution->parameters.l,
-    1,
+    1, /* = n */
     TRUE); /* = has_sigma */
 
   /* The number of currently running client nodes. */

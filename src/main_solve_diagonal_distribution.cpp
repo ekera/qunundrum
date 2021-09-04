@@ -52,7 +52,7 @@
  */
 typedef struct {
   /*!
-   * \brief   The parameter m.
+   * \brief   The parameter n.
    */
   uint32_t n;
 
@@ -268,7 +268,7 @@ static bool arguments_init_parse_command_line(
     arguments->timeout = 300;
   }
 
-  /* Parse tuples {<distribution> <n>}. */
+  /* Parse tuples { <distribution> <n> }. */
   if (((argc - i) <= 0) || (0 != ((argc - i) % 2))) {
     fprintf(stderr, "Error: Incorrect command line arguments; expected tuples "
       "but found an odd number of arguments.\n");
@@ -567,10 +567,10 @@ static void main_server(
 
     /* If a solution is done, receive the solution, otherwise proceed. */
     if (MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS == notification) {
-      uint32_t sample_count;
+      uint32_t tmp_n;
 
       if (MPI_SUCCESS != MPI_Recv(
-          &sample_count,
+          &tmp_n,
           1, /* count */
           MPI_UNSIGNED,
           status.MPI_SOURCE,
@@ -578,10 +578,10 @@ static void main_server(
           MPI_COMM_WORLD,
           MPI_STATUS_IGNORE))
       {
-        critical("main_server(): Failed to receive the sample count.");
+        critical("main_server(): Failed to receive n.");
       }
 
-      if (sample_count == solution_status.n) {
+      if (tmp_n == solution_status.n) {
         /* Update the solution status data structure. */
         solution_status.fail_count++;
         solution_status.fail_out_of_bounds_count++;
@@ -767,7 +767,7 @@ static void main_server(
           MPI_TAG_SAMPLE_COUNT,
           MPI_COMM_WORLD))
       {
-        critical("main_server(): Failed to send the sample count.");
+        critical("main_server(): Failed to send n.");
       }
     }
   }
@@ -824,10 +824,10 @@ static void main_server(
 
       /* Ignore the solution as we are to shut down the node. */
     } else if (MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS == notification) {
-      uint32_t samples_count;
+      uint32_t tmp_n;
 
       if (MPI_SUCCESS != MPI_Recv(
-          &samples_count,
+          &tmp_n,
           1, /* count */
           MPI_UNSIGNED,
           status.MPI_SOURCE,
@@ -835,10 +835,10 @@ static void main_server(
           MPI_COMM_WORLD,
           MPI_STATUS_IGNORE))
       {
-        critical("main_server(): Failed to receive the sample count.");
+        critical("main_server(): Failed to receive n.");
       }
 
-      (void)samples_count;
+      (void)tmp_n;
 
       /* Ignore the sampling error as we are to shut down the node. */
     } else if (MPI_NOTIFY_READY != notification) {
@@ -949,7 +949,7 @@ static void main_client(
       critical("main_client(): Unknown job (%u).", job);
     }
 
-    /* Receive the number of regions n to sample. */
+    /* Receive the number n of pairs (j, k) to sample. */
     uint32_t n;
 
     if (MPI_SUCCESS != MPI_Recv(
@@ -961,7 +961,7 @@ static void main_client(
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_client(): Failed to receive the sample count.");
+      critical("main_client(): Failed to receive n.");
     }
 
     /* Sample. */
@@ -1027,7 +1027,7 @@ static void main_client(
           MPI_TAG_SAMPLE_COUNT,
           MPI_COMM_WORLD))
       {
-        critical("main_client(): Failed to send the sample count.");
+        critical("main_client(): Failed to send n.");
       }
 
       continue;
