@@ -10,7 +10,7 @@ Synopsis: mpirun generate_diagonal_distribution \
 
 Computes a part of the distribution induced by Shor's algorithm for computing general discrete logarithms when modified as in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf).
 
-The full distribution is two-dimensional in (alpha_d, alpha_r), or equivalently, in(theta_d, theta_r).
+The full distribution is two-dimensional in (alpha_d, alpha_r), or equivalently, in (theta_d, theta_r).
 
 This executable computes and stores a one-dimensional distribution in alpha_r using the expression for f(theta_r) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf). The distribution in phi = theta_d - d/r theta_r is computed on the fly using the expression for h(phi) given in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) by the executables that use the distribution.
 

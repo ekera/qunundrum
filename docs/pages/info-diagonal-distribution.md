@@ -14,7 +14,7 @@ An entry <code>\<distribution\></code> where
 ## Interpreting the output
 The console output contains information on the format
 ```console
-$ ./info_diagonal_distribution distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-2-s-1.txt 
+$ ./info_diagonal_distribution distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-2-s-1.txt
 Importing the distribution from "distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-2-s-1.txt"...
 Done importing the distribution.
 

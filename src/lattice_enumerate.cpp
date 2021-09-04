@@ -1201,10 +1201,10 @@ void lattice_enumerate_reduced_basis_for_r(
       mpfr_mul(tmp, G[i][j].get_data(), G[i][j].get_data(), MPFR_RNDN);
 
       mpfr_add(
-          G_square_norms[i].get_data(),
-          G_square_norms[i].get_data(),
-          tmp,
-          MPFR_RNDN);
+        G_square_norms[i].get_data(),
+        G_square_norms[i].get_data(),
+        tmp,
+        MPFR_RNDN);
     }
   }
 

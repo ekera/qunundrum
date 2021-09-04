@@ -31,13 +31,13 @@ Searching over t as proposed in [[E19p]](https://arxiv.org/pdf/1905.09084.pdf) i
 The log file <code>logs/solve-diagonal-shor.txt</code> is on the format
 ```
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
-m: 2048 sigma: 0 s: 1 n: 1 -- success: 640 -- fail: 360 (198) -- prepare:     3.350 ms solve:     0.144 ms [    0.067,     0.732] 
+m: 2048 sigma: 0 s: 1 n: 1 -- success: 640 -- fail: 360 (198) -- prepare:     3.350 ms solve:     0.144 ms [    0.067,     0.732]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-1-s-1.txt
-m: 2048 sigma: 1 s: 1 n: 1 -- success: 833 -- fail: 167 (82) -- prepare:     3.310 ms solve:     0.170 ms [    0.070,     1.568] 
+m: 2048 sigma: 1 s: 1 n: 1 -- success: 833 -- fail: 167 (82) -- prepare:     3.310 ms solve:     0.170 ms [    0.070,     1.568]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-2-s-1.txt
-m: 2048 sigma: 2 s: 1 n: 1 -- success: 896 -- fail: 104 (43) -- prepare:     4.097 ms solve:     0.171 ms [    0.073,     0.278] 
+m: 2048 sigma: 2 s: 1 n: 1 -- success: 896 -- fail: 104 (43) -- prepare:     4.097 ms solve:     0.171 ms [    0.073,     0.278]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-5-s-1.txt
 m: 2048 sigma: 5 s: 1 n: 1 -- success: 991 -- fail: 9 (6) -- prepare:     3.713 ms solve:     0.178 ms [    0.107,     5.578]
