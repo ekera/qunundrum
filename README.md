@@ -1,7 +1,7 @@
 <a href="README.md">![Qunundrum](./docs/pages/images/qunundrum.png)</a>
 
 # Qunundrum
-This repository contains the source code of MPI programs for computing the probability distributions induced by:
+This repository contains MPI programs for computing the probability distributions induced by:
 
 * Shor's order-finding algorithm [[Shor94]](https://doi.org/10.1109/SFCS.1994.365700) [[Shor97]](https://doi.org/10.1137/S0097539795293172)
 * Seifert's order-finding algorithm with tradeoffs [[Seifert01]](https://doi.org/10.1007/3-540-45353-9_24)
@@ -24,7 +24,7 @@ Note that the quantum circuit required to implement the group operation for elli
 ![Algorithm comparisons for a 128 bit classical strength level](./docs/pages/images/algorithm-comparison.png)
 
 ### Remarks
-Note that the source code in this repository was developed for academic research purposes. It grew out of our research project in an organic manner as research questions were posed and answered. It is distributed "as is" without warranty of any kind, either expressed or implied. For further details on the terms of use, see the [license](LICENSE.md).
+Note that the source code in this repository was developed for academic research purposes. It grew out of our research project in an organic manner as research questions were posed and answered. It is distributed "as is" without warranty of any kind, either expressed or implied. For further details, see the [license](LICENSE.md).
 
 It is possible to further optimize portions of the code. However, the current code performs sufficiently well for our purposes. Note furthermore that the portions of the code that pertain to Shor's original algorithm for computing general discrete logarithms are based on a heuristic that lacks an error bound. These portions, and the heuristic, are currently a work in progress.
 
@@ -149,6 +149,6 @@ For further details, please see the documentation for
 ## About and acknowledgments
 This source code was developed by [Martin Ekerå](mailto:ekera@kth.se), in part at [KTH, the Royal Institute of Technology](https://www.kth.se/en), in Stockholm, [Sweden](https://www.sweden.se). Valuable comments and advice were provided by Johan Håstad throughout the development process.
 
-Funding and support for this work was provided by the Swedish NCSA that is a part of the [Swedish Armed Forces](https://www.mil.se).
+Funding and support was provided by the Swedish NCSA that is a part of the [Swedish Armed Forces](https://www.mil.se).
 
 Computations were performed on the [Beskow Cray XC40](https://www.pdc.kth.se/hpc-services/computing-systems/beskow) supercomputer and its pre- and post-processing cluster [Tegner](https://www.pdc.kth.se/hpc-services/computing-systems/tegner) at [PDC](https://www.pdc.kth.se) at [KTH](https://www.kth.se/en). Access was provided by the [Swedish National Infrastructure for Computing (SNIC)](https://www.snic.se). This version of the source code is intended to be run on generic Linux-based clusters.
