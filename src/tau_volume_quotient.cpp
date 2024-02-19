@@ -57,7 +57,8 @@ bool tau_volume_quotient(
    *
    * 3. n 2^(2 (tau + m)) + d^2 = \sum_{i = 1}^{n} alpha^2_i + d^2
    *
-   * 4. sqrt(n 2^(2 (tau + m))) + d^2 = sqrt( \sum_{i = 1}^{n} alpha^2_i + d^2 )
+   * 4. sqrt( n 2^(2 (tau + m)) + d^2 ) = 
+   *       sqrt( \sum_{i = 1}^{n} alpha^2_i + d^2 )
    *
    * The steps required to compute v given R are rather self-explanatory.
    */
@@ -78,7 +79,7 @@ bool tau_volume_quotient(
   mpfr_add(radius, radius, tmp, MPFR_RNDN);
     /* radius = \sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2) */
   mpfr_sqrt(radius, radius, MPFR_RNDN);
-    /* radius = sqrt(\sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2)) */
+    /* radius = sqrt( \sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2) ) */
 
   mpfr_set_ld(gamma, (long double)(n + 1) / (long double)2 + 1, MPFR_RNDN);
     /* gamma = (n + 1) / 2 + 1 = D / 2 + 1 */
