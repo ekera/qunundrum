@@ -80,7 +80,7 @@ bool tau_volume_quotient(
   mpfr_sqrt(radius, radius, MPFR_RNDN);
     /* radius = sqrt(\sum_{i = 1}^{n} alpha^2_i + (d^2 or r^2)) */
 
-  mpfr_set_ld(gamma, (long double)(n + 1) / 2 + 1, MPFR_RNDN);
+  mpfr_set_ld(gamma, (long double)(n + 1) / (long double)2 + 1, MPFR_RNDN);
     /* gamma = (n + 1) / 2 + 1 = D / 2 + 1 */
   mpfr_gamma(gamma, gamma, MPFR_RNDN);
     /* gamma = Gamma(D / 2 + 1) */
