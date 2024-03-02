@@ -44,6 +44,9 @@ obj/test/*.o
 .fuse_hidden*
 .vscode/*
 
+# Core files
+core
+
 # Slurm and batch scripts
 /slurm-*.out
 /slurm-*.err
