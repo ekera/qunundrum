@@ -21,6 +21,7 @@
 #include "distribution.h"
 #include "distribution_loader.h"
 #include "errors.h"
+#include "log.h"
 #include "random.h"
 #include "string_utilities.h"
 #include "tau_estimate.h"
@@ -49,7 +50,7 @@ typedef struct {
   /*!
    * \brief   The bound on the volume quotient.
    */
-  mpfr_t bound;
+  mpfr_t v_bound;
 
   /*!
    * \brief   The number of distributions to process.
@@ -62,6 +63,147 @@ typedef struct {
   char ** paths;
 
 } Estimate_Runs_Distribution_Arguments;
+
+
+/*!
+ * \name Command line arguments
+ * \{
+ */
+
+/*!
+ * \brief   Parses the command line arguments.
+ *
+ * \param[in, out] arguments   The arguments data structure in which to store
+ *                             the parsed command line arguments.
+ *
+ * \param[in, out] argc   The arguments count.
+ * \param[in, out] argv   The arguments vector.
+ *
+ * \remark   So as to allow parallelized executables to be shut down gracefully,
+ *           this function does not call critical() to signal a critical error.
+ *           Rather it prints an informative error message to stderr and returns
+ *           #FALSE. When returning #FALSE, this function expects the caller to
+ *           terminate the executable.
+ *
+ * \return   #TRUE if the command line arguments were successfully parsed,
+ *           #FALSE otherwise. If #FALSE is returned, the data structure may be
+ *           only partially initialized and memory only partially allocated.
+ */
+static bool arguments_init_parse_command_line(
+  Estimate_Runs_Distribution_Arguments * const arguments,
+  const int argc,
+  char ** argv)
+{
+  /* Initialize the arguments data structure. */
+  arguments->paths = NULL;
+  arguments->count = 0;
+
+  mpfr_init2(arguments->v_bound, PRECISION);
+  mpfr_set_ui(arguments->v_bound, 0, MPFR_RNDN);
+
+  /* Iterate over the command line arguments. */
+  int i;
+
+  for (i = 1; i < argc; i++) {
+    if (0 == strcmp(argv[i], "-v-bound")) {
+      if ((i + 1) >= argc) {
+        fprintf(stderr,
+          "Error: Expected <v-bound> to follow after -v-bound.\n");
+        return FALSE;
+      }
+
+      if (mpfr_cmp_ui(arguments->v_bound, 0) != 0) {
+        fprintf(stderr, "Error: The volume quotient bound cannot be twice "
+          "specified.\n");
+        return FALSE;
+      }
+
+      if (mpfr_set_str(arguments->v_bound, argv[i + 1], 10, MPFR_RNDN) != 0) {
+        fprintf(stderr, "Error: Failed to parse <v-bound> after -v-bound.\n");
+        return FALSE;
+      }
+
+      if (mpfr_cmp_ui(arguments->v_bound, 0) <= 0) {
+        fprintf(stderr,
+          "Error: The <v-bound> after -v-bound must be positive.\n");
+        return FALSE;
+      }
+
+      i++;
+
+      continue;
+    }
+
+    /* Stop parsing. */
+    break;
+  }
+
+  /* Set default parameters if arguments were not explicitly specified. */
+  if (mpfr_cmp_ui(arguments->v_bound, 0) == 0) {
+    mpfr_set_ui(arguments->v_bound, 2, MPFR_RNDN);
+  }
+
+  /* Parse paths to distributions. */
+  if ((argc - i) <= 0) {
+    fprintf(stderr, "Error: Incorrect command line arguments; expected at "
+      "least one <distribution>.\n");
+    return FALSE;
+  }
+
+  arguments->count = (uint32_t)(argc - i);
+  arguments->paths = &(argv[i]);
+
+  /* Iterate over the paths. */
+  for (uint32_t j = 0; j < (arguments->count); j++) {
+    /* Check that the distribution exists. */
+    if (0 != access(arguments->paths[j], F_OK)) {
+      fprintf(stderr, "Error: The distribution \"%s\" does not exists.\n",
+        arguments->paths[j]);
+      return FALSE;
+    }
+
+    if (0 != access(arguments->paths[j], R_OK)) {
+      fprintf(stderr, "Error: The distribution \"%s\" is not readable.\n",
+        arguments->paths[j]);
+      return FALSE;
+    }
+  }
+
+  /* Signal success. */
+  return TRUE;
+}
+
+/*!
+ * \brief   Prints the command line arguments.
+ *
+ * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in] arguments     The arguments data structure to print to the file.
+ */
+static void arguments_fprintf(
+  FILE * const file,
+  const Estimate_Runs_Distribution_Arguments * const arguments)
+{
+  mpfr_fprintf(file, "# Bounds: (v = %Rg)\n", arguments->v_bound);
+
+  log_timestamp_fprintf(file);
+}
+
+/*!
+ * \brief   Clears an initialized command line arguments data structure.
+ *
+ * \param[in, out] arguments   The arguments data structure to clear.
+ */
+static void arguments_clear(
+  Estimate_Runs_Distribution_Arguments * const arguments)
+{
+  mpfr_clear(arguments->v_bound);
+
+  memset(arguments, 0, sizeof(Estimate_Runs_Distribution_Arguments));
+}
+
+/*!
+ * \}
+ */
 
 /*!
  * \brief   The main function on the client node.
@@ -357,10 +499,17 @@ static bool main_server_estimate_volume_quotients(
      printf("Warning: The tau_d and tau_r returned are out of bounds.\n");
 
     /* Log a note to this effect... */
-    mpfr_fprintf(logfile,
-      "%u %u %u -- *** -- *** <-- out of bounds\n", m, s, n);
-    mpfr_printf(
-      "%u %u %u -- *** -- *** <-- out of bounds\n", m, s, n);
+    mpfr_fprintf(logfile, "m: %u %c: %u n: %u -- *** -- *** "
+      "<-- out of bounds\n",
+      m,
+      (0 != s) ? 's' : 'l',
+      (0 != s) ?  s  :  l,
+      n);
+    mpfr_printf("m: %u %c: %u n: %u -- *** -- *** <-- out of bounds\n",
+      m,
+      (0 != s) ? 's' : 'l',
+      (0 != s) ?  s  :  l,
+      n);
 
     fclose(logfile);
     logfile = NULL;
@@ -388,12 +537,22 @@ static bool main_server_estimate_volume_quotients(
   tau_volume_quotient(m, l, n, distribution->parameters.r, tau_r, v_r);
 
   /* Log the tau values and associated volume quotients. */
-  mpfr_fprintf(logfile,
-    "%u %u %u -- %Lf %RG <%u> -- %Lf %RG <%u>\n",
-      m, s, n,  tau_d, v_d, i_d,  tau_r, v_r, i_r);
-  mpfr_printf(
-    "%u %u %u -- %Lf %RG <%u> -- %Lf %RG <%u>\n",
-      m, s, n,  tau_d, v_d, i_d,  tau_r, v_r, i_r);
+  mpfr_fprintf(logfile, "m: %u %c: %u n: %u -- "
+    "tau_d %Lf v_d: %RG <%u> -- tau_r: %Lf v_r: %RG <%u>\n",
+    m,
+    (0 != s) ? 's' : 'l',
+    (0 != s) ?  s  :  l,
+    n,
+    tau_d, v_d, i_d,
+    tau_r, v_r, i_r);
+  mpfr_printf("m: %u %c: %u n: %u -- "
+    "tau_d: %Lf v_d: %RG <%u> -- tau_r: %Lf v_r: %RG <%u>\n",
+    m,
+    (0 != s) ? 's' : 'l',
+    (0 != s) ?  s  :  l,
+    n,
+    tau_d, v_d, i_d,
+    tau_r, v_r, i_r);
 
   fclose(logfile);
   logfile = NULL;
@@ -469,6 +628,7 @@ static void main_server(
   }
 
   fprintf(logfile, "\n# Processing: %s\n", truncate_path(path));
+  arguments_fprintf(logfile, arguments);
 
   fclose(logfile);
   logfile = NULL;
@@ -489,8 +649,8 @@ static void main_server(
     main_server_stop();
     goto main_server_clear;
   }
-  if ((mpfr_cmp(v_d_0, arguments->bound) < 0) &&
-      (mpfr_cmp(v_r_0, arguments->bound) < 0))
+  if ((mpfr_cmp(v_d_0, arguments->v_bound) < 0) &&
+      (mpfr_cmp(v_r_0, arguments->v_bound) < 0))
   {
     main_server_stop();
     goto main_server_clear;
@@ -504,8 +664,8 @@ static void main_server(
     main_server_stop();
     goto main_server_clear;
   }
-  if ((mpfr_cmp(v_d_1, arguments->bound) < 0) &&
-      (mpfr_cmp(v_r_1, arguments->bound) < 0))
+  if ((mpfr_cmp(v_d_1, arguments->v_bound) < 0) &&
+      (mpfr_cmp(v_r_1, arguments->v_bound) < 0))
   {
     main_server_stop();
     goto main_server_clear;
@@ -519,8 +679,8 @@ static void main_server(
   mpfr_div(v_r_n, v_r_1, factor_r, MPFR_RNDN);
 
   for (n = s + 2 ; n <= MAX_N; n++) {
-    if ((mpfr_cmp(v_d_n, arguments->bound) < 0) &&
-        (mpfr_cmp(v_r_n, arguments->bound) < 0))
+    if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
+        (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
     {
       break;
     }
@@ -542,8 +702,8 @@ static void main_server(
     goto main_server_clear;
   }
 
-  if ((mpfr_cmp(v_d_n, arguments->bound) < 0) &&
-      (mpfr_cmp(v_r_n, arguments->bound) < 0))
+  if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
+      (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
   {
     /* Decrease n by one until an unacceptable n is found. We require n >= s and
      * we have already computed v_d and v_r for n = s and n = s + 1. */
@@ -554,8 +714,8 @@ static void main_server(
       if (FALSE == result) {
         break;
       }
-      if ((mpfr_cmp(v_d_n, arguments->bound) >= 0) ||
-          (mpfr_cmp(v_r_n, arguments->bound) >= 0))
+      if ((mpfr_cmp(v_d_n, arguments->v_bound) >= 0) ||
+          (mpfr_cmp(v_r_n, arguments->v_bound) >= 0))
       {
         break;
       }
@@ -569,8 +729,8 @@ static void main_server(
       if (FALSE == result) {
         break;
       }
-      if ((mpfr_cmp(v_d_n, arguments->bound) < 0) &&
-          (mpfr_cmp(v_r_n, arguments->bound) < 0))
+      if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
+          (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
       {
         break;
       }
@@ -600,120 +760,6 @@ main_server_clear:
 }
 
 /*!
- * \brief   Parses the command line arguments.
- *
- * \param[in, out] arguments   The arguments data structure in which to store
- *                             the parsed command line arguments.
- *
- * \param[in, out] argc   The arguments count.
- * \param[in, out] argv   The arguments vector.
- *
- * \remark   So as to allow parallelized executables to be shut down gracefully,
- *           this function does not call critical() to signal a critical error.
- *           Rather it prints an informative error message to stderr and returns
- *           #FALSE. When returning #FALSE, this function expects the caller to
- *           terminate the executable.
- *
- * \return   #TRUE if the command line arguments were successfully parsed,
- *           #FALSE otherwise. If #FALSE is returned, the data structure may be
- *           only partially initialized and memory only partially allocated.
- */
-static bool arguments_init_parse_command_line(
-  Estimate_Runs_Distribution_Arguments * const arguments,
-  const int argc,
-  char ** argv)
-{
-  /* Initialize the arguments data structure. */
-  arguments->paths = NULL;
-  arguments->count = 0;
-
-  mpfr_init2(arguments->bound, PRECISION);
-  mpfr_set_ui(arguments->bound, 0, MPFR_RNDN);
-
-  /* Iterate over the command line arguments. */
-  int i;
-
-  for (i = 1; i < argc; i++) {
-    if (0 == strcmp(argv[i], "-bound")) {
-      if ((i + 1) >= argc) {
-        fprintf(stderr, "Error: Expected <bound> to follow after -bound.\n");
-        return FALSE;
-      }
-
-      if (mpfr_cmp_ui(arguments->bound, 0) != 0) {
-        fprintf(stderr, "Error: The volume quotient bound cannot be twice "
-          "specified.\n");
-        return FALSE;
-      }
-
-      if (mpfr_set_str(arguments->bound, argv[i + 1], 10, MPFR_RNDN) != 0) {
-        fprintf(stderr, "Error: Failed to parse <bound> after -bound.\n");
-        return FALSE;
-      }
-
-      if (mpfr_cmp_ui(arguments->bound, 0) <= 0) {
-        fprintf(stderr, "Error: The <bound> after -bound must be positive.\n");
-        return FALSE;
-      }
-
-      i++;
-
-      continue;
-    }
-
-    /* Stop parsing. */
-    break;
-  }
-
-  /* Set default parameters if arguments where not explicitly specified. */
-  if (mpfr_cmp_ui(arguments->bound, 0) == 0) {
-    mpfr_set_ui(arguments->bound, 2, MPFR_RNDN);
-  }
-
-  /* Parse paths to distributions. */
-  if ((argc - i) <= 0) {
-    fprintf(stderr, "Error: Incorrect command line arguments; expected at "
-      "least one <distribution>.\n");
-    return FALSE;
-  }
-
-  arguments->count = (uint32_t)(argc - i);
-  arguments->paths = &(argv[i]);
-
-  /* Iterate over the paths. */
-  for (uint32_t j = 0; j < (arguments->count); j++) {
-    /* Check that the distribution exists. */
-    if (0 != access(arguments->paths[j], F_OK)) {
-      fprintf(stderr, "Error: The distribution \"%s\" does not exists.\n",
-        arguments->paths[j]);
-      return FALSE;
-    }
-
-    if (0 != access(arguments->paths[j], R_OK)) {
-      fprintf(stderr, "Error: The distribution \"%s\" is not readable.\n",
-        arguments->paths[j]);
-      return FALSE;
-    }
-  }
-
-  /* Signal success. */
-  return TRUE;
-}
-
-/*!
- * \brief   Clears an initialized command line arguments data structure.
- *
- * \param[in, out] arguments   The arguments data structure to clear.
- */
-static void arguments_clear(
-  Estimate_Runs_Distribution_Arguments * const arguments)
-{
-  mpfr_clear(arguments->bound);
-
-  memset(arguments, 0, sizeof(Estimate_Runs_Distribution_Arguments));
-}
-
-/*!
  * \brief   Prints the command line synopsis.
  *
  * \param[in, out] file   The file to which to print the synopsis.
@@ -722,12 +768,12 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun estimate_runs_distribution \\\n"
-          "   [ -bound <bound> ] <distribution> { <distribution> }\n");
+          "   [ -v-bound <v-bound> ] <distribution> { <distribution> }\n");
 
   fprintf(file, "\n");
   fprintf(file, "Volume quotient bound: -- defaults to 2\n");
   fprintf(file,
-    " -bound  explicitly set the volume quotient bound to <bound>\n");
+    " -v-bound  explicitly set the volume quotient bound to <v-bound>\n");
 }
 
 /*!

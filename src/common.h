@@ -112,6 +112,11 @@
 #define MPI_TAG_SLICE_MIN_LOG_ALPHA               17021
 
 /*!
+ * \brief   An MPI tag used to send and receive the peak index eta for a slice.
+ */
+#define MPI_TAG_SLICE_ETA                         17028
+
+/*!
  * \brief   An MPI tag used to send and receive slice norm vectors or matrices.
  */
 #define MPI_TAG_SLICE_NORM_MATRIX                 17022

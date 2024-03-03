@@ -32,15 +32,17 @@ void diagonal_distribution_export_info(
   fprintf(file, "Precision: %u bits\n\n", distribution->precision);
 
   fprintf(file, "Parameters:\n");
-  fprintf(file, " m:     %u\n", distribution->parameters.m);
-  fprintf(file, " sigma: %u\n", distribution->parameters.sigma);
-  fprintf(file, " s:     %u\n", distribution->parameters.s);
-  fprintf(file, " l:     %u\n", distribution->parameters.l);
+  fprintf(file, " m:         %u\n", distribution->parameters.m);
+  fprintf(file, " sigma:     %u\n", distribution->parameters.sigma);
+  fprintf(file, " s:         %u\n", distribution->parameters.s);
+  fprintf(file, " l:         %u\n\n", distribution->parameters.l);
 
-  gmp_fprintf(file, " r:     %Zd\n", distribution->parameters.r);
-  gmp_fprintf(file, " d:     %Zd\n\n", distribution->parameters.d);
+  fprintf(file, " eta_bound: %u\n\n", distribution->parameters.eta_bound);
 
-  fprintf(file, " Flags: %.8x\n\n", distribution->flags);
+  gmp_fprintf(file, " r:         %Zd\n", distribution->parameters.r);
+  gmp_fprintf(file, " d:         %Zd\n\n", distribution->parameters.d);
+
+  fprintf(file, " Flags:     %.8x\n\n", distribution->flags);
 
   /* Print information on the slices. */
   long double pivot = 0.1f;
@@ -110,10 +112,11 @@ void diagonal_distribution_export_info(
         distribution->slices[i]->total_probability;
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
+      const int32_t eta = distribution->slices[i]->eta;
 
       fprintf(file,
-        "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
-          i, alpha_r, dimension, probability);
+        "Slice: %u (alpha_r: %d, eta: %d, dimension: %u, probability: %Lg)\n",
+          i, alpha_r, eta, dimension, probability);
     }
   }
 
@@ -126,10 +129,11 @@ void diagonal_distribution_export_info(
         distribution->slices[i]->total_probability;
 
       const int32_t alpha_r = distribution->slices[i]->min_log_alpha_r;
+      const int32_t eta = distribution->slices[i]->eta;
 
       fprintf(file,
-        "Slice: %u (alpha_r: %d, dimension: %u, probability: %Lg)\n",
-          i, alpha_r, dimension, probability);
+        "Slice: %u (alpha_r: %d, eta: %d, dimension: %u, probability: %Lg)\n",
+          i, alpha_r, eta, dimension, probability);
 
       for (uint32_t j = 0; j < dimension; j++) {
         double region_alpha_r = (double)(abs_i(alpha_r));

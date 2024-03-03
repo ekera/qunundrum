@@ -420,7 +420,7 @@ static bool arguments_init_parse_command_line(
     break;
   }
 
-  /* Set default parameters if arguments where not explicitly specified. */
+  /* Set default parameters if arguments were not explicitly specified. */
   if (DIMENSION_UNDEFINED == arguments->dimension) {
     arguments->dimension = DIMENSION_HEURISTIC;
   }
@@ -1308,7 +1308,7 @@ static void main_client(
     if ((0 == MIN_SLICE_PROBABILITY) ||
       (slice.total_probability >= MIN_SLICE_PROBABILITY))
     {
-      /* Notify the server we are done computing the slice. */
+      /* Notify the server that we are done computing the slice. */
       notification = MPI_NOTIFY_SLICE_DONE;
 
       if (MPI_SUCCESS != MPI_Send(

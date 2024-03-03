@@ -23,6 +23,7 @@
 #include "errors.h"
 #include "linear_distribution.h"
 #include "linear_distribution_loader.h"
+#include "log.h"
 #include "math.h"
 #include "random.h"
 #include "sample.h"
@@ -49,14 +50,14 @@
  */
 typedef struct {
   /*!
-   * \brief   Search bound on integers added to or subtracted from j.
+   * \brief   Bound on the offset t from j searched.
    */
-  uint32_t search_bound_j;
+  uint32_t t_bound;
 
   /*!
-   * \brief   Search bound on cofactors when solving using continued fractions.
+   * \brief   Bound on the cofactor.
    */
-  uint32_t search_bound_cofactors;
+  uint32_t cofactor_bound;
 
   /*!
    * \brief   The number of distributions to process.
@@ -68,6 +69,7 @@ typedef struct {
    */
   char ** paths;
 } Solve_Linear_Distribution_Arguments;
+
 
 /*!
  * \name Command line arguments
@@ -99,73 +101,74 @@ static bool arguments_init_parse_command_line(
   char ** argv)
 {
   /* Initialize the arguments data structure. */
-  arguments->search_bound_j = 256; /* = 2^8 */
-  arguments->search_bound_cofactors = 65536; /* = 2^16 */
+  arguments->t_bound = 256; /* = 2^8 */
+  arguments->cofactor_bound = 65536; /* = 2^16 */
   arguments->paths = NULL;
   arguments->count = 0;
 
-  bool search_bound_j_specified = FALSE;
-  bool search_bound_cofactors_specified = FALSE;
+  bool t_bound_specified = FALSE;
+  bool cofactor_bound_specified = FALSE;
 
   /* Iterate over the command line arguments. */
   int i;
 
   for (i = 1; i < argc; i++) {
-    /* Parse the search bound on j. */
-    if (0 == strcmp(argv[i], "-search-bound-j")) {
-      /* Check that a search bound has not already been specified. */
-      if (search_bound_j_specified) {
+    /* Parse the bound on t. */
+    if (0 == strcmp(argv[i], "-t-bound")) {
+      /* Check that a bound has not already been specified. */
+      if (t_bound_specified) {
         fprintf(stderr,
-          "Error: The search bound on j cannot be twice specified.\n");
+          "Error: The bound on t cannot be twice specified.\n");
         return FALSE;
       }
 
       if ((i + 1) >= argc) {
         fprintf(stderr,
-          "Error: Expected value to follow after -search-bound-j.\n");
+          "Error: Expected <t-bound> to follow after -t-bound.\n");
         return FALSE;
       }
 
       const int x = atoi(argv[i+1]);
       if (x < 0) {
-        fprintf(stderr, "Error: The search bound on j must be non-negative.\n");
+        fprintf(stderr, "Error: The bound on t must be non-negative.\n");
         return FALSE;
       }
 
-      /* Store the search bound. */
-      arguments->search_bound_j = (uint32_t)x;
-      search_bound_j_specified = TRUE;
+      /* Store the t bound. */
+      arguments->t_bound = (uint32_t)x;
+      t_bound_specified = TRUE;
 
       i++;
 
       continue;
     }
 
-    /* Parse the search bound on cofactors. */
-    if (0 == strcmp(argv[i], "-search-bound-cofactors")) {
-      /* Check that a search bound has not already been specified. */
-      if (search_bound_cofactors_specified) {
+    /* Parse the bound on the cofactor. */
+    if (0 == strcmp(argv[i], "-cofactor-bound")) {
+      /* Check that a bound has not already been specified. */
+      if (cofactor_bound_specified) {
         fprintf(stderr,
-          "Error: The search bound on cofactors cannot be twice specified.\n");
+          "Error: The bound on the cofactor cannot be twice specified.\n");
         return FALSE;
       }
 
       if ((i + 1) >= argc) {
         fprintf(stderr,
-          "Error: Expected value to follow after -search-bound-cofactors.\n");
+          "Error: Expected <cofactor-bound> to follow after "
+            "-cofactor-bound.\n");
         return FALSE;
       }
 
       const int x = atoi(argv[i+1]);
       if (x <= 0) {
         fprintf(stderr,
-          "Error: The search bound on cofactors must be positive.\n");
+          "Error: The bound on the cofactor must be positive.\n");
         return FALSE;
       }
 
-      /* Store the search bound. */
-      arguments->search_bound_cofactors = (uint32_t)x;
-      search_bound_cofactors_specified = TRUE;
+      /* Store the cofactor bound. */
+      arguments->cofactor_bound = (uint32_t)x;
+      cofactor_bound_specified = TRUE;
 
       i++;
 
@@ -225,6 +228,12 @@ static bool arguments_init_parse_command_line(
   return TRUE;
 }
 
+/*!
+ * \brief   Broadcasts the command line arguments to all other nodes.
+ *
+ * \param[in] arguments   The parsed command line arguments to broadcast.
+ * \param[in] root        The rank of the root node.
+ */
 static void arguments_bcast_send(
   const Solve_Linear_Distribution_Arguments * const arguments,
   const int root)
@@ -232,8 +241,8 @@ static void arguments_bcast_send(
   int result;
 
   uint32_t data[3];
-  data[0] = (uint32_t)(arguments->search_bound_j);
-  data[1] = (uint32_t)(arguments->search_bound_cofactors);
+  data[0] = (uint32_t)(arguments->t_bound);
+  data[1] = (uint32_t)(arguments->cofactor_bound);
   data[2] = (uint32_t)(arguments->count);
 
   result = MPI_Bcast(data, 3, MPI_UNSIGNED, root, MPI_COMM_WORLD);
@@ -269,6 +278,13 @@ static void arguments_bcast_send(
   }
 }
 
+/*!
+ * \brief   Initializes the command line arguments by receiving a broadcast from
+ *          a node.
+ *
+ * \param[in, out] arguments  The command line arguments to initialize.
+ * \param[in] root            The rank of the node from which to receive.
+ */
 static void arguments_init_bcast_recv(
   Solve_Linear_Distribution_Arguments * const arguments,
   const int root)
@@ -286,8 +302,8 @@ static void arguments_init_bcast_recv(
       "Failed to receive broadcast of collected metadata.");
   };
 
-  arguments->search_bound_j = data[0];
-  arguments->search_bound_cofactors = data[1];
+  arguments->t_bound = data[0];
+  arguments->cofactor_bound = data[1];
   arguments->count = data[2];
 
   arguments->paths = (char **)malloc((arguments->count) * sizeof(char *));
@@ -332,6 +348,22 @@ static void arguments_init_bcast_recv(
 }
 
 /*!
+ * \brief   Prints the command line arguments.
+ *
+ * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in] arguments     The parsed command line arguments to print.
+ */
+static void arguments_fprintf(
+  FILE * const file,
+  const Solve_Linear_Distribution_Arguments * const arguments)
+{
+  fprintf(file, "# Bounds: (t: %u, cofactor: %u)\n",
+    arguments->t_bound, arguments->cofactor_bound);
+
+  log_timestamp_fprintf(file);
+}
+
+/*!
  * \brief   Clears an initialized command line arguments data structure.
  *
  * \param[in, out] arguments   The arguments data structure to clear.
@@ -363,14 +395,16 @@ static void arguments_clear(
  *
  * This function is called once by main() for each distribution to process.
  *
+ * \param[in] arguments    The parsed command line arguments.
+ * \param[in] path         The path to the distribution.
  * \param[in] distribution The distribution to use for sampling problem
  *                         instances to solve.
- * \param[in] path         The path to the distribution.
  * \param[in] mpi_size     The number of nodes.
  */
 static void main_server(
-  const Linear_Distribution * const distribution,
+  const Solve_Linear_Distribution_Arguments * const arguments,
   const char * const path,
+  const Linear_Distribution * const distribution,
   const int mpi_size)
 {
   const uint32_t flags = distribution->flags;
@@ -398,6 +432,7 @@ static void main_server(
   }
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(path));
+  arguments_fprintf(log_file, arguments);
 
   /* Broadcast the distribution. */
   linear_distribution_bcast_send(distribution, MPI_RANK_ROOT);
@@ -749,12 +784,12 @@ static void main_client(
     mpz_t candidate_j;
     mpz_init(candidate_j);
 
-    for (uint32_t t = 0; t <= arguments->search_bound_j; t++) {
+    for (uint32_t t = 0; t <= arguments->t_bound; t++) {
       mpz_add_ui(candidate_j, j, t);
 
       found = continued_fractions_solve(
                 candidate_j,
-                arguments->search_bound_cofactors,
+                arguments->cofactor_bound,
                 &(distribution.parameters));
       if (TRUE == found) {
         break;
@@ -768,7 +803,7 @@ static void main_client(
 
       found = continued_fractions_solve(
                 candidate_j,
-                arguments->search_bound_cofactors,
+                arguments->cofactor_bound,
                 &(distribution.parameters));
       if (TRUE == found) {
         break;
@@ -836,20 +871,18 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun solve_linear_distribution_shor\n"
-            "   [ -search-bound-j <bound> ] "
-              "[ -search-bound-cofactors <bound> ]\n"
+            "   [ -t-bound <t-bound> ] [ -cofactor-bound <cofactor-bound> ]\n"
             "      <distribution> { <distribution> }\n");
   fprintf(file, "\n");
-  fprintf(file, "Search bound on j: -- defaults to 2^8\n");
+  fprintf(file, "Search bound on t: -- defaults to 2^8\n");
   fprintf(file,
-    " -search-bound-j          sets the search <bound> on |t| where t is\n"
-    "                          we try to solve for all integers j + t\n");
+    " -t-bound         sets the bound <t-bound> on |t| where we solve\n"
+    "                  for all integers j + t\n");
   fprintf(file, "\n");
-  fprintf(file, "Search bound on cofactors: -- defaults to 2^16\n");
+  fprintf(file, "Search bound on the cofactor: -- defaults to 2^16\n");
   fprintf(file,
-    " -search-bound-cofactors  sets the search <bound> on the cofactor\n"
-    "                          between the order r and denominator when\n"
-    "                          taking continued fractions\n");
+    " -cofactor-bound  sets the bound <cofactor-bound> on the cofactor\n"
+    "                  between the order r and denominator\n");
 }
 
 /*!
@@ -983,8 +1016,9 @@ int main(int argc, char ** argv) {
 
       printf("Processing: %s\n", arguments.paths[i]);
       main_server(
-        distribution,
+        &arguments,
         arguments.paths[i],
+        distribution,
         mpi_size);
 
       linear_distribution_clear(distribution);

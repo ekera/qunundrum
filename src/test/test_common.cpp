@@ -7,7 +7,9 @@
 
 #include "test_common.h"
 
+#include "../common.h"
 #include "../errors.h"
+#include "../math.h"
 
 #include <gmp.h>
 #include <mpfr.h>
@@ -72,49 +74,20 @@ void test_mpz_load(
 
 bool test_cmp_ld(
   const long double a,
-  const long double b)
+  const long double b,
+  const long double tolerance)
 {
-  if (a == b) {
-    return true;
-  }
-
-  printf("  Warning: Equating %.20Lg to %.20Lg\n", a, b);
-
-  if ((0 == a) && (0 == b)) {
-    printf("  Warning: Both values are zero.\n");
-  }
-
   if ((a < 0) || (b < 0)) {
     critical("test_cmp_ld(): At least one value is negative.");
   }
 
-  if (a > b) {
-    return (a - b) < (b / 1e6);
-  } else {
-    return (b - a) < (a / 1e6);
-  }
-}
-
-bool test_cmp_tol_ld(
-  const long double a,
-  const long double b,
-  const long double tolerance)
-{
   if (a == b) {
-    return true;
+    return TRUE;
   }
 
-  if ((0 == a) && (0 == b)) {
-    printf("  Warning: Both values are zero.\n");
-  }
-
-  if ((a < 0) || (b < 0)) {
-    critical("test_cmp_tol_ld(): At least one value is negative.");
-  }
-
-  if (a > b) {
-    return (a - b) < (b * tolerance);
+  if (abs_ld(a - b) / min_ld(abs_ld(a), abs_ld(b)) < tolerance) {
+    return TRUE;
   } else {
-    return (b - a) < (a * tolerance);
+    return FALSE;
   }
 }

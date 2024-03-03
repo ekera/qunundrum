@@ -10,7 +10,9 @@
 
 #include "common.h"
 #include "distribution.h"
+#include "diagonal_distribution.h"
 #include "linear_distribution.h"
+#include "math.h"
 #include "random.h"
 
 #include <mpfr.h>
@@ -125,6 +127,79 @@ bool tau_estimate_linear(
   /* Clear memory. */
   mpfr_clear(alpha);
   mpfr_clear(sum);
+
+  /* Signal success or failure. */
+  return result;
+}
+
+bool tau_estimate_diagonal(
+  const Diagonal_Distribution * const distribution,
+  Random_State * const random_state,
+  const uint32_t n,
+  const uint32_t delta_bound,
+  const uint32_t eta_bound,
+  long double &tau)
+{
+  mpfr_t alpha;
+  mpfr_init2(alpha, PRECISION);
+
+  mpfr_t sum;
+  mpfr_init2(sum, PRECISION);
+  mpfr_set_ui(sum, 0, MPFR_RNDN);
+
+  mpz_t j;
+  mpz_init(j);
+
+  mpz_t k;
+  mpz_init(k);
+
+  bool result = FALSE;
+
+  for (uint32_t i = 0; i < n; i++) {
+    int32_t eta;
+
+    result = diagonal_distribution_sample_pair_j_k(
+      distribution,
+      random_state,
+      delta_bound,
+      j,
+      k,
+      &eta,
+      alpha);
+    if (FALSE == result) {
+      /* Break and return the maximal value for tau below. */
+      break;
+    }
+
+    if (abs_i(eta) > eta_bound) {
+      /* Consider this a sampling error as if the distribution did not contain
+       * the slice sampled. Break and return the maximal value for tau below. */
+      result = FALSE;
+      break;
+    }
+
+    mpfr_sqr(alpha, alpha, MPFR_RNDN);
+    mpfr_add(sum, sum, alpha, MPFR_RNDN);
+  }
+
+  if (FALSE == result) {
+    /* Return the maximal value for tau. */
+    tau = DBL_MAX;
+  } else {
+    mpfr_div_ui(sum, sum, n, MPFR_RNDN);
+    mpfr_log2(sum, sum, MPFR_RNDN);
+    tau = mpfr_get_ld(sum, MPFR_RNDN) / 2.0f - (
+      distribution->parameters.m +
+      distribution->parameters.sigma -
+      distribution->parameters.l);
+  }
+
+  /* Clear memory. */
+  mpfr_clear(alpha);
+  mpfr_clear(sum);
+
+  mpz_clear(j);
+  mpz_clear(k);
 
   /* Signal success or failure. */
   return result;

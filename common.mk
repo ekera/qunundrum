@@ -43,6 +43,7 @@ OBJECTS += $(OBJ_DIR)/lattice_algebra.o
 OBJECTS += $(OBJ_DIR)/lattice_reduce.o
 OBJECTS += $(OBJ_DIR)/lattice_sample.o
 OBJECTS += $(OBJ_DIR)/lattice_smoothness.o
+OBJECTS += $(OBJ_DIR)/log.o
 OBJECTS += $(OBJ_DIR)/tau_volume_quotient.o
 OBJECTS += $(OBJ_DIR)/tau_estimate.o
 OBJECTS += $(OBJ_DIR)/mpfr_mpi.o
@@ -78,6 +79,8 @@ OBJECTS += $(OBJ_DIR)/test/test_linear_probability.o
 OBJECTS += $(OBJ_DIR)/test/test_diagonal_probability.o
 OBJECTS += $(OBJ_DIR)/test/test_probability.o
 OBJECTS += $(OBJ_DIR)/test/test_tau_volume_quotient.o
+OBJECTS += $(OBJ_DIR)/test/test_linear_distribution.o
+OBJECTS += $(OBJ_DIR)/test/test_diagonal_distribution.o
 
 EXECS    = generate_distribution
 EXECS   += generate_linear_distribution
@@ -102,6 +105,7 @@ EXECS   += plot_diagonal_distribution
 
 EXECS   += estimate_runs_distribution
 EXECS   += estimate_runs_linear_distribution
+EXECS   += estimate_runs_diagonal_distribution
 
 EXECS   += sample_distribution
 EXECS   += sample_linear_distribution

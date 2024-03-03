@@ -8,7 +8,7 @@ Synopsis: info_linear_distribution <distribution>
 Prints information on a linear distribution to the console.
 
 ### Mandatory command line arguments
-An entry <code>\<distribution\></code> where
+An argument <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ## Interpreting the output
@@ -67,10 +67,10 @@ Total probability: 0.999903894643643375531473
 Most elements of the printout are rather self-explanatory. The precision is the default precision set when generating the distribution. Note that the precision when computing the distribution may be considerably higher in some steps of the computation to ensure numeric stability, and that lower precision is used to store the distribution on file. The bit flags are used internally to keep track of how the distribution was generated.
 
 As for the other parameters
-  - m is the length in bits of the order
-  - s is the tradeoff factor, or zero, if l was explicitly specified
-  - l is the padding length
-  - r is the order
-  - d is the logarithm
+  - $m$ is the bit length of the logarithm $d$ or order $r$,
+  - $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, or zero if $\ell$ was explicitly specified,
+  - $\ell$ is the bit length of the second register, and such that $m + \ell$ is the bit length of the first register,
+  - $r$ is the order, and
+  - $d$ is the logarithm.
 
 The slices section contains a summary of the number of slices that capture a certain share of the probability mass and their dimensions. This is followed by information about each slice in the distribution. The total number of slices in the distribution, and the total probability mass captured by these slices, is last reported.

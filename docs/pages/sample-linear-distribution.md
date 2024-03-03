@@ -10,11 +10,11 @@ Samples a linear distribution.
 The samples are written to the console.
 
 ### Mandatory command line arguments
-An entry <code>\<distribution\></code> where
+An argument <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ### Optional command line arguments
-An optional entry specifying the number of samples (defaults to 1000):
+An optional argument specifying the number of samples (defaults to 1000):
 - <code>\<n\></code> sets the number of samples to <code>\<n\></code>
 
 ## Interpreting the output
@@ -30,8 +30,8 @@ k: 107378028159679875945
 (..)
 ```
 where
-- alpha_d is the admissible argument sampled
-- (j, k) is an integer pair sampled from the set of all integer pairs having argument alpha_d
+- $\alpha_d$ is the admissible argument sampled
+- $(j, k)$ is an integer pair sampled from the set of all integer pairs having argument $\alpha_d$
 
 For linear distributions tailored to solving order-finding problems, the console output contains samples on the format
 ```console
@@ -44,5 +44,5 @@ j: 10366095817842715380235284668329444594561368081797017179617405633038810339775
 (..)
 ```
 where
-- alpha_r is the admissible argument sampled
-- j is an integer sampled from the set of all integers having argument alpha_r
+- $\alpha_r$ is the admissible argument sampled, and
+- $j$ is an integer sampled from the set of all integers having argument $\alpha_r$.

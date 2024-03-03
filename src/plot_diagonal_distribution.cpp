@@ -11,6 +11,7 @@
 #include "diagonal_distribution.h"
 #include "diagonal_distribution_slice.h"
 #include "errors.h"
+#include "linear_distribution.h"
 #include "math.h"
 #include "plot_distribution_axis.h"
 #include "plot_distribution_common.h"
@@ -18,25 +19,74 @@
 #include <stdint.h>
 #include <stdio.h>
 
-/*!
- * \name Diagonal distributions
- * \{
- */
+void plot_diagonal_distribution_horizontal_collapsed(
+  Diagonal_Distribution * const distribution,
+  const double offset_y,
+  FILE * const file,
+  const bool absolute,
+  const uint32_t eta_bound)
+{
+  Linear_Distribution collapsed_distribution;
+  linear_distribution_init_collapse_diagonal(
+    &collapsed_distribution,
+    distribution,
+    eta_bound);
+
+  plot_linear_distribution_histogram_horizontal(
+    &collapsed_distribution,
+    offset_y,
+    file,
+    absolute);
+
+  plot_linear_distribution_detailed_horizontal(
+    &collapsed_distribution,
+    offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
+      PLOT_DISTRIBUTION_SCALE,
+    file,
+    absolute);
+
+  /* Label the two axes with a single label. */
+  const uint32_t m = distribution->parameters.m;
+
+  if (absolute) {
+    fprintf(file,  "\\draw (%f, %f) "
+      "node[above, rotate=-90] "
+        "{\\tiny $\\log_2(|\\alpha_r|)$};\n",
+          plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m),
+          offset_y -
+            (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
+              PLOT_DISTRIBUTION_SCALE / 2.0f);
+  } else {
+    fprintf(file,  "\\draw (%f, %f) "
+      "node[above, rotate=-90] "
+        "{\\tiny $\\text{sgn}(\\alpha_r) \\log_2(|\\alpha_r|)$};\n",
+          plot_distribution_coordinate(m + PLOT_DISTRIBUTION_MAX_OFFSET_M, m),
+          offset_y -
+            (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
+              PLOT_DISTRIBUTION_SCALE / 2.0f);
+  }
+
+  /* Clear memory. */
+  linear_distribution_clear(&collapsed_distribution);
+}
 
 void plot_diagonal_distribution_horizontal(
   Diagonal_Distribution * const distribution,
+  const int32_t eta,
   const double offset_y,
   FILE * const file,
   const bool absolute)
 {
   plot_diagonal_distribution_histogram_horizontal(
     distribution,
+    eta,
     offset_y,
     file,
     absolute);
 
   plot_diagonal_distribution_detailed_horizontal(
     distribution,
+    eta,
     offset_y - (PLOT_DISTRIBUTION_LINEAR_MAX_SIZE + 1) /
       PLOT_DISTRIBUTION_SCALE,
     file,
@@ -64,9 +114,9 @@ void plot_diagonal_distribution_horizontal(
   }
 }
 
-
 void plot_diagonal_distribution_detailed_horizontal(
   Diagonal_Distribution * const distribution,
+  const int32_t eta,
   const double offset_y,
   FILE * const file,
   const bool absolute)
@@ -83,6 +133,10 @@ void plot_diagonal_distribution_detailed_horizontal(
     for (uint32_t i = 0; i < distribution->count; i++) {
       const Diagonal_Distribution_Slice * const slice = distribution->slices[i];
 
+      if (eta != slice->eta) {
+        continue;
+      }
+
       const uint32_t dimension = slice->dimension;
 
       for (uint32_t j = 0; j < dimension; j++) {
@@ -95,6 +149,10 @@ void plot_diagonal_distribution_detailed_horizontal(
     /* Plot the detailed diagonal distribution. */
     for (uint32_t i = 0; i < distribution->count; i++) {
       const Diagonal_Distribution_Slice * const slice = distribution->slices[i];
+
+      if (eta != slice->eta) {
+        continue;
+      }
 
       const uint32_t dimension = slice->dimension;
 
@@ -117,7 +175,8 @@ void plot_diagonal_distribution_detailed_horizontal(
           slice,
           j,
           &alpha_min,
-          &alpha_max);
+          &alpha_max,
+          NULL);
 
         if ((alpha_min < 0) && (alpha_max < 0)) {
           if (absolute) {
@@ -162,17 +221,19 @@ void plot_diagonal_distribution_detailed_horizontal(
 
   fprintf(
     file,
-    "\\draw[thin, -stealth] (%f, %f) -- (%f, %f);\n",
+    "\\draw[thin, -stealth] (%f, %f) -- (%f, %f) node[above] {\\tiny $f_{%d}(\\theta_r)$};\n",
     0.0f,
     offset_y - PLOT_DISTRIBUTION_TICK_SIZE_MINOR,
     0.0f,
     offset_y +
       ((double)PLOT_DISTRIBUTION_LINEAR_MAX_AMPLITUDE + (double)1.0f) /
-        (double)PLOT_DISTRIBUTION_SCALE);
+        (double)PLOT_DISTRIBUTION_SCALE,
+    eta);
 }
 
 void plot_diagonal_distribution_histogram_horizontal(
   Diagonal_Distribution * const distribution,
+  const int32_t eta,
   const double offset_y,
   FILE * const file,
   bool absolute)
@@ -193,6 +254,10 @@ void plot_diagonal_distribution_histogram_horizontal(
     for (uint32_t i = 0; i < distribution->count; i++) {
       const Diagonal_Distribution_Slice * const slice = distribution->slices[i];
 
+      if (eta != slice->eta) {
+        continue;
+      }
+
       const uint32_t dimension = slice->dimension;
 
       for (uint32_t j = 0; j < dimension; j++) {
@@ -205,6 +270,10 @@ void plot_diagonal_distribution_histogram_horizontal(
     /* Plot the distribution histogram. */
     for (uint32_t i = 0; i < distribution->count; i++) {
       const Diagonal_Distribution_Slice * const slice = distribution->slices[i];
+
+      if (eta != slice->eta) {
+        continue;
+      }
 
       double y =
         PLOT_DISTRIBUTION_LINEAR_MAX_AMPLITUDE *
@@ -221,7 +290,8 @@ void plot_diagonal_distribution_histogram_horizontal(
       diagonal_distribution_slice_coordinates(
         slice,
         &alpha_min,
-        &alpha_max);
+        &alpha_max,
+        NULL);
 
       if ((alpha_min < 0) && (alpha_max < 0)) {
         if (absolute) {
@@ -296,7 +366,3 @@ void plot_diagonal_distribution_histogram_horizontal(
       ((double)PLOT_DISTRIBUTION_LINEAR_MAX_AMPLITUDE + (double)1.0f) /
         (double)PLOT_DISTRIBUTION_SCALE);
 }
-
-/*!
- * \}
- */

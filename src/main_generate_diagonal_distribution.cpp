@@ -110,6 +110,11 @@ typedef struct {
   Tradeoff_Method tradeoff_method;
 
   /*!
+   * \brief   An upper bound on eta.
+   */
+  uint32_t eta_bound;
+
+  /*!
    * \brief   The explicitly specified value of the logarithm d.
    *
    * If the value is not explicitly specified, this entry is set to zero.
@@ -188,9 +193,12 @@ static bool arguments_init_parse_command_line(
   /* Initialize the arguments data structure. */
   arguments->selection_method = SELECTION_METHOD_UNDEFINED;
   arguments->tradeoff_method = TRADEOFF_METHOD_UNDEFINED;
+  arguments->eta_bound = 0;
   arguments->dimension = 0;
   arguments->entries = NULL;
   arguments->count = 0;
+
+  bool eta_bound_specified = FALSE;
 
   mpz_init(arguments->explicit_d);
   mpz_set_ui(arguments->explicit_d, 0);
@@ -295,7 +303,7 @@ static bool arguments_init_parse_command_line(
         return FALSE;
       }
 
-      const int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i + 1]);
       if ((x < 16) || (x > 8192) || (!is_pow2((uint32_t)x))) {
         fprintf(stderr, "Error: The <dimension> passed to -dim must be a power "
           "of two on the interval [16, 8192].\n");
@@ -310,11 +318,41 @@ static bool arguments_init_parse_command_line(
       continue;
     }
 
+    /* Parse the eta bound. */
+    if (0 == strcmp(argv[i], "-eta-bound")) {
+      /* Check that an eta bound has not already been specified. */
+      if (FALSE != eta_bound_specified) {
+        fprintf(stderr, "Error: The eta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <eta-bound> to follow after "
+          "-eta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if ((x < 0) || (x > 256)) {
+        fprintf(stderr, "Error: The <eta-bound> passed to -eta-bound must be "
+          "on the interval [0, 256].\n");
+        return FALSE;
+      }
+
+      /* Store the eta bound. */
+      arguments->eta_bound = (uint32_t)x;
+      eta_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
     /* Stop parsing. */
     break;
   }
 
-  /* Set default parameters if arguments where not explicitly specified. */
+  /* Set default parameters if arguments were not explicitly specified. */
   if (0 == arguments->dimension) {
     arguments->dimension = 2048;
   }
@@ -609,6 +647,7 @@ static void main_server(
       entry->m,
       entry->sigma,
       entry->s,
+      arguments->eta_bound,
       t);
   } else {
     diagonal_parameters_explicit_m_l(
@@ -618,6 +657,7 @@ static void main_server(
       entry->m,
       entry->sigma,
       entry->l,
+      arguments->eta_bound,
       t);
   }
 
@@ -641,7 +681,11 @@ static void main_server(
   const bool mirrored = TRUE;
 
   Diagonal_Distribution_Enumerator enumerator;
-  diagonal_distribution_enumerator_init(&enumerator, &parameters, mirrored);
+  diagonal_distribution_enumerator_init(
+    &enumerator,
+    &parameters,
+    arguments->eta_bound,
+    mirrored);
 
   /* Get the required distribution capacity in slices. */
   uint32_t capacity = diagonal_distribution_enumerator_count(&enumerator);
@@ -689,9 +733,11 @@ static void main_server(
 
     if (MPI_NOTIFY_READY == notification) {
       int32_t min_log_alpha_r;
+      int32_t eta;
 
       bool found = diagonal_distribution_enumerator_next(
                       &min_log_alpha_r,
+                      &eta,
                       &enumerator);
       if (found) {
         printf("Processing slice: %u / %u\n",
@@ -720,6 +766,17 @@ static void main_server(
             MPI_COMM_WORLD))
         {
           critical("main_server(): Failed to send min_log_alpha_r.");
+        }
+
+        if (MPI_SUCCESS != MPI_Send(
+            &eta,
+            1, /* count */
+            MPI_INT,
+            status.MPI_SOURCE, /* destination */
+            MPI_TAG_SLICE_ETA,
+            MPI_COMM_WORLD))
+        {
+          critical("main_server(): Failed to send eta.");
         }
       } else {
         uint32_t job = MPI_JOB_STOP;
@@ -879,6 +936,21 @@ static void main_client()
       critical("main_client(): Failed to receive min_log_alpha_r.");
     }
 
+    /* Receive the slice peak index eta. */
+    int32_t eta;
+
+    if (MPI_SUCCESS != MPI_Recv(
+        &eta,
+        1, /* count */
+        MPI_INT,
+        MPI_RANK_ROOT,
+        MPI_TAG_SLICE_ETA,
+        MPI_COMM_WORLD,
+        &status))
+    {
+      critical("main_client(): Failed to receive eta.");
+    }
+
     /* Compute slice. */
     Diagonal_Distribution_Slice slice;
     diagonal_distribution_slice_init(&slice, dimension);
@@ -886,9 +958,10 @@ static void main_client()
     diagonal_distribution_slice_compute_richardson(
         &slice,
         &parameters,
-        min_log_alpha_r);
+        min_log_alpha_r,
+        eta);
 
-    /* Notify the server we are done computing the slice. */
+    /* Notify the server that we are done computing the slice. */
     notification = MPI_NOTIFY_SLICE_DONE;
 
     if (MPI_SUCCESS != MPI_Send(
@@ -922,39 +995,45 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun generate_diagonal_distribution \\\n"
-          "   [ -dim <dimension> ] [ -det | -rnd | -exp <d> <r> ] \\\n"
-            "      ( [ -s ] <m> <sigma> <s> { <m> <sigma> <s> } | \\\n"
-            "          -l   <m> <sigma> <l> { <m> <sigma> <l> } )\n");
+            "   [ -dim <dimension> ] [ -eta-bound <eta-bound> ] \\\n"
+            "      [ -det | -rnd | -exp <d> <r> ] \\\n"
+            "         ( [ -s ] <m> <sigma> <s> { <m> <sigma> <s> } | \\\n"
+            "             -l   <m> <sigma> <l> { <m> <sigma> <l> } )\n");
 
   fprintf(file, "\n");
   fprintf(file, "Selection method for d and r: -- defaults to -det\n");
 
   fprintf(file,
-    " -det     select d and r deterministically from Catalan's "
+    " -det        select d and r deterministically from Catalan's "
       "constant\n");
   fprintf(file,
-    " -rnd     select r uniformly at random from (2^(m-1), 2^m)\n");
+    " -rnd        select r uniformly at random from (2^(m-1), 2^m)\n");
   fprintf(file,
-    "          and d uniformly at random from [r/2, r)\n");
+    "             and d uniformly at random from [r/2, r)\n");
   fprintf(file,
-    " -exp     explicitly set d and r to <d> and <r>\n");
+    " -exp        explicitly set d and r to <d> and <r>\n");
 
   fprintf(file, "\n");
   fprintf(file,
     "Tuples <m> <sigma> <l> or <m> <sigma> <s>:\n");
   fprintf(file,
-    " <m>      the length m in bits of r\n");
+    " <m>         the length m in bits of r\n");
   fprintf(file,
-    " <sigma>  the padding length sigma \n");
+    " <sigma>     the padding length sigma\n");
   fprintf(file,
-    " <s>      the tradeoff factor s; used to set l = ceil((m + sigma) / s)\n");
+    " <s>         the tradeoff factor s; used to set l = ceil(m / s)\n");
   fprintf(file,
-    " <l>      the parameter l\n");
+    " <l>         the parameter l\n");
 
   fprintf(file, "\n");
   fprintf(file, "Dimension: -- defaults to 2048\n");
   fprintf(file,
-    " -dim     explicitly set the slice dimension to <dimension>\n");
+    " -dim        explicitly set the slice dimension to <dimension>\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Eta bound: -- defaults to 0\n");
+  fprintf(file,
+    " -eta-bound  explicitly set the eta bound to <eta-bound>\n");
 
   fprintf(file,
     "\nNote: If -rnd is specified and m is kept constant for consecutive "

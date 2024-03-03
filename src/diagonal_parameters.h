@@ -43,8 +43,7 @@ typedef struct {
   /*!
    * \brief The parameter l.
    *
-   * If s is explicitly specified, the parameter l is set to
-   * ceil((m + sigma) / s).
+   * If s is explicitly specified, the parameter l is set to ceil(m / s).
    */
   uint32_t l;
 
@@ -73,6 +72,11 @@ typedef struct {
    *         skip notifications in the MPI programs.
    */
   uint32_t t;
+
+  /*!
+   * \brief A bound on the peak index eta.
+   */
+  uint32_t eta_bound;
 
   /*!
    * \brief The order r.
@@ -135,7 +139,7 @@ void diagonal_parameters_clear(
  * \brief   Sets up the parameters for explicitly specified d and r, and for
  *          explicitly specified values of m and s.
  *
- * This function sets l = ceil((m + sigma) / s).
+ * This function sets l = ceil(m / s).
  *
  * \param[in, out] parameters   The parameters to setup.
  * \param[in] d                 The logarithm d.
@@ -143,6 +147,7 @@ void diagonal_parameters_clear(
  * \param[in] m                 The length in bits of r.
  * \param[in] sigma             The padding length sigma.
  * \param[in] s                 The tradeoff factor s.
+ * \param[in] eta_bound         The bound on the peak index eta.
  * \param[in] t                 The parameter t, see Parameters::t for details.
  */
 void diagonal_parameters_explicit_m_s(
@@ -152,6 +157,7 @@ void diagonal_parameters_explicit_m_s(
   const uint32_t m,
   const uint32_t sigma,
   const uint32_t s,
+  const uint32_t eta_bound,
   const uint32_t t);
 
 /*!
@@ -166,6 +172,7 @@ void diagonal_parameters_explicit_m_s(
  * \param[in] m                 The length in bits of r.
  * \param[in] sigma             The padding length sigma.
  * \param[in] l                 The parameter l.
+ * \param[in] eta_bound         The bound on the peak index eta.
  * \param[in] t                 The parameter t, see Parameters::t for details.
  */
 void diagonal_parameters_explicit_m_l(
@@ -175,6 +182,7 @@ void diagonal_parameters_explicit_m_l(
   const uint32_t m,
   const uint32_t sigma,
   const uint32_t l,
+  const uint32_t eta_bound,
   const uint32_t t);
 
 /*!

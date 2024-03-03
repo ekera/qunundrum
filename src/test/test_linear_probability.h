@@ -29,7 +29,7 @@ void test_linear_probability_d_kat();
 void test_linear_probability_r_kat();
 
 /*!
- * \brief   Execute all unit tests for the \ref linear_distribution_probability
+ * \brief   Executes all unit tests for the \ref linear_distribution_probability
  *          module.
  */
 void test_linear_probability();

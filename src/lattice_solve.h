@@ -144,11 +144,13 @@ void lattice_solve_reduced_basis_for_r(
  * unknown vector u is close to a known vector v that may be constructed from k.
  *
  * This function attempts to find the closest vector to v in L, with the aim of
- * recovering u and by extension dr, which in turn yields d since r is given.
+ * recovering u and by extension 2^l d r, which in turn yields d since 2^l r is
+ * given.
+ *
  * For further details, see [1].
  *
  * [1] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
- * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
+ * discrete logarithms. In: ArXiv Pre-Print 1905.09084v3.
  *
  * \param[out] status_d       A pointer to an enumeration entry in which to
  *                            store status information on the recovery of d.
@@ -335,6 +337,7 @@ void lattice_solve_for_d_r(
  *                            store status information on the recovery of d.
  * \param[in] js              The n entries for j in the (j, k) pairs.
  * \param[in] ks              The n entries for k in the (j, k) pairs.
+ * \param[in] etas            The n peak indices eta.
  * \param[in] n               The integer n.
  * \param[in] parameters      The parameters of the distribution. These
  *                            parameters in particular contain d and r.
@@ -348,6 +351,7 @@ void lattice_solve_for_d_given_r(
   Lattice_Status_Recovery * const status_d,
   const mpz_t * const js,
   const mpz_t * const ks,
+  const int32_t * const etas,
   const uint32_t n,
   const Diagonal_Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,

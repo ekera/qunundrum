@@ -17,7 +17,8 @@
 void diagonal_distribution_slice_compute_richardson(
   Diagonal_Distribution_Slice * const slice,
   const Diagonal_Parameters * const parameters,
-  const int32_t min_log_alpha_r)
+  const int32_t min_log_alpha_r,
+  const int32_t eta)
 {
   /* Extract the dimension. */
   const uint32_t dimension = slice->dimension;
@@ -30,12 +31,14 @@ void diagonal_distribution_slice_compute_richardson(
   diagonal_distribution_slice_compute(
     slice,
     parameters,
-    min_log_alpha_r);
+    min_log_alpha_r,
+    eta);
 
   diagonal_distribution_slice_compute(
     &double_slice,
     parameters,
-    min_log_alpha_r);
+    min_log_alpha_r,
+    eta);
 
   /* Perform Richardson extrapolation. */
   slice->total_probability = 0;

@@ -24,7 +24,7 @@
 void test_tau_volume_quotient_kat();
 
 /*!
- * \brief   Execute all unit tests for the \ref estimating_volume_quotients
+ * \brief   Executes all unit tests for the \ref estimating_volume_quotients
  *          module.
  */
 void test_tau_volume_quotient();

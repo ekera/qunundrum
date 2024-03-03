@@ -24,6 +24,11 @@ static void diagonal_distribution_slice_import_common(
       "Failed to import min_log_alpha_r.");
   }
 
+  if (1 != fscanf(file, "%d\n", &(slice->eta))) {
+    critical("diagonal_distribution_slice_import_common(): "
+      "Failed to import eta.");
+  }
+
   if (1 != fscanf(file, "%x\n", &(slice->flags))) {
     critical("diagonal_distribution_slice_import_common(): "
       "Failed to import flags.");
@@ -87,6 +92,7 @@ void diagonal_distribution_slice_export(
 {
   fprintf(file, "%u\n", slice->dimension);
   fprintf(file, "%d\n", slice->min_log_alpha_r);
+  fprintf(file, "%d\n", slice->eta);
   fprintf(file, "%.8x\n", slice->flags);
 
   for (uint32_t i = 0; i < slice->dimension; i++) {

@@ -163,6 +163,62 @@ void sample_j_from_diagonal_alpha_r(
   Random_State * const random_state);
 
 /*!
+ * \brief   Samples k for a diagonal probability distribution given j and eta,
+ *          and a pivot sampled uniformly at random from [0, 1].
+ *
+ * \param[in] parameters      The diagonal distribution parameters.
+ * \param[in] pivot           The pivot sampled uniformly at random from [0, 1].
+ *
+ * \param[in] j               The integer j.
+ * \param[in] eta             The peak index eta.
+ * \param[in] delta_bound     A bound on the offset Delta from k_0.
+ *
+ * \param[in, out] k          The integer k.
+ *
+ * \param[in, out] alpha_phi  The argument of the angle phi. Used when
+ *                            estimating tau. May be set to NULL, in which case
+ *                            the argument is not exported.
+ *
+ * \return  Returns #TRUE if the sampling was successful, #FALSE otherwise.
+ */
+bool sample_k_from_diagonal_j_eta_pivot(
+  const Diagonal_Parameters * const parameters,
+  long double pivot,
+  const mpz_t j,
+  const int32_t eta,
+  const uint32_t delta_bound,
+  mpz_t k,
+  mpfr_t alpha_phi = NULL);
+
+/*!
+ * \brief   Samples k for a diagonal probability distribution given j and eta,
+ *          and a pivot sampled uniformly at random from [0, 1].
+ *
+ * \param[in] parameters          The diagonal distribution parameters.
+ * \param[in, out] random_state   The random state to use when sampling.
+ *
+ * \param[in] j                   The integer j.
+ * \param[in] eta                 The peak index eta.
+ * \param[in] delta_bound         A bound on the offset Delta from k_0.
+ *
+ * \param[in, out] k              The integer k.
+ *
+ * \param[in, out] alpha_phi      The argument of the angle phi. Used when
+ *                                estimating tau. May be set to NULL, in which
+ *                                case the argument is not exported.
+ *
+ * \return  Returns #TRUE if the sampling was successful, #FALSE otherwise.
+ */
+bool sample_k_from_diagonal_j_eta(
+  const Diagonal_Parameters * const parameters,
+  Random_State * const random_state,
+  const mpz_t j,
+  const int32_t eta,
+  const uint32_t delta_bound,
+  mpz_t k,
+  mpfr_t alpha_phi = NULL);
+
+/*!
  * \}
  */
 

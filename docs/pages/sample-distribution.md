@@ -10,11 +10,11 @@ Samples a distribution.
 The samples are written to the console.
 
 ### Mandatory command line arguments
-An entry <code>\<distribution\></code> where
+An argument <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ### Optional command line arguments
-An optional entry specifying the number of samples (defaults to 1000):
+An optional argument specifying the number of samples (defaults to 1000):
 - <code>\<n\></code> sets the number of samples to <code>\<n\></code>
 
 ## Interpreting the output
@@ -31,5 +31,5 @@ k: 37393560574157362306
 (..)
 ```
 where
-- (alpha_d, alpha_r) is the admissible argument pair sampled
-- (j, k) is an integer pair sampled from the set of all integer pairs having argument pair (alpha_d, alpha_r)
+- $(\alpha_d, \alpha_r)$ is the admissible argument pair sampled, and
+- $(j, k)$ is an integer pair sampled from the set of all integer pairs having argument pair $(\alpha_d, \alpha_r)$.

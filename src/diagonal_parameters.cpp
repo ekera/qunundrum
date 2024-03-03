@@ -68,16 +68,20 @@ void diagonal_parameters_explicit_m_s(
   const uint32_t m,
   const uint32_t sigma,
   const uint32_t s,
+  const uint32_t eta_bound,
   const uint32_t t)
 {
   /* Store m, sigma and s, and compute l. */
   parameters->m = m;
   parameters->sigma = sigma;
   parameters->s = s;
-  parameters->l = (uint32_t)ceil((double)(m + sigma) / (double)s);
+  parameters->l = (uint32_t)ceil((double)m / (double)s);
 
   /* Store t. */
   parameters->t = t;
+
+  /* Store eta_bound. */
+  parameters->eta_bound = eta_bound;
 
   /* Store d and r. */
   mpz_set(parameters->d, d);
@@ -94,6 +98,7 @@ void diagonal_parameters_explicit_m_l(
   const uint32_t m,
   const uint32_t sigma,
   const uint32_t l,
+  const uint32_t eta_bound,
   const uint32_t t)
 {
   /* Store m, sigma, s and l. */
@@ -104,6 +109,9 @@ void diagonal_parameters_explicit_m_l(
 
   /* Store t. */
   parameters->t = t;
+
+  /* Store eta_bound. */
+  parameters->eta_bound = eta_bound;
 
   /* Store d and r. */
   mpz_set(parameters->d, d);
@@ -126,6 +134,9 @@ void diagonal_parameters_copy(
   /* Copy t. */
   dst->t = src->t;
 
+  /* Copy eta_bound. */
+  dst->eta_bound = src->eta_bound;
+
   /* Copy the region. */
   dst->min_alpha_r = src->min_alpha_r;
   dst->max_alpha_r = src->max_alpha_r;
@@ -140,7 +151,7 @@ void diagonal_parameters_bcast_send(
   const int root)
 {
   /* Send broadcast of all integer parameters. */
-  uint32_t data[7];
+  uint32_t data[8];
 
   /* Get m, sigma, s and l. */
   data[0] = parameters->m;
@@ -151,13 +162,16 @@ void diagonal_parameters_bcast_send(
   /* Get t. */
   data[4] = parameters->t;
 
+  /* Get eta_bound. */
+  data[5] = parameters->eta_bound;
+
   /* Get the region. */
-  data[5] = parameters->min_alpha_r;
-  data[6] = parameters->max_alpha_r;
+  data[6] = parameters->min_alpha_r;
+  data[7] = parameters->max_alpha_r;
 
   if (MPI_SUCCESS != MPI_Bcast(
     data,
-    7, /* count */
+    8, /* count */
     MPI_UNSIGNED,
     root,
     MPI_COMM_WORLD))
@@ -176,11 +190,11 @@ void diagonal_parameters_bcast_recv(
   const int root)
 {
   /* Receive broadcast of all integer parameters. */
-  uint32_t data[7];
+  uint32_t data[8];
 
   if (MPI_SUCCESS != MPI_Bcast(
     data,
-    7, /* count */
+    8, /* count */
     MPI_UNSIGNED,
     root,
     MPI_COMM_WORLD))
@@ -198,9 +212,12 @@ void diagonal_parameters_bcast_recv(
   /* Store t. */
   parameters->t = data[4];
 
+  /* Store eta_bound. */
+  parameters->eta_bound = data[5];
+
   /* Store the region. */
-  parameters->min_alpha_r = data[5];
-  parameters->max_alpha_r = data[6];
+  parameters->min_alpha_r = data[6];
+  parameters->max_alpha_r = data[7];
 
   /* Receive broadcast of r and d. */
   mpz_bcast_recv(parameters->r, root);
@@ -223,6 +240,9 @@ void diagonal_parameters_export(
 
   /* Export t. */
   fprintf(file, "%u\n", parameters->t);
+
+  /* Export eta_bound. */
+  fprintf(file, "%u\n", parameters->eta_bound);
 
   /* Export the region. */
   fprintf(file, "%u\n", parameters->min_alpha_r);
@@ -264,6 +284,12 @@ void diagonal_parameters_import(
   /* Import t. */
   if (1 != fscanf(file, "%u\n", &(parameters->t))) {
     critical("diagonal_parameters_import(): Failed to import t.");
+  }
+
+
+  /* Import eta_bound. */
+  if (1 != fscanf(file, "%u\n", &(parameters->eta_bound))) {
+    critical("diagonal_parameters_import(): Failed to import eta_bound.");
   }
 
 

@@ -58,13 +58,13 @@ void test_tau_volume_quotient_kat() {
   }
 
   for (uint32_t i = 0; i < count; i++) {
-    /* Read parameters. */
+    /* Load parameters. */
     if (4 != fscanf(file, "%u %u %u %Lf\n", &m, &s, &n, &tau)) {
       critical("test_tau_volume_quotient_kat(): "
         "Failed to parse m, s, n and tau.");
     }
 
-    /* Read the expected volume quotient. */
+    /* Load the expected volume quotient. */
     test_mpfr_load(exp_v, file);
 
     /* Setup parameters. */
@@ -75,9 +75,9 @@ void test_tau_volume_quotient_kat() {
     tau_volume_quotient(m, l, n, d, tau, v);
 
     /* Verify v by comparing it to v_exp. */
-    if (!test_cmp_tol_ld(mpfr_get_ld(v, MPFR_RNDN),
-                         mpfr_get_ld(exp_v, MPFR_RNDN),
-                         1e-3))
+    if (TRUE != test_cmp_ld(mpfr_get_ld(v, MPFR_RNDN),
+                            mpfr_get_ld(exp_v, MPFR_RNDN),
+                            1e-3))
     {
       critical("test_tau_volume_quotient_kat(): "
         "Failed to verify volume quotient for (m, s, n) = (%u, %u, %u).",

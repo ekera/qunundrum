@@ -25,7 +25,7 @@
 void test_diagonal_probability_approx_kat();
 
 /*!
- * \brief   Execute all unit tests for the
+ * \brief   Executes all unit tests for the
  *          \ref diagonal_distribution_probability module.
  */
 void test_diagonal_probability();

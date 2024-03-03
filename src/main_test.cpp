@@ -13,9 +13,11 @@
  * \brief    A module for the test executable.
  */
 
+#include "test/test_diagonal_distribution.h"
 #include "test/test_diagonal_probability.h"
 #include "test/test_keccak.h"
 #include "test/test_keccak_random.h"
+#include "test/test_linear_distribution.h"
 #include "test/test_linear_probability.h"
 #include "test/test_math.h"
 #include "test/test_probability.h"
@@ -42,12 +44,19 @@ int main(int argc, char ** argv) {
   mpfr_set_default_prec(PRECISION);
 
   test_math();
+
   test_keccak();
   test_keccak_random();
   test_random();
-  test_diagonal_probability();
-  test_linear_probability();
+
   test_probability();
+  test_linear_probability();
+  test_diagonal_probability();
+
+  test_linear_distribution();
+  test_diagonal_distribution();
+
   test_sample();
+
   test_tau_volume_quotient();
 }

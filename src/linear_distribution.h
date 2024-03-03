@@ -96,6 +96,7 @@
 
 #include "common.h"
 #include "distribution.h"
+#include "diagonal_distribution.h"
 #include "linear_distribution_slice.h"
 #include "parameters.h"
 #include "random.h"
@@ -137,7 +138,7 @@ enum {
   /*!
    * \brief   A flag indicating that the distribution was constructed by
    *          collapsing a two-dimensional distribution to a marginal
-   *          distribution.
+   *          distribution, or by collapsing a diagonal distribution.
    */
   LINEAR_DISTRIBUTION_FLAG_COLLAPSED = 2
 };
@@ -410,6 +411,22 @@ void linear_distribution_init_collapse_d(
 void linear_distribution_init_collapse_r(
   Linear_Distribution * const dst,
   const Distribution * const src);
+
+/*!
+ * \brief   Initializes a distribution by collapsing a diagonal distribution to
+ *          a marginal distribution in alpha_r.
+ *
+ * \param[in, out] dst    The distribution to initialize.
+ * \param[in] src         The distribution to collapse.
+ *
+ * \param[in] eta_bound   An upper bound on the peak index eta. Slices with
+ *                        higher peak indices in absolute value than this bound
+ *                        will be discarded when collapsing the distribution.
+ */
+void linear_distribution_init_collapse_diagonal(
+  Linear_Distribution * const dst,
+  const Diagonal_Distribution * const src,
+  const uint32_t eta_bound = UINT32_MAX);
 
 /*!
  * \}

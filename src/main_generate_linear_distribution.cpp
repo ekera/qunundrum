@@ -314,7 +314,7 @@ static bool arguments_init_parse_command_line(
     break;
   }
 
-  /* Set default parameters if arguments where not explicitly specified. */
+  /* Set default parameters if arguments were not explicitly specified. */
   if (0 == arguments->dimension) {
     arguments->dimension = 2048;
   }
@@ -984,7 +984,7 @@ static void main_client()
         target,
         min_log_alpha);
 
-    /* Notify the server we are done computing the slice. */
+    /* Notify the server that we are done computing the slice. */
     notification = MPI_NOTIFY_SLICE_DONE;
 
     if (MPI_SUCCESS != MPI_Send(

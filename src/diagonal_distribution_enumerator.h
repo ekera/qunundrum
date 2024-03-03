@@ -38,6 +38,11 @@ typedef struct {
   int32_t min_log_alpha_r;
 
   /*!
+   * \brief   The peak index eta of the slice.
+   */
+  int32_t eta;
+
+  /*!
    * \brief   A distance measure used to sort the coordinates so that
    *          coordinates for slices that are more likely to capture a large
    *          fraction of the total probability mass are processed first.
@@ -93,12 +98,14 @@ typedef struct {
  *
  * \param[in, out] enumerator The enumerator to be initialized.
  * \param[in] parameters      The distribution parameters.
+ * \param[in] eta_bound       A bound on the peak index eta.
  * \param[in] mirrored        A flag indicating if the distribution is to be
  *                            mirrored.
  */
 void diagonal_distribution_enumerator_init(
   Diagonal_Distribution_Enumerator * const enumerator,
   const Diagonal_Parameters * const parameters,
+  const uint32_t eta_bound,
   const bool mirrored);
 
 /*!
@@ -123,6 +130,8 @@ void diagonal_distribution_enumerator_clear(
  *
  * \param[out] min_log_alpha_r  A pointer to an integer to set to the minimum
  *                              logarithmic alpha_r-coordinate of the slice.
+ * \param[out] eta              A pointer to an integer to set to the peak index
+ *                              eta of the slice.
  * \param[in] enumerator        An initialized enumerator.
  *
  * \return #TRUE if the coordinate of the next slice was returned, #FALSE
@@ -130,6 +139,7 @@ void diagonal_distribution_enumerator_clear(
  */
 bool diagonal_distribution_enumerator_next(
   int32_t * const min_log_alpha_r,
+  int32_t * const eta,
   Diagonal_Distribution_Enumerator * const enumerator);
 
 /*!
