@@ -9,6 +9,7 @@
 
 #include "common.h"
 #include "diagonal_parameters.h"
+#include "diagonal_probability.h"
 #include "errors.h"
 #include "math.h"
 #include "parameters.h"
@@ -406,4 +407,263 @@ void sample_j_from_diagonal_alpha_r(
   /* Clear memory. */
   mpz_clear(t_r);
   mpz_clear(pow2);
+}
+
+bool sample_k_from_diagonal_j_eta_pivot(
+  const Diagonal_Parameters * const parameters,
+  long double pivot,
+  const mpz_t j,
+  const int32_t eta,
+  const uint32_t delta_bound,
+  mpz_t k,
+  mpfr_t alpha_phi)
+{
+  /* Sanity checks. */
+  if ((pivot < 0) || (pivot > 1)) {
+    critical("sample_k_from_diagonal_j_eta_pivot(): "
+      "The pivot is out of bounds.");
+  }
+
+  /* Setup precision. */
+  const uint32_t precision =
+    3 * (max_ui(parameters->m + parameters->sigma, PRECISION));
+
+  /* Declare variables. */
+  mpz_t alpha_r;
+  mpz_init(alpha_r);
+
+  mpz_t k0;
+  mpz_init(k0);
+
+  mpz_t tmp_z;
+  mpz_init(tmp_z);
+
+  mpfr_t tmp;
+  mpfr_init2(tmp, precision);
+
+  /* Declare constants. */
+  mpz_t pow2_m_sigma;
+  mpz_init(pow2_m_sigma);
+
+  mpz_set_ui(pow2_m_sigma, 0); /* pow2_m_sigma = 0 */
+  mpz_setbit(pow2_m_sigma,
+    parameters->m +
+    parameters->sigma); /* pow2_m_sigma = 2^(m + sigma) */
+
+  mpz_t pow2_m_sigma_l;
+  mpz_init(pow2_m_sigma_l);
+
+  mpz_set_ui(pow2_m_sigma_l, 0); /* pow2_m_sigma_l = 0 */
+  mpz_setbit(pow2_m_sigma_l,
+    parameters->m +
+    parameters->sigma -
+    parameters->l); /* pow2_m_sigma_l = 2^(m + sigma - l) */
+
+  mpz_t pow2_l;
+  mpz_init(pow2_l);
+
+  mpz_set_ui(pow2_l, 0); /* pow2_l = 0 */
+  mpz_setbit(pow2_l, parameters->l); /* pow2_l = 2^l */
+
+  /* Compute alpha_r. */
+  mpz_mul(alpha_r, parameters->r, j); /* alpha_r = rj */
+  mod_reduce(alpha_r, pow2_m_sigma); /* alpha_r = {rj}_{2^(m + sigma)} */
+
+  /* Compute k0. */
+  mpz_mul_si(tmp_z, pow2_m_sigma, eta); /* tmp_z = 2^(m + sigma) eta */
+  mpz_sub(tmp_z, alpha_r, tmp_z); /* tmp_z = alpha_r - 2^(m + sigma) eta */
+
+  mpfr_set_z(tmp, tmp_z, MPFR_RNDN); /* tmp = alpha_r - 2^(m + sigma) eta */
+  mpfr_mul_z(tmp, tmp, parameters->d, MPFR_RNDN);
+    /* tmp = d * (alpha_r - 2^(m + sigma) eta) */
+  mpfr_div_z(tmp, tmp, parameters->r, MPFR_RNDN);
+    /* tmp = (d / r) * (alpha_r - 2^(m + sigma) eta) */
+
+  mpz_mul(tmp_z, parameters->d, j); /* tmp_z = d * j */
+  mpfr_sub_z(tmp, tmp, tmp_z, MPFR_RNDN);
+    /* tmp = (d / r) * (alpha_r - 2^(m + sigma) eta) - d * j */
+
+  mpfr_div_z(tmp, tmp, pow2_m_sigma_l, MPFR_RNDN);
+    /* tmp = ((d / r) * (alpha_r - 2^(m + sigma) eta) - d * j) /
+               2^(m + sigma - l) */
+
+  mpfr_round(tmp, tmp);
+  mpfr_get_z(k0, tmp, MPFR_RNDN); /* k0 = round(tmp) */
+  mpz_mod(k0, k0, pow2_l); /* k0 = k0 mod 2^l */
+
+  #ifdef DEBUG_TRACE_SAMPLING
+  gmp_printf("sample_k_from_diagonal_j_eta_pivot(): "
+    "Debug: Computed k0: %Zd\n", k0);
+  #endif
+
+  /* Compute phi and evaluate h(phi). Pre-compute some values. */
+  mpfr_t phi;
+  mpfr_init2(phi, precision);
+
+  mpfr_t scale;
+  mpfr_init2(scale, precision);
+
+  mpfr_const_pi(scale, MPFR_RNDN); /* scale = pi */
+  mpfr_mul_ui(scale, scale, 2, MPFR_RNDN); /* scale = 2 pi */
+  mpfr_div_z(scale, scale, pow2_m_sigma, MPFR_RNDN);
+    /* scale = 2 pi / 2^(m + sigma) */
+
+  mpfr_t term_j_eta;
+  mpfr_init2(term_j_eta, precision);
+
+  mpz_mul_si(tmp_z, pow2_m_sigma, eta); /* tmp_z = 2^(m + sigma) eta */
+  mpz_sub(tmp_z, alpha_r, tmp_z); /* tmp_z = alpha_r - 2^(m + sigma) eta */
+
+  mpfr_set_z(term_j_eta, tmp_z, MPFR_RNDN);
+    /* tmp = alpha_r - 2^(m + sigma) eta */
+  mpfr_mul_z(term_j_eta, term_j_eta, parameters->d, MPFR_RNDN);
+    /* term_j_eta = d * (alpha_r - 2^(m + sigma) eta) */
+  mpfr_div_z(term_j_eta, term_j_eta, parameters->r, MPFR_RNDN);
+    /* term_j_eta = (d / r) * (alpha_r - 2^(m + sigma) eta) */
+
+  mpz_mul(tmp_z, parameters->d, j); /* tmp_z = d j */
+  mpfr_sub_z(term_j_eta, term_j_eta, tmp_z, MPFR_RNDN);
+    /* term_j_eta = (d / r) * (alpha_r - 2^(m + sigma) eta) - d j */
+  mpfr_neg(term_j_eta, term_j_eta, MPFR_RNDN);
+    /* term_j_eta = d j - (d / r) * (alpha_r - 2^(m + sigma) eta) */
+
+  #ifdef DEBUG_TRACE_SAMPLING
+  mpfr_printf("sample_k_from_diagonal_j_eta_pivot(): "
+    "Debug: Computed term_j_eta: %Rg\n", term_j_eta);
+  #endif
+
+  for (uint32_t delta_abs = 0; delta_abs <= delta_bound; delta_abs++) {
+    for (int32_t delta_sgn = 1; delta_sgn >= -1; delta_sgn -= 2) {
+
+      if ((0 == delta_abs) && (-1 == delta_sgn)) {
+        continue;
+      }
+
+      /* Compute k. */
+      if (1 == delta_sgn) {
+        mpz_add_ui(k, k0, delta_abs); /* k = k0 + delta = k0 + delta_abs */
+      } else {
+        mpz_sub_ui(k, k0, delta_abs); /* k = k0 + delta = k0 - delta_abs */
+      }
+
+      mpz_mod(k, k, pow2_l); /* k = k mod 2^l */
+
+      /* Compute phi. */
+      mpz_mul(tmp_z, pow2_m_sigma_l, k); /* tmp_z = 2^(m + sigma - l) k */
+      mpfr_add_z(phi, term_j_eta, tmp_z, MPFR_RNDN);
+        /* phi = dj + 2^(m + sigma - l) k -
+                   (d / r) (alpha_r - 2^(m + sigma) eta) */
+
+      mpfr_set_z(tmp, pow2_m_sigma, MPFR_RNDN); /* tmp = 2^(m + sigma) */
+      mpfr_fmod(phi, phi, tmp, MPFR_RNDN);
+        /* phi = (dj + 2^(m + sigma - l) k -
+                   (d / r) (alpha_r - 2^(m + sigma) eta)) mod 2^(m + sigma) */
+      mpfr_div_ui(tmp, tmp, 2, MPFR_RNDN); /* tmp = 2^(m + sigma) / 2 */
+      if (mpfr_cmp(phi, tmp) >= 0) {
+        mpfr_sub_z(phi, phi, pow2_m_sigma, MPFR_RNDN);
+      }
+
+      /* phi = {dj + 2^(m + sigma - l) k -
+                 (d / r) (alpha_r - 2^(m + sigma) eta)}_{2^(m + sigma)} */
+
+      if (NULL != alpha_phi) {
+        mpfr_set(alpha_phi, phi, MPFR_RNDN);
+      }
+
+      mpfr_mul(phi, phi, scale, MPFR_RNDN);
+        /* phi = (2 pi / 2^(m + sigma)) {dj + 2^(m + sigma - l) k -
+                   (d / r) (alpha_r - 2^(m + sigma) eta)}_{2^(m + sigma)} */
+
+      #ifdef DEBUG_TRACE_SAMPLING
+      mpfr_printf("sample_k_from_diagonal_j_eta_pivot(): "
+        "Debug: For Delta = %d, computed phi: %Rg\n",
+          ((int32_t)delta_abs) * delta_sgn, phi);
+      #endif
+
+      diagonal_probability_approx_h(tmp, phi, parameters);
+
+      pivot -= mpfr_get_ld(tmp, MPFR_RNDN);
+
+      #ifdef DEBUG_TRACE_SAMPLING
+      printf("sample_k_from_diagonal_j_eta_pivot(): "
+        "Debug: Decremented pivot to: %Lf\n", pivot);
+      #endif
+
+      if (pivot <= 0) {
+        break;
+      }
+    }
+
+    if (pivot <= 0) {
+      break;
+    }
+  }
+
+  /* Clear memory. */
+  mpz_clear(alpha_r);
+
+  mpz_clear(k0);
+  mpz_clear(tmp_z);
+
+  mpz_clear(pow2_m_sigma);
+  mpz_clear(pow2_m_sigma_l);
+  mpz_clear(pow2_l);
+
+  mpfr_clear(phi);
+
+  mpfr_clear(scale);
+  mpfr_clear(term_j_eta);
+
+  mpfr_clear(tmp);
+
+  if (pivot > 0) {
+    #ifdef DEBUG_TRACE_SAMPLING
+    printf("sample_k_from_diagonal_j_eta_pivot(): "
+      "Debug: Sampled k given j and eta: Out of bounds.\n");
+    #endif
+
+    mpz_set_ui(k, 0);
+
+    if (NULL != alpha_phi) {
+      mpfr_set_ui(alpha_phi, 0, MPFR_RNDN);
+    }
+
+    /* Signal sampling error in h. */
+    return FALSE;
+  }
+
+  #ifdef DEBUG_TRACE_SAMPLING
+  gmp_printf("sample_k_from_diagonal_j_eta_pivot(): "
+    "Debug: Sampled k: %Zd\n", k);
+  #endif
+
+  /* Signal success. */
+  return TRUE;
+}
+
+bool sample_k_from_diagonal_j_eta(
+  const Diagonal_Parameters * const parameters,
+  Random_State * const random_state,
+  const mpz_t j,
+  const int32_t eta,
+  const uint32_t delta_bound,
+  mpz_t k,
+  mpfr_t alpha_phi)
+{
+  /* Select a pivot uniformly at random. */
+  long double pivot = random_generate_pivot_inclusive(random_state);
+
+  #ifdef DEBUG_TRACE_SAMPLING
+  printf("sample_k_from_diagonal_j_eta(): Debug: Sampled pivot: %Lf\n", pivot);
+  #endif
+
+  /* Call and signal result. */
+  return sample_k_from_diagonal_j_eta_pivot(
+            parameters,
+            pivot,
+            j,
+            eta,
+            delta_bound,
+            k,
+            alpha_phi);
 }

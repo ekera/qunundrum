@@ -30,6 +30,7 @@ obj/test/*.o
 /plot_diagonal_distribution
 /estimate_runs_distribution
 /estimate_runs_linear_distribution
+/estimate_runs_diagonal_distribution
 /sample_distribution
 /sample_linear_distribution
 /sample_diagonal_distribution

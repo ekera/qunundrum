@@ -24,6 +24,7 @@
 #include "lattice.h"
 #include "lattice_enumerate.h"
 #include "lattice_solve.h"
+#include "log.h"
 #include "math.h"
 #include "random.h"
 #include "sample.h"
@@ -68,6 +69,23 @@ typedef struct {
  * \ingroup solve_diagonal_distribution_exe
  */
 typedef struct {
+  /*!
+   * \brief   The bound on the offset Delta from k_0 when sampling k given j.
+   */
+  uint32_t delta_bound;
+
+  /*!
+   * \brief   The bound on the peak index eta.
+   */
+  uint32_t eta_bound;
+
+  /*!
+   * \brief   A boolean flag that indicates whether the bound on the peak index
+   *          eta has been specified. Otherwise, the eta bound used to setup
+   *          each distribution is used.
+   */
+  bool eta_bound_specified;
+
   /*!
    * \brief   The search strategy.
    */
@@ -130,6 +148,9 @@ static bool arguments_init_parse_command_line(
   char ** argv)
 {
   /* Initialize the arguments data structure. */
+  arguments->delta_bound = BOUND_DELTA;
+  arguments->eta_bound = 0;
+  arguments->eta_bound_specified = FALSE;
   arguments->search_strategy = SEARCH_STRATEGY_DEFAULT;
   arguments->solution_method = SOLUTION_METHOD_DEFAULT;
   arguments->reduction_algorithm = REDUCTION_ALGORITHM_DEFAULT;
@@ -137,12 +158,73 @@ static bool arguments_init_parse_command_line(
   arguments->entries = NULL;
   arguments->count = 0;
 
+  bool delta_bound_specified = FALSE;
   bool timeout_specified = FALSE;
 
   /* Iterate over the command line arguments. */
   int i;
 
   for (i = 1; i < argc; i++) {
+    /* Parse the delta bound. */
+    if (0 == strcmp(argv[i], "-delta-bound")) {
+      /* Check that a delta bound has not already been specified. */
+      if (FALSE != delta_bound_specified) {
+        fprintf(stderr, "Error: The delta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <delta-bound> to follow after "
+          "-delta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if (x < 0) {
+        fprintf(stderr, "Error: The <delta-bound> passed to -delta-bound must "
+          "be non-negative.\n");
+        return FALSE;
+      }
+
+      /* Store the delta bound. */
+      arguments->delta_bound = (uint32_t)x;
+      delta_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
+    /* Parse the eta bound. */
+    if (0 == strcmp(argv[i], "-eta-bound")) {
+      /* Check that an eta bound has not already been specified. */
+      if (FALSE != arguments->eta_bound_specified) {
+        fprintf(stderr, "Error: The eta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <eta-bound> to follow after "
+          "-eta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if ((x < 0) || (x > 256)) {
+        fprintf(stderr, "Error: The <eta-bound> passed to -eta-bound must be "
+          "on the interval [0, 256].\n");
+        return FALSE;
+      }
+
+      /* Store the eta bound. */
+      arguments->eta_bound = (uint32_t)x;
+      arguments->eta_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
     /* Parse the search strategy. */
     Search_Strategy search_strategy = SEARCH_STRATEGY_DEFAULT;
 
@@ -251,7 +333,7 @@ static bool arguments_init_parse_command_line(
     break;
   }
 
-  /* Set default parameters if arguments where not explicitly specified. */
+  /* Set default parameters if arguments were not explicitly specified. */
   if (SOLUTION_METHOD_DEFAULT == arguments->solution_method) {
     arguments->solution_method = SOLUTION_METHOD_CLOSEST;
   }
@@ -329,20 +411,30 @@ static bool arguments_init_parse_command_line(
   return TRUE;
 }
 
+/*!
+ * \brief   Broadcasts the command line arguments to all other nodes.
+ *
+ * \param[in] arguments   The parsed command line arguments to broadcast.
+ * \param[in] root        The rank of the root node.
+ */
 static void arguments_bcast_send(
   const Solve_Diagonal_Distribution_Arguments * const arguments,
   const int root)
 {
   int result;
 
-  uint32_t data[5];
-  data[0] = (uint32_t)(arguments->search_strategy);
-  data[1] = (uint32_t)(arguments->solution_method);
-  data[2] = (uint32_t)(arguments->reduction_algorithm);
-  data[3] = (uint32_t)(arguments->timeout);
-  data[4] = (uint32_t)(arguments->count);
+  uint32_t data[8];
+  data[0] = arguments->delta_bound;
+  data[1] = arguments->eta_bound;
+  data[2] = (TRUE == arguments->eta_bound_specified) ? 1 : 0;
 
-  result = MPI_Bcast(data, 5, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  data[3] = (uint32_t)(arguments->search_strategy);
+  data[4] = (uint32_t)(arguments->solution_method);
+  data[5] = (uint32_t)(arguments->reduction_algorithm);
+  data[6] = (uint32_t)(arguments->timeout);
+  data[7] = (uint32_t)(arguments->count);
+
+  result = MPI_Bcast(data, 8, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_bcast_send(): Failed to send broadcast.");
   };
@@ -383,6 +475,13 @@ static void arguments_bcast_send(
   }
 }
 
+/*!
+ * \brief   Initializes the command line arguments by receiving a broadcast from
+ *          a node.
+ *
+ * \param[in, out] arguments  The command line arguments to initialize.
+ * \param[in] root            The rank of the node from which to receive.
+ */
 static void arguments_init_bcast_recv(
   Solve_Diagonal_Distribution_Arguments * const arguments,
   const int root)
@@ -392,19 +491,22 @@ static void arguments_init_bcast_recv(
 
   int result;
 
-  uint32_t data[5];
+  uint32_t data[8];
 
-  result = MPI_Bcast(data, 5, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 8, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_init_bcast_recv(): "
       "Failed to receive broadcast of collected metadata.");
   };
 
-  arguments->search_strategy = (Search_Strategy)(data[0]);
-  arguments->solution_method = (Solution_Method)(data[1]);
-  arguments->reduction_algorithm = (Lattice_Reduction_Algorithm)(data[2]);
-  arguments->timeout = data[3];
-  arguments->count = data[4];
+  arguments->delta_bound = data[0];
+  arguments->eta_bound = data[1];
+  arguments->eta_bound_specified = (1 == data[2]) ? TRUE : FALSE;
+  arguments->search_strategy = (Search_Strategy)(data[3]);
+  arguments->solution_method = (Solution_Method)(data[4]);
+  arguments->reduction_algorithm = (Lattice_Reduction_Algorithm)(data[5]);
+  arguments->timeout = data[6];
+  arguments->count = data[7];
 
   arguments->entries =
     (Solve_Diagonal_Distribution_Arguments_Entry *)malloc(
@@ -458,6 +560,78 @@ static void arguments_init_bcast_recv(
         "Failed to receive broadcast of the path.");
     };
   }
+}
+
+/*!
+ * \brief   Prints the command line arguments.
+ *
+ * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in] arguments     The parsed command line arguments to print.
+ * \param[in] distribution  The distribution being processed.
+ */
+static void arguments_fprintf(
+  FILE * const file,
+  const Solve_Diagonal_Distribution_Arguments * const arguments,
+  const Diagonal_Distribution * const distribution)
+{
+  if (TRUE == arguments->eta_bound_specified) {
+    mpfr_fprintf(file, "# Bounds: (eta = %u (%u), delta = %u)\n",
+      arguments->eta_bound,
+      distribution->parameters.eta_bound,
+      arguments->delta_bound);
+  } else {
+    mpfr_fprintf(file, "# Bounds: (eta = <all> (%u), delta = %u)\n",
+      distribution->parameters.eta_bound,
+      arguments->delta_bound);
+  }
+
+  switch (arguments->search_strategy) {
+    case SEARCH_STRATEGY_DEFAULT:
+    case SEARCH_STRATEGY_ADAPTIVE:
+      fprintf(file, "# Search strategy: Adaptive\n");
+      break;
+
+    case SEARCH_STRATEGY_NON_ADAPTIVE:
+      fprintf(file, "# Search strategy: Non-adaptive\n");
+      break;
+
+    case SEARCH_STRATEGY_NON_ADAPTIVE_EARLY_ABORT:
+      fprintf(file, "# Search strategy: Non-adaptive with early abort\n");
+      break;
+  }
+
+  switch (arguments->solution_method) {
+    case SOLUTION_METHOD_DEFAULT:
+    case SOLUTION_METHOD_CLOSEST:
+      fprintf(file, "# Solution method: Closest\n");
+      break;
+
+    case SOLUTION_METHOD_ENUMERATE:
+      fprintf(file, "# Solution method: Enumerate (timeout: %u s)\n",
+        arguments->timeout);
+      break;
+  }
+
+  switch (arguments->reduction_algorithm) {
+    case REDUCTION_ALGORITHM_DEFAULT:
+    case REDUCTION_ALGORITHM_LLL_BKZ:
+      fprintf(file, "# Reduction algorithm: LLL then BKZ\n");
+      break;
+
+    case REDUCTION_ALGORITHM_LLL:
+      fprintf(file, "# Reduction algorithm: LLL\n");
+      break;
+
+    case REDUCTION_ALGORITHM_BKZ:
+      fprintf(file, "# Reduction algorithm: BKZ\n");
+      break;
+
+    case REDUCTION_ALGORITHM_HKZ:
+      fprintf(file, "# Reduction algorithm: HKZ\n");
+      break;
+  }
+
+  log_timestamp_fprintf(file);
 }
 
 /*!
@@ -525,6 +699,7 @@ static void main_server(
   }
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(entry->path));
+  arguments_fprintf(log_file, arguments, distribution);
 
   /* Broadcast the distribution. */
   diagonal_distribution_bcast_send(distribution, MPI_RANK_ROOT);
@@ -970,7 +1145,8 @@ static void main_client(
 
     mpz_t * js = (mpz_t *)malloc(n * sizeof(mpz_t));
     mpz_t * ks = (mpz_t *)malloc(n * sizeof(mpz_t));
-    if ((NULL == js) || (NULL == ks)) {
+    int32_t * etas = (int32_t *)malloc(n * sizeof(int32_t));
+    if ((NULL == js) || (NULL == ks) || (NULL == etas)) {
       critical("main_client(): Failed to allocate memory.");
     }
 
@@ -985,10 +1161,25 @@ static void main_client(
       result = diagonal_distribution_sample_pair_j_k(
                   &distribution,
                   &random_state,
+                  arguments->delta_bound,
                   js[i],
-                  ks[i]);
+                  ks[i],
+                  &etas[i],
+                  NULL);
       if (TRUE != result) {
         break;
+      }
+
+      /* If a bound on eta was not explicitly specified, we accept all eta
+       * contained in the distribution, and hence skip the below check. */
+      if (TRUE == arguments->eta_bound_specified) {
+        if (abs_i(etas[i]) > arguments->eta_bound) {
+          /* Consider this a sampling error as if the distribution did not
+           * contain the slice sampled. Break the loop. */
+
+          result = FALSE;
+          break;
+        }
       }
     }
 
@@ -1004,6 +1195,9 @@ static void main_client(
 
       free(ks);
       ks = NULL;
+
+      free(etas);
+      etas = NULL;
 
       /* Notify the server that the attempt to sample was out of bounds. */
       notification = MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS;
@@ -1046,6 +1240,7 @@ static void main_client(
         &recovery_status,
         js,
         ks,
+        etas,
         n,
         &(distribution.parameters),
         arguments->reduction_algorithm,
@@ -1055,6 +1250,7 @@ static void main_client(
         &recovery_status,
         js,
         ks,
+        etas,
         n,
         &(distribution.parameters),
         arguments->reduction_algorithm,
@@ -1111,6 +1307,9 @@ static void main_client(
 
     free(ks);
     ks = NULL;
+
+    free(etas);
+    etas = NULL;
   }
 
   /* Clear memory. */
@@ -1135,10 +1334,22 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun solve_diagonal_distribution \\\n"
-          "   [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
-          "      [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
-          "         [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
-          "            <distribution> <n> { <distribution> <n> }\n");
+          "   [ -delta-bound <delta-bound> ] [ -eta-bound <eta-bound> ] \\\n"
+          "      [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
+          "         [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
+          "            [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
+          "               <distribution> <n> { <distribution> <n> }\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Delta bound: -- defaults to %u\n", BOUND_DELTA);
+  fprintf(file,
+    " -delta-bound  explicitly set the delta bound to <delta-bound>\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Eta bound: -- "
+    "defaults to the eta bound for the distribution\n");
+  fprintf(file,
+    " -eta-bound    explicitly set the eta bound to <eta-bound>\n");
 
   fprintf(file, "\n");
   fprintf(file, "Search strategy: -- defaults to adaptive\n");
@@ -1306,6 +1517,14 @@ int main(int argc, char ** argv) {
         diagonal_distribution_loader_pop(&loader);
 
       printf("Processing: %s\n", paths[i]);
+
+      if (TRUE == arguments.eta_bound_specified) {
+        if (arguments.eta_bound > distribution->parameters.eta_bound) {
+          critical("main(): The eta bound specified via -eta-bound is greater "
+            "than the eta bound used to generate the distribution.");
+        }
+      }
+
       main_server(
         &arguments,
         &(arguments.entries[i]),

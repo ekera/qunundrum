@@ -38,7 +38,8 @@
 
 static void plot_diagonal_distribution(
   Diagonal_Distribution * const distribution,
-  const bool absolute)
+  const bool absolute,
+  const uint32_t eta_bound = UINT32_MAX)
 {
   /* Assert that the distribution is non-empty. */
   if (0 == distribution->count) {
@@ -101,6 +102,7 @@ static void plot_diagonal_distribution(
   gmp_fprintf(file, "%% d = %Zd\n", distribution->parameters.d);
   gmp_fprintf(file, "%% r = %Zd\n", distribution->parameters.r);
   fprintf(file, "%% dimension = %u\n", SCALED_DIMENSION_LINEAR);
+  fprintf(file, "%% eta-bound = %u\n", distribution->parameters.eta_bound);
   fprintf(file, "%% flags = %.8x\n\n", distribution->flags);
 
   fprintf(file, "\\documentclass[crop, tikz]{standalone}\n");
@@ -120,11 +122,12 @@ static void plot_diagonal_distribution(
     distribution,
     SCALED_DIMENSION_LINEAR);
 
-  plot_diagonal_distribution_horizontal(
+  plot_diagonal_distribution_horizontal_collapsed(
     &scaled_distribution,
     0, /* offset_y */
     file,
-    absolute);
+    absolute,
+    eta_bound);
 
   /* Write the file footer. */
   fprintf(file, "\n");
@@ -147,14 +150,22 @@ static void plot_diagonal_distribution(
 static void print_synopsis(
   FILE * const file)
 {
-  fprintf(file, "Synopsis: plot_diagonal_distribution "
-    "[ -sgn | -abs ] <distribution> { <distribution> }\n");
+  fprintf(file, "Synopsis: plot_diagonal_distribution \\\n"
+    "   [ -sgn | -abs ] [ -eta-bound <eta-bound> ] \\\n"
+      "      <distribution> { <distribution> }\n");
+
   fprintf(file, "\n");
   fprintf(file, "Absolute or signed: -- defaults to -sgn\n");
   fprintf(file, " -abs  "
     "Assume symmetry around zero. Plot only the positive side of the axis.\n");
   fprintf(file, " -sgn  "
     "Independently plot both the negative and positive sides of the axis.\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Eta bound: -- "
+    "defaults to the eta bound for the distribution\n");
+  fprintf(file,
+    " -eta-bound    explicitly set the eta bound to <eta-bound>\n");
 }
 
 /*!
@@ -175,15 +186,64 @@ int main(int argc, char ** argv) {
   }
 
   bool absolute = FALSE;
+  uint32_t eta_bound = UINT32_MAX;
+
+  bool absolute_specified = FALSE;
+  bool eta_bound_specified = FALSE;
 
   int i = 1;
 
-  if (strcmp(argv[i], "-sgn") == 0) {
-    absolute = FALSE;
-    i++;
-  } else if (strcmp(argv[i], "-abs") == 0) {
-    absolute = TRUE;
-    i++;
+  for (i = 1; i < argc; i++) {
+    /* Parse signed and absolute flags. */
+    if ((strcmp(argv[i], "-sgn") == 0) || (strcmp(argv[i], "-abs") == 0)) {
+      if (TRUE == absolute_specified) {
+        fprintf(stderr, "Error: The -sgn and -abs flags cannot be twice "
+          "specified, or both be specified.\n");
+        return -1;
+      }
+
+      if (strcmp(argv[i], "-sgn") == 0) {
+        absolute = FALSE;
+      } else if (strcmp(argv[i], "-abs") == 0) {
+        absolute = TRUE;
+      }
+
+      absolute_specified = TRUE;
+
+      continue;
+    }
+
+    /* Parse the eta bound. */
+    if (0 == strcmp(argv[i], "-eta-bound")) {
+      /* Check that an eta bound has not already been specified. */
+      if (FALSE != eta_bound_specified) {
+        fprintf(stderr, "Error: The eta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <eta-bound> to follow after "
+          "-eta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if ((x < 0) || (x > 256)) {
+        fprintf(stderr, "Error: The <eta-bound> passed to -eta-bound must be "
+          "on the interval [0, 256].\n");
+        return FALSE;
+      }
+
+      /* Store the eta bound. */
+      eta_bound = (uint32_t)x;
+      eta_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
+    break;
   }
 
   for ( ; i < argc; i++) {
@@ -201,8 +261,17 @@ int main(int argc, char ** argv) {
     diagonal_distribution_init_import(&distribution, file);
     fclose(file);
 
-    /* Process the distribution. */
-    plot_diagonal_distribution(&distribution, absolute);
+    /* Plot the distribution. */
+    if (FALSE == eta_bound_specified) {
+      eta_bound = distribution.parameters.eta_bound;
+    } else {
+      if (eta_bound > distribution.parameters.eta_bound) {
+        critical("main(): The eta bound specified via -eta-bound is greater "
+          "than the eta bound used to generate the distribution.");
+      }
+    }
+
+    plot_diagonal_distribution(&distribution, absolute, eta_bound);
 
     /* Clear memory. */
     diagonal_distribution_clear(&distribution);

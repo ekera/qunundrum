@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "distribution.h"
+#include "diagonal_distribution.h"
 #include "errors.h"
 #include "linear_distribution_slice.h"
 #include "math.h"
@@ -315,6 +316,98 @@ void linear_distribution_init_collapse_r(
         }
 
       }
+    }
+  }
+
+  dst->total_probability = src->total_probability;
+  dst->total_error = src->total_error;
+}
+
+void linear_distribution_init_collapse_diagonal(
+  Linear_Distribution * const dst,
+  const Diagonal_Distribution * const src,
+  const uint32_t eta_bound)
+{
+  /* Initialize the distribution. */
+  uint32_t flags;
+
+  flags  = LINEAR_DISTRIBUTION_FLAG_R;
+  flags |= LINEAR_DISTRIBUTION_FLAG_COLLAPSED;
+
+  Parameters parameters;
+  parameters_init(&parameters);
+  parameters.m = src->parameters.m;
+  parameters.l = src->parameters.sigma;
+  parameters.s = 0;
+
+  mpz_set(parameters.d, src->parameters.d);
+  mpz_set(parameters.r, src->parameters.r);
+
+  parameters.min_alpha_d = 0;
+  parameters.max_alpha_d = 0;
+
+  parameters.min_alpha_r = src->parameters.min_alpha_r;
+  parameters.max_alpha_r = src->parameters.max_alpha_r;
+
+  parameters.t = src->parameters.t;
+
+  linear_distribution_init(dst, &parameters, flags, src->count);
+
+  /* Clear memory. */
+  parameters_clear(&parameters);
+
+  /* If there are no slices in the distribution, we need not do anything. */
+  if (0 == src->count) {
+    return;
+  }
+
+  /* Assert that all slice in the source dimension have the same dimension. */
+  uint32_t dimension = src->slices[0]->dimension;
+
+  for (uint32_t i = 1; i < src->count; i++) {
+    if (src->slices[i]->dimension != dimension) {
+      critical("linear_distribution_init_collapse_diagonal(): All slices in "
+        "the source distribution must be of the same dimension.");
+    }
+  }
+
+  /* Iterate over all slices in the source distribution. */
+  for (uint32_t i = 0; i < src->count; i++) {
+    /* Check if there is a slice in dst for this alpha_r-range. */
+    uint32_t j;
+
+    if (abs_i(src->slices[i]->eta) > eta_bound) {
+      continue;
+    }
+
+    for (j = 0; j < dst->count; j++) {
+      if (src->slices[i]->min_log_alpha_r == dst->slices[j]->min_log_alpha) {
+        break;
+      }
+    }
+
+    Linear_Distribution_Slice * slice = NULL;
+
+    if (j == dst->count) {
+      /* No slice was found. Create and insert a slice. */
+      slice = linear_distribution_slice_alloc();
+      linear_distribution_slice_init(slice, dimension);
+
+      slice->min_log_alpha = src->slices[i]->min_log_alpha_r;
+
+      linear_distribution_insert_slice(dst, slice);
+    } else {
+      /* An existing slice was found. */
+      slice = dst->slices[j];
+    }
+
+    /* Add total probability and error to the slice. */
+    slice->total_probability += src->slices[i]->total_probability;
+    slice->total_error += src->slices[i]->total_error;
+
+    /* Add the norm vector to the slice. */
+    for (uint32_t x = 0; x < dimension; x++) {
+      slice->norm_vector[x] += src->slices[i]->norm_vector[x];
     }
   }
 

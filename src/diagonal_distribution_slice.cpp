@@ -78,6 +78,7 @@ void diagonal_distribution_slice_copy(
   }
 
   dst_slice->min_log_alpha_r = src_slice->min_log_alpha_r;
+  dst_slice->eta = src_slice->eta;
 
   dst_slice->total_probability = src_slice->total_probability;
   dst_slice->total_error = src_slice->total_error;
@@ -105,6 +106,7 @@ void diagonal_distribution_slice_copy_scale(
   dst_slice->flags |= SLICE_FLAGS_SCALED;
 
   dst_slice->min_log_alpha_r = src_slice->min_log_alpha_r;
+  dst_slice->eta = src_slice->eta;
 
   dst_slice->total_probability = src_slice->total_probability;
   dst_slice->total_error = src_slice->total_error;
@@ -130,7 +132,8 @@ void diagonal_distribution_slice_clear(
 void diagonal_distribution_slice_coordinates(
   const Diagonal_Distribution_Slice * const slice,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r)
+  double * const max_log_alpha_r,
+  int32_t * const eta)
 {
   const double d_sgn = (double)sgn_i(slice->min_log_alpha_r);
 
@@ -141,13 +144,18 @@ void diagonal_distribution_slice_coordinates(
   if (NULL != max_log_alpha_r) {
     (*max_log_alpha_r) = d_sgn * (abs_d((double)slice->min_log_alpha_r) + 1);
   }
+
+  if (NULL != eta) {
+    (*eta) = slice->eta;
+  }
 }
 
 void diagonal_distribution_slice_region_coordinates(
   const Diagonal_Distribution_Slice * const slice,
   const uint32_t j,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r)
+  double * const max_log_alpha_r,
+  int32_t * const eta)
 {
   const double step = (double)1 / (double)(slice->dimension);
 
@@ -164,13 +172,18 @@ void diagonal_distribution_slice_region_coordinates(
       abs_d((double)slice->min_log_alpha_r) + (double)(j + 1) * step;
     (*max_log_alpha_r) *= d_sgn;
   }
+
+  if (NULL != eta) {
+    (*eta) = slice->eta;
+  }
 }
 
 void diagonal_distribution_slice_sample_region(
   const Diagonal_Distribution_Slice * const slice,
   Random_State * const random_state,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r)
+  double * const max_log_alpha_r,
+  int32_t * const eta)
 {
   /* Select a pivot uniformly at random. */
   long double pivot = random_generate_pivot_inclusive(random_state);
@@ -208,12 +221,13 @@ void diagonal_distribution_slice_sample_region(
         slice,
         i,
         min_log_alpha_r,
-        max_log_alpha_r);
+        max_log_alpha_r,
+        eta);
 
       #ifdef DEBUG_TRACE_SAMPLING
       printf("diagonal_distribution_slice_sample_region(): "
-        "Debug: The region coordinates are: %f %f\n",
-          *min_log_alpha_r, *max_log_alpha_r);
+        "Debug: The region coordinates are: %f %f %d\n",
+          *min_log_alpha_r, *max_log_alpha_r, *eta);
       #endif
 
       return;

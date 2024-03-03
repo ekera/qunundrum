@@ -30,7 +30,8 @@
 void diagonal_distribution_slice_compute(
   Diagonal_Distribution_Slice * const slice,
   const Diagonal_Parameters * const parameters,
-  const int32_t min_log_alpha_r)
+  const int32_t min_log_alpha_r,
+  const int32_t eta)
 {
   /* Basic constants. */
   const uint32_t dimension = slice->dimension;
@@ -139,7 +140,7 @@ void diagonal_distribution_slice_compute(
 
     /* Compute and store the probability. */
     mpfr_init2(norm_vector[i], PRECISION);
-    diagonal_probability_approx_f(norm_vector[i], theta_r, parameters);
+    diagonal_probability_approx_f_eta(norm_vector[i], theta_r, eta, parameters);
   }
 
   /* We can now drop the precision. */
@@ -184,6 +185,9 @@ void diagonal_distribution_slice_compute(
   }
 
   slice->min_log_alpha_r = min_log_alpha_r;
+
+  /* Set eta. */
+  slice->eta = eta;
 
   /* Set the method flag. */
   slice->flags &= ~(SLICE_FLAGS_MASK_METHOD);

@@ -470,22 +470,10 @@ void lattice_solve_reduced_basis_for_d_given_r(
   }
 
   /* Setup constants. */
-  mpz_t pow2m;
-  mpz_init(pow2m);
-  mpz_set_ui(pow2m, 0);
-  mpz_setbit(pow2m, parameters->m);
-
-  mpz_t rpow2lm;
-  mpz_init(rpow2lm);
-  mpz_set_ui(rpow2lm, 0);
-  mpz_setbit(rpow2lm, parameters->l + parameters->m);
-  mpz_mul(rpow2lm, rpow2lm, parameters->r);
-
-  mpz_t rpow2lsigma;
-  mpz_init(rpow2lsigma);
-  mpz_set_ui(rpow2lsigma, 0);
-  mpz_setbit(rpow2lsigma, parameters->l - parameters->sigma);
-  mpz_mul(rpow2lsigma, rpow2lsigma, parameters->r);
+  mpz_t pow2msigma;
+  mpz_init(pow2msigma);
+  mpz_set_ui(pow2msigma, 0);
+  mpz_setbit(pow2msigma, parameters->m + parameters->sigma);
 
   /* Setup variables. */
   mpz_t candidate_d;
@@ -499,11 +487,12 @@ void lattice_solve_reduced_basis_for_d_given_r(
   target.resize(n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
-    mpz_mul(target[j].get_data(), ks[j], pow2m);
+    mpz_mul(target[j].get_data(), ks[j], pow2msigma);
+      /* target[j] = 2^(m + sigma) k */
     mpz_mul(target[j].get_data(), target[j].get_data(), parameters->r);
+      /* target[j] = 2^(m + sigma) k r */
     mpz_neg(target[j].get_data(), target[j].get_data());
-
-    mod_reduce(target[j].get_data(), rpow2lm);
+      /* target[j] = -2^(m + sigma) k r */
   }
 
   mpz_set_ui(target[n].get_data(), 0);
@@ -515,7 +504,14 @@ void lattice_solve_reduced_basis_for_d_given_r(
   babai_closest_vector(solution, target, G, A, n, precision);
 
   /* Compute the target. */
-  mpz_mul(target_d, parameters->d, parameters->r);
+  mpz_set_ui(target_d, 0);
+    /* target_d = 0 */
+  mpz_setbit(target_d, parameters->sigma);
+    /* target_d = 2^sigma */
+  mpz_mul(target_d, target_d, parameters->d);
+    /* target_d = 2^sigma d */
+  mpz_mul(target_d, target_d, parameters->r);
+    /* target_d = 2^sigma d r */
 
   /* Extract the candidate d. */
   mpz_abs(candidate_d, solution[n].get_data());
@@ -561,9 +557,7 @@ void lattice_solve_reduced_basis_for_d_given_r(
   target.clear();
   solution.clear();
 
-  mpz_clear(pow2m);
-  mpz_clear(rpow2lm);
-  mpz_clear(rpow2lsigma);
+  mpz_clear(pow2msigma);
 
   mpz_clear(target_d);
   mpz_clear(candidate_d);
@@ -573,6 +567,7 @@ void lattice_solve_for_d_given_r(
   Lattice_Status_Recovery * const status_d,
   const mpz_t * const js,
   const mpz_t * const ks,
+  const int32_t * const etas,
   const uint32_t n,
   const Diagonal_Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
@@ -593,6 +588,7 @@ void lattice_solve_for_d_given_r(
     lattice_compute_reduced_diagonal_basis(
       A,
       js,
+      etas,
       n,
       parameters,
       (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) ?

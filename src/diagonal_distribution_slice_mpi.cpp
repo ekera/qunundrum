@@ -37,6 +37,20 @@ static void diagonal_distribution_slice_recv_common(
       "Failed to receive min_log_alpha_r.");
   }
 
+  /* Receive eta. */
+  if (MPI_SUCCESS != MPI_Recv(
+      &(slice->eta),
+      1, /* count */
+      MPI_INT,
+      rank,
+      MPI_TAG_SLICE_ETA,
+      MPI_COMM_WORLD,
+      &status))
+  {
+    critical("diagonal_distribution_slice_recv_common(): "
+      "Failed to receive eta.");
+  }
+
   /* Receive the flags. */
   if (MPI_SUCCESS != MPI_Recv(
       &(slice->flags),
@@ -177,6 +191,19 @@ void diagonal_distribution_slice_send(
       "Failed to send min_log_alpha_r.");
   }
 
+  /* Send eta. */
+  if (MPI_SUCCESS != MPI_Send(
+      &(slice->eta),
+      1, /* count */
+      MPI_INT,
+      rank,
+      MPI_TAG_SLICE_ETA,
+      MPI_COMM_WORLD))
+  {
+    critical("diagonal_distribution_slice_send(): "
+      "Failed to send eta.");
+  }
+
   /* Send the flags. */
   if (MPI_SUCCESS != MPI_Send(
       &(slice->flags),
@@ -263,6 +290,23 @@ void diagonal_distribution_slice_init_bcast_recv(
   /* Store min_log_alpha_r. */
   slice->min_log_alpha_r = min_log_alpha_r;
 
+  /* Broadcast eta. */
+  int32_t eta;
+
+  if (MPI_SUCCESS != MPI_Bcast(
+      &eta,
+      1, /* count */
+      MPI_INT,
+      root,
+      MPI_COMM_WORLD))
+  {
+    critical("diagonal_distribution_slice_init_bcast_recv(): "
+      "Failed to broadcast eta.");
+  }
+
+  /* Store eta. */
+  slice->eta = eta;
+
   /* Broadcast the flags. */
   if (MPI_SUCCESS != MPI_Bcast(
       &(slice->flags),
@@ -340,6 +384,20 @@ void diagonal_distribution_slice_bcast_send(
   {
     critical("diagonal_distribution_slice_bcast_send(): "
       "Failed to broadcast min_log_alpha_r.");
+  }
+
+  /* Broadcast eta. */
+  int32_t eta = slice->eta;
+
+  if (MPI_SUCCESS != MPI_Bcast(
+      &eta,
+      1, /* count */
+      MPI_INT,
+      root,
+      MPI_COMM_WORLD))
+  {
+    critical("diagonal_distribution_slice_bcast_send(): "
+      "Failed to broadcast eta.");
   }
 
   /* Broadcast the flags. */

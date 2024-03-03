@@ -23,6 +23,7 @@
 #include "diagonal_distribution.h"
 #include "diagonal_distribution_loader.h"
 #include "errors.h"
+#include "log.h"
 #include "math.h"
 #include "random.h"
 #include "sample.h"
@@ -49,10 +50,14 @@
  */
 typedef struct {
   /*!
-   * \brief   A bound B on t, to use the notation from the paper, that relates
-   *          to the maximum offset in alpha_d searched.
+   * \brief   An upper bound on t.
    */
-  uint32_t search_bound;
+  uint32_t t_bound;
+
+  /*!
+   * \brief   An upper bound on eta.
+   */
+  uint32_t eta_bound;
 
   /*!
    * \brief   The number of distributions to process.
@@ -64,6 +69,7 @@ typedef struct {
    */
   char ** paths;
 } Solve_Diagonal_Distribution_Arguments;
+
 
 /*!
  * \name Command line arguments
@@ -95,39 +101,69 @@ static bool arguments_init_parse_command_line(
   char ** argv)
 {
   /* Initialize the arguments data structure. */
-  arguments->search_bound = 0;
+  arguments->t_bound = 0;
+  arguments->eta_bound = 0;
   arguments->paths = NULL;
   arguments->count = 0;
 
-  bool search_bound_specified = FALSE;
+  bool t_bound_specified = FALSE;
+  bool eta_bound_specified = FALSE;
 
   /* Iterate over the command line arguments. */
   int i;
 
   for (i = 1; i < argc; i++) {
-    /* Parse the search bound. */
-    if (0 == strcmp(argv[i], "-search-bound")) {
-      /* Check that a search bound has not already been specified. */
-      if (search_bound_specified) {
-        fprintf(stderr, "Error: The search bound cannot be twice specified.\n");
+    /* Parse the t bound. */
+    if (0 == strcmp(argv[i], "-t-bound")) {
+      /* Check that a t bound has not already been specified. */
+      if (FALSE != t_bound_specified) {
+        fprintf(stderr, "Error: The t bound cannot be twice specified.\n");
         return FALSE;
       }
 
       if ((i + 1) >= argc) {
         fprintf(stderr,
-          "Error: Expected value to follow after -search-bound.\n");
+          "Error: Expected value to follow after -t-bound.\n");
         return FALSE;
       }
 
-      const int x = atoi(argv[i+1]);
+      const int x = atoi(argv[i + 1]);
       if (x < 0) {
-        fprintf(stderr, "Error: The search bound must be non-negative.\n");
+        fprintf(stderr, "Error: The t bound must be non-negative.\n");
         return FALSE;
       }
 
-      /* Store the search bound. */
-      arguments->search_bound = (uint32_t)x;
-      search_bound_specified = TRUE;
+      /* Store the t bound. */
+      arguments->t_bound = (uint32_t)x;
+      t_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
+    if (0 == strcmp(argv[i], "-eta-bound")) {
+      /* Check that a eta bound has not already been specified. */
+      if (FALSE != eta_bound_specified) {
+        fprintf(stderr, "Error: The eta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr,
+          "Error: Expected value to follow after -eta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if (x < 0) {
+        fprintf(stderr, "Error: The eta bound must be non-negative.\n");
+        return FALSE;
+      }
+
+      /* Store the eta bound. */
+      arguments->eta_bound = (uint32_t)x;
+      eta_bound_specified = TRUE;
 
       i++;
 
@@ -187,17 +223,24 @@ static bool arguments_init_parse_command_line(
   return TRUE;
 }
 
+/*!
+ * \brief   Broadcasts the command line arguments to all other nodes.
+ *
+ * \param[in] arguments   The parsed command line arguments to broadcast.
+ * \param[in] root        The rank of the root node.
+ */
 static void arguments_bcast_send(
   const Solve_Diagonal_Distribution_Arguments * const arguments,
   const int root)
 {
   int result;
 
-  uint32_t data[2];
-  data[0] = (uint32_t)(arguments->search_bound);
-  data[1] = (uint32_t)(arguments->count);
+  uint32_t data[3];
+  data[0] = (uint32_t)(arguments->t_bound);
+  data[1] = (uint32_t)(arguments->eta_bound);
+  data[2] = (uint32_t)(arguments->count);
 
-  result = MPI_Bcast(data, 2, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 3, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_bcast_send(): "
       "Failed to send broadcast of collected metadata.");
@@ -229,6 +272,13 @@ static void arguments_bcast_send(
   }
 }
 
+/*!
+ * \brief   Initializes the command line arguments by receiving a broadcast from
+ *          a node.
+ *
+ * \param[in, out] arguments  The command line arguments to initialize.
+ * \param[in] root            The rank of the node from which to receive.
+ */
 static void arguments_init_bcast_recv(
   Solve_Diagonal_Distribution_Arguments * const arguments,
   const int root)
@@ -238,16 +288,17 @@ static void arguments_init_bcast_recv(
 
   int result;
 
-  uint32_t data[2];
+  uint32_t data[3];
 
-  result = MPI_Bcast(data, 2, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 3, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_init_bcast_recv(): "
       "Failed to receive broadcast of collected metadata.");
   };
 
-  arguments->search_bound = data[0];
-  arguments->count = data[1];
+  arguments->t_bound = data[0];
+  arguments->eta_bound = data[1];
+  arguments->count = data[2];
 
   arguments->paths = (char **)malloc((arguments->count) * sizeof(char *));
   if (NULL == arguments->paths) {
@@ -291,6 +342,26 @@ static void arguments_init_bcast_recv(
 }
 
 /*!
+ * \brief   Prints the command line arguments.
+ *
+ * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in] arguments     The parsed command line arguments to print.
+ * \param[in] distribution  The distribution being processed.
+ */
+static void arguments_fprintf(
+  FILE * const file,
+  const Solve_Diagonal_Distribution_Arguments * const arguments,
+  const Diagonal_Distribution * const distribution)
+{
+  mpfr_fprintf(file, "# Bounds: (eta = %u (%u), t = %u)\n",
+    arguments->eta_bound,
+    distribution->parameters.eta_bound,
+    arguments->t_bound);
+
+  log_timestamp_fprintf(file);
+}
+
+/*!
  * \brief   Clears an initialized command line arguments data structure.
  *
  * \param[in, out] arguments   The arguments data structure to clear.
@@ -322,14 +393,16 @@ static void arguments_clear(
  *
  * This function is called once by main() for each distribution to process.
  *
+ * \param[in] arguments     The parsed command line arguments.
+ * \param[in] path          The path to the distribution.
  * \param[in] distribution  The distribution to use for sampling problem
  *                          instances to solve.
- * \param[in] path          The path to the distribution.
  * \param[in] mpi_size      The number of nodes.
  */
 static void main_server(
-  const Diagonal_Distribution * const distribution,
+  const Solve_Diagonal_Distribution_Arguments * const arguments,
   const char * const path,
+  const Diagonal_Distribution * const distribution,
   const int mpi_size)
 {
   /* Create the log directory if it does not exist. */
@@ -352,6 +425,7 @@ static void main_server(
   }
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(path));
+  arguments_fprintf(log_file, arguments, distribution);
 
   /* Broadcast the distribution. */
   diagonal_distribution_bcast_send(distribution, MPI_RANK_ROOT);
@@ -585,8 +659,9 @@ static void main_client(
   Diagonal_Distribution distribution;
   diagonal_distribution_init_bcast_recv(&distribution, MPI_RANK_ROOT);
 
-  /* Retrieve the search bound. */
-  const uint32_t search_bound = arguments->search_bound;
+  /* Retrieve the t and eta bounds. */
+  const uint32_t t_bound = arguments->t_bound;
+  const uint32_t eta_bound = arguments->eta_bound;
 
   /* Declare constants. */
   mpz_t pow2_msigma;
@@ -594,6 +669,11 @@ static void main_client(
   mpz_set_ui(pow2_msigma, 0);
   mpz_setbit(pow2_msigma,
     distribution.parameters.m + distribution.parameters.sigma);
+
+  mpz_t pow2_l;
+  mpz_init(pow2_l);
+  mpz_set_ui(pow2_l, 0);
+  mpz_setbit(pow2_l, distribution.parameters.l);
 
   /* Declare variables. */
   const uint32_t precision =
@@ -615,6 +695,9 @@ static void main_client(
   mpz_t z;
   mpz_init(z);
 
+  mpz_t z_eta;
+  mpz_init(z_eta);
+
   mpz_t rp;
   mpz_init(rp);
 
@@ -626,6 +709,57 @@ static void main_client(
 
   mpz_t candidate_d;
   mpz_init(candidate_d);
+
+  mpz_t rk_div_pow2_l;
+  mpz_init(rk_div_pow2_l);
+
+  /* Compute delta_bound given t_bound. We require that
+   *
+   *   round ( r (delta_bound + 1/2) / 2^l ) >= t_bound
+   *
+   * to ensure that the sampling functions explore all valid values of Delta for
+   * the range of values of t that we are to search.
+   *
+   * This requirement may be re-written as
+   *
+   *   round ( r (delta_bound + delta_b) / 2^l ) >= t_bound
+   *   r (delta_bound + delta_b) / 2^l - 1 >= t_bound
+   *   r (delta_bound + delta_b) / 2^l >= t_bound + 1
+   *   delta_bound + delta_b >= 2^l (t_bound + 1) / r
+   *   delta_bound >= 2^l (t_bound + 1) / r - delta_b
+   *
+   * which in turn can be simplified to
+   *
+   *   delta_bound >= 2^l (t_bound + 1) / r + 1/2,
+   *
+   * and so we pick delta_bound = ceil(2^l (t_bound + 1) / r + 1/2). */
+
+  mpz_set_ui(tmp, t_bound); /* tmp = t_bound */
+  mpz_add_ui(tmp, tmp, 1); /* tmp = t_bound + 1 */
+  mpfr_set_z(tmp_f, tmp, MPFR_RNDN);  /* tmp_f = tmp = t_bound + 1 */
+
+  mpz_set_ui(tmp, 0); /* tmp = 0 */
+  mpz_setbit(tmp, distribution.parameters.l); /* tmp = 2^l */
+  mpfr_mul_z(tmp_f, tmp_f, tmp, MPFR_RNDN); /* tmp_f = 2^l (t_bound + 1) */
+  mpfr_div_z(tmp_f, tmp_f, distribution.parameters.r, MPFR_RNDN);
+    /* tmp_f = 2^l (t_bound + 1) / r */
+  mpfr_add_d(tmp_f, tmp_f, 0.5, MPFR_RNDN);
+    /* tmp_f = 2^l (t_bound + 1) / r + 1/2 */
+
+  mpfr_ceil(tmp_f, tmp_f); /* tmp_f = ceil(2^l (t_bound + 1) / r + 1/2) */
+  mpfr_get_z(tmp, tmp_f, MPFR_RNDN);
+    /* tmp = tmp_f = ceil(2^l (t_bound + 1) / r + 1/2) */
+
+  /* Sanity check. */
+  if (mpz_cmp_ui(tmp, UINT32_MAX) > 0)
+  {
+    critical("main_client(): "
+      "Overflow when computing delta_bound from t_bound: This may be because "
+        "2^l is large in relation to r, or because t_bound is large.");
+  }
+
+  /* Set the delta bound. */
+  const uint32_t delta_bound = mpz_get_ui(tmp);
 
   /* Setup a random state. */
   Random_State random_state;
@@ -692,13 +826,18 @@ static void main_client(
     Timer timer_prepare_system;
     timer_start(&timer_prepare_system);
 
+    int32_t eta;
+
     bool result;
 
     result = diagonal_distribution_sample_pair_j_k(
                 &distribution,
                 &random_state,
+                delta_bound,
                 j,
-                k);
+                k,
+                &eta, /* Ignore. */
+                NULL);
     if (TRUE != result) {
       /* Notify the server that the attempt to sample was out of bounds. */
       notification = MPI_NOTIFY_SAMPLING_FAILED_OUT_OF_BOUNDS;
@@ -731,62 +870,99 @@ static void main_client(
     mpz_div(z, z, pow2_msigma);
       /* z = (rj - {rj}_{2^(m + sigma)}) / 2^(m + sigma) */
 
-    /* Compute r' = r / tau for the smallest tau such that gcd(r', z) = 1. */
-    mpz_set(rp, distribution.parameters.r);
-    mpz_set_ui(tau, 1);
-
-    while (TRUE) {
-        mpz_gcd(tmp, rp, z);
-        if (mpz_cmp_ui(tmp, 1) == 0) {
-          break;
-        }
-
-        mpz_mul(tau, tau, tmp);
-        mpz_div(rp, rp, tmp);
-    }
-
-    /* Set z = z^-1 (mod r'). */
-    if (0 == mpz_invert(z, z, rp)) {
-      /* Note: This should never occur given how we select r'. */
-      critical("main_client(): The inverse of z does not exist.");
-    }
-
-    /* Set target_d = d mod r'. */
-    mpz_mod(target_d, distribution.parameters.d, rp);
-
     mpfr_set_z(tmp_f, distribution.parameters.r, MPFR_RNDN);
+      /* tmp_f = r */
     mpfr_mul_z(tmp_f, tmp_f, k, MPFR_RNDN);
-    mpfr_div_z(tmp_f, tmp_f, pow2_msigma, MPFR_RNDN);
+      /* tmp_f = r k */
+    mpfr_div_z(tmp_f, tmp_f, pow2_l, MPFR_RNDN);
+      /* tmp_f = r k / 2^l */
     mpfr_round(tmp_f, tmp_f);
-    mpfr_get_z(tmp, tmp_f, MPFR_RNDN);
-    mpz_neg(tmp, tmp); /* tmp = -round(r * k / 2^(m + sigma)) */
+      /* tmp_f = round(r k / 2^l) */
+    mpfr_get_z(rk_div_pow2_l, tmp_f, MPFR_RNDN);
+      /* rk_div_pow2l = tmp_f = round(r k / 2^l) */
 
     /* Search for the candidate d. */
     bool found = FALSE;
 
-    for (uint32_t t = 0; t <= search_bound; t++) {
-      /* Non-negative offset in t. */
-      mpz_add_ui(candidate_d, tmp, t);
-      mpz_mul(candidate_d, candidate_d, z);
-      mpz_mod(candidate_d, candidate_d, rp);
+    for (uint32_t eta_abs = 0;
+          (eta_abs <= eta_bound) && (FALSE == found); eta_abs++) {
+      for (int32_t eta_sgn = 1;
+            (eta_sgn >= -1) && (FALSE == found); eta_sgn -= 2) {
 
-      if (mpz_cmp(candidate_d, target_d) == 0) {
-        found = TRUE;
-        break;
-      }
+        if ((0 == eta_abs) && (-1 == eta_sgn)) {
+          continue;
+        }
 
-      if (0 == t) {
-        continue; /* The offset in t is zero. */
-      }
+        if (1 == eta_sgn) {
+          mpz_add_ui(z_eta, z, eta_abs);
+            /* z_eta = z + eta_sgn * eta_abs = z + eta_abs */
+        } else {
+          mpz_sub_ui(z_eta, z, eta_abs);
+            /* z_eta = z + eta_sgn * eta_abs = z - eta_abs */
+        }
 
-      /* Negative offset in t. */
-      mpz_sub_ui(candidate_d, tmp, t);
-      mpz_mul(candidate_d, candidate_d, z);
-      mpz_mod(candidate_d, candidate_d, rp);
+        /* Let r' = r / tau for the least tau such that gcd(r', z_eta) = 1. */
+        mpz_set(rp, distribution.parameters.r);
+          /* r' = r */
+        mpz_set_ui(tau, 1);
+          /* tau = 1 */
 
-      if (mpz_cmp(candidate_d, target_d) == 0) {
-        found = TRUE;
-        break;
+        while (TRUE) {
+            mpz_gcd(tmp, rp, z_eta); /* tmp = gcd(r', z_eta) */
+            if (mpz_cmp_ui(tmp, 1) == 0) {
+              break;
+            }
+
+            mpz_mul(tau, tau, tmp); /* tau = tau * tmp */
+            mpz_div(rp, rp, tmp); /* r' = r' / tmp */
+        }
+
+        /* Set z_eta = z_eta^-1 (mod r'). */
+        mpz_mod(z_eta, z_eta, rp);
+        if (0 == mpz_invert(z_eta, z_eta, rp)) {
+          /* Note: This should never occur given how we select r'. */
+          critical("main_client(): The inverse of z_eta does not exist.");
+        }
+
+        /* Set target_d = d mod r'. */
+        mpz_mod(target_d, distribution.parameters.d, rp);
+
+        for (uint32_t t = 0; t <= t_bound; t++) {
+          /* Non-negative offset in t. */
+          mpz_sub_ui(candidate_d, rk_div_pow2_l, t);
+            /* candidate_d = round(r k / 2^l) - t */
+          mpz_neg(candidate_d, candidate_d);
+            /* candidate_d = t - round(r k / 2^l) */
+          mpz_mul(candidate_d, candidate_d, z_eta);
+            /* candidate_d = (t - round(r k / 2^l)) ((z + eta)^-1 mod r) */
+          mpz_mod(candidate_d, candidate_d, rp);
+            /* candidate_d = (t - round(r k / 2^l)) (z + eta)^-1 mod r */
+
+          if (mpz_cmp(candidate_d, target_d) == 0) {
+            found = TRUE;
+            break;
+          }
+
+          if (0 == t) {
+            continue; /* The offset in t is zero. */
+          }
+
+          /* Negative offset in t. */
+          mpz_add_ui(candidate_d, rk_div_pow2_l, t);
+            /* candidate_d = round(r k / 2^l) + t */
+          mpz_neg(candidate_d, candidate_d);
+            /* candidate_d = -t - round(r k / 2^l) */
+          mpz_mul(candidate_d, candidate_d, z_eta);
+            /* candidate_d = (-t - round(r k / 2^l)) ((z + eta)^-1 mod r) */
+          mpz_mod(candidate_d, candidate_d, rp);
+            /* candidate_d = (-t - round(r k / 2^l)) (z + eta)^-1 mod r */
+
+          if (mpz_cmp(candidate_d, target_d) == 0) {
+            found = TRUE;
+            break;
+          }
+        }
+
       }
     }
 
@@ -836,8 +1012,13 @@ static void main_client(
 
   mpz_clear(tmp);
   mpfr_clear(tmp_f);
+
   mpz_clear(pow2_msigma);
+  mpz_clear(pow2_l);
+  mpz_clear(rk_div_pow2_l);
+
   mpz_clear(z);
+  mpz_clear(z_eta);
   mpz_clear(rp);
   mpz_clear(tau);
   mpz_clear(target_d);
@@ -858,13 +1039,18 @@ static void print_synopsis(
   FILE * const file)
 {
   fprintf(file, "Synopsis: mpirun solve_diagonal_distribution_shor \\\n"
-            "   [ -search-bound <bound> ] \\\n"
+            "   [ -t-bound <t-bound> ] [ -eta-bound <eta-bound> ] \\\n"
             "      <distribution> { <distribution> }\n");
+
   fprintf(file, "\n");
-  fprintf(file, "Search bound: -- defaults to zero\n");
+  fprintf(file, "t bound: -- defaults to 0\n");
   fprintf(file,
-    " -search-bound     sets the search <bound> on |t| related to the\n"
-    "                   maximum offset in alpha_d\n");
+    " -t-bound    explicitly set the t bound to <t-bound>\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Eta bound: -- defaults to 0\n");
+  fprintf(file,
+    " -eta-bound  explicitly set the eta bound to <eta-bound>\n");
 }
 
 /*!
@@ -998,9 +1184,16 @@ int main(int argc, char ** argv) {
         diagonal_distribution_loader_pop(&loader);
 
       printf("Processing: %s\n", arguments.paths[i]);
+
+      if (arguments.eta_bound > distribution->parameters.eta_bound) {
+        critical("main(): The eta bound specified via -eta-bound is greater "
+          "than the eta bound used to generate the distribution.");
+      }
+
       main_server(
-        distribution,
+        &arguments,
         arguments.paths[i],
+        distribution,
         mpi_size);
 
       diagonal_distribution_clear(distribution);

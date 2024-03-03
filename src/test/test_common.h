@@ -43,42 +43,21 @@ void test_mpz_load(
 /*!
  * \brief   Compares two long doubles for equality.
  *
- * Silently accepts and returns true if a is equal to b. Prints a warning, but
- * still returns true if abs(a-b) / min(a,b) < 10^-6. Returns false otherwise.
+ * Returns #TRUE if a is equal to b, or if abs(a - b) / min(a, b) < tolerance,
+ * returns #FALSE otherwise.
  *
  * This function fails with a critical error if a and b are not both positive.
- *
- * This function prints a warning if a and b are both zero.
  *
  * \param[in] a   The long double a.
  * \param[in] b   The long double b.
  *
- * \return  #TRUE if the doubles are equal or almost equal, #FALSE otherwise.
+ * \param[in] tolerance   The tolerance. Defaults to 1e-6.
+ *
+ * \return  #TRUE if the value are equal or within tolerance, #FALSE otherwise.
  */
 bool test_cmp_ld(
   const long double a,
-  const long double b);
-
-/*!
- * \brief   Compares two long doubles for equality.
- *
- * Silently accepts and returns true if abs(a-b) / min(a,b) * tolerance. Returns
- * false otherwise.
- *
- * This function fails with a critical error if a and b are not both positive.
- *
- * This function prints a warning if a and b are both zero.
- *
- * \param[in] a           The long double a.
- * \param[in] b           The long double b.
- * \param[in] tolerance   The tolerance.
- *
- * \return  #TRUE if the doubles are equal or almost equal as defined by the
- *          tolerance, #FALSE otherwise.
- */
-bool test_cmp_tol_ld(
-  const long double a,
   const long double b,
-  const long double tolerance);
+  const long double tolerance = 1e-6);
 
 #endif /* TEST_COMMON_H */

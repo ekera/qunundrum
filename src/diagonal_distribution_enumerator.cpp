@@ -38,18 +38,29 @@ static int diagonal_distribution_enumerator_sort_coordinates_cmp(
   const Diagonal_Distribution_Coordinate * const coordinate_b =
     *((const Diagonal_Distribution_Coordinate * const *)b);
 
-  if ((coordinate_a->distance) > (coordinate_b->distance)) {
+  /* Sort by the peak index eta. */
+  if (abs_i(coordinate_a->eta) > abs_i(coordinate_b->eta)) {
     return 1;
-  } else if ((coordinate_a->distance) < (coordinate_b->distance)) {
+  } else if (abs_i(coordinate_a->eta) < abs_i(coordinate_b->eta)) {
     return -1;
   } else {
-    return 0;
+
+    /* The peak indices of the two slices are equal. Sort by distance. */
+    if ((coordinate_a->distance) > (coordinate_b->distance)) {
+      return 1;
+    } else if ((coordinate_a->distance) < (coordinate_b->distance)) {
+      return -1;
+    } else {
+      return 0;
+    }
+
   }
 }
 
 void diagonal_distribution_enumerator_init(
   Diagonal_Distribution_Enumerator * const enumerator,
   const Diagonal_Parameters * const parameters,
+  const uint32_t eta_bound,
   const bool mirrored)
 {
   /* Setup the region in alpha. */
@@ -71,11 +82,13 @@ void diagonal_distribution_enumerator_init(
   }
 
   /* Count the number of slices required. */
-  uint32_t count = max_alpha - min_alpha + 1;
+  uint32_t alpha_count = max_alpha - min_alpha + 1;
 
   if (!mirrored) {
-    count *= 2;
+    alpha_count *= 2;
   }
+
+  uint32_t count = alpha_count * (2 * eta_bound + 1);
 
   enumerator->count = count;
   enumerator->offset = 0;
@@ -89,33 +102,48 @@ void diagonal_distribution_enumerator_init(
       "Failed to allocate memory.");
   }
 
-  for (uint32_t i = 0; i < count; i++) {
-    /* Allocate memory for the slice coordinate. */
-    enumerator->coordinates[i] =
-      (Diagonal_Distribution_Coordinate *)malloc(
-        sizeof(Diagonal_Distribution_Coordinate));
-    if (NULL == enumerator->coordinates[i]) {
-      critical("diagonal_distribution_enumerator_init(): "
-        "Failed to allocate memory.");
-    }
+  uint32_t i = 0;
 
-    /* Compute and store the coordinates. */
-    if (mirrored) {
-      enumerator->coordinates[i]->min_log_alpha_r = min_alpha + i;
-    } else {
-      enumerator->coordinates[i]->min_log_alpha_r = min_alpha + (i >> 1);
+  for (uint32_t eta_abs = 0; eta_abs <= eta_bound; eta_abs++) {
+    for (int32_t eta_sgn = 1; eta_sgn >= -1; eta_sgn -= 2) {
 
-      /* Use the least significant bit in the index to select the sign. */
-      if ((i & 1) == 1) {
-        enumerator->coordinates[i]->min_log_alpha_r *= -1;
+      if ((0 == eta_abs) && (-1 == eta_sgn)) {
+        continue;
+      }
+
+      int32_t eta = eta_sgn * ((int32_t)eta_abs);
+
+      for (uint32_t j = 0; j < alpha_count; i++, j++) {
+        /* Allocate memory for the slice coordinate. */
+        enumerator->coordinates[i] =
+          (Diagonal_Distribution_Coordinate *)malloc(
+            sizeof(Diagonal_Distribution_Coordinate));
+        if (NULL == enumerator->coordinates[i]) {
+          critical("diagonal_distribution_enumerator_init(): "
+            "Failed to allocate memory.");
+        }
+
+        /* Compute and store the coordinates. */
+        enumerator->coordinates[i]->eta = eta;
+
+        if (mirrored) {
+          enumerator->coordinates[i]->min_log_alpha_r = min_alpha + j;
+        } else {
+          enumerator->coordinates[i]->min_log_alpha_r = min_alpha + (j >> 1);
+
+          /* Use the least significant bit in the index to select the sign. */
+          if ((j & 1) == 1) {
+            enumerator->coordinates[i]->min_log_alpha_r *= -1;
+          }
+        }
+
+        /* Compute and store the distance. For more information on the distance,
+         * see documentation for Diagonal_Distribution_Coordinate::distance. */
+        enumerator->coordinates[i]->distance =
+          abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha_r) -
+            (int32_t)parameters->m);
       }
     }
-
-    /* Compute and store the distance. For more information on the distance,
-     * see documentation for Diagonal_Distribution_Coordinate::distance. */
-    enumerator->coordinates[i]->distance =
-      abs_i((int32_t)abs_i(enumerator->coordinates[i]->min_log_alpha_r) -
-        (int32_t)parameters->m);
   }
 
   /* Sort the coordinates. */
@@ -134,6 +162,7 @@ void diagonal_distribution_enumerator_clear(
 
 bool diagonal_distribution_enumerator_next(
   int32_t * const min_log_alpha_r,
+  int32_t * const eta,
   Diagonal_Distribution_Enumerator * const enumerator)
 {
   if (enumerator->offset >= enumerator->count) {
@@ -142,6 +171,8 @@ bool diagonal_distribution_enumerator_next(
 
   (*min_log_alpha_r) =
     enumerator->coordinates[enumerator->offset]->min_log_alpha_r;
+  (*eta) =
+    enumerator->coordinates[enumerator->offset]->eta;
 
   enumerator->offset++;
 

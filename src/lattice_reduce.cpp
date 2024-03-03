@@ -192,6 +192,7 @@ void lattice_compute_reduced_basis(
 void lattice_compute_reduced_diagonal_basis(
   ZZ_mat<mpz_t> &A,
   const mpz_t * const js,
+  const int32_t * const etas,
   const uint32_t n,
   const Diagonal_Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
@@ -207,48 +208,58 @@ void lattice_compute_reduced_diagonal_basis(
   mpz_t alpha;
   mpz_init(alpha);
 
+  mpz_t tmp;
+  mpz_init(tmp);
+
   /* Setup constants. */
+  mpz_t pow2l;
+  mpz_init(pow2l);
+  mpz_set_ui(pow2l, 0);
+  mpz_setbit(pow2l, parameters->l);
+    /* = 2^l */
+
+  mpz_t pow2sigma;
+  mpz_init(pow2sigma);
+  mpz_set_ui(pow2sigma, 0);
+  mpz_setbit(pow2sigma, parameters->sigma);
+    /* = 2^sigma */
+
   mpz_t pow2msigma;
   mpz_init(pow2msigma);
   mpz_set_ui(pow2msigma, 0);
   mpz_setbit(pow2msigma, parameters->m + parameters->sigma);
     /* = 2^{m + sigma} */
 
-  mpz_t pow2lsigma;
-  mpz_init(pow2lsigma);
-  mpz_set_ui(pow2lsigma, 0);
-  mpz_setbit(pow2lsigma, parameters->l - parameters->sigma);
-    /* = 2^{l - sigma} */
-
   /* Setup the A matrix. */
   A.resize(n + 1, n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
-    mpz_mul(alpha, parameters->r, js[j]); /* alpha = rj */
-    mpz_set(A[0][j].get_data(), alpha); /* A[0][j] = rj */
+    mpz_mul(A[0][j].get_data(), parameters->r, js[j]); /* A[0][j] = rj */
+
+    mpz_set(alpha, A[0][j].get_data()); /* alpha = rj */
 
     mod_reduce(alpha, pow2msigma); /* alpha = {rj}_{2^{m + sigma}} */
 
-    mpz_sub(A[0][j].get_data(), A[0][j].get_data(), alpha);
-      /* A[0][j] = rj - alpha */
-
-    mpz_mul(A[0][j].get_data(), A[0][j].get_data(), pow2lsigma);
-      /* A[0][j] = 2^{l - sigma} (rj - alpha) */
+    mpz_mul_si(tmp, pow2msigma, etas[j]); /* tmp = 2^(m + sigma) eta */
+    mpz_sub(tmp, tmp, alpha); /* tmp = 2^(m + sigma) eta - alpha */
+    mpz_add(A[0][j].get_data(), A[0][j].get_data(), tmp);
+      /* A[0][j] = rj + (2^(m + sigma) eta - alpha) */
+    mpz_mul(A[0][j].get_data(), A[0][j].get_data(), pow2l);
+      /* A[0][j] = 2^l (rj + (2^(m + sigma) eta - alpha)) */
   }
 
-  mpz_set(A[0][n].get_data(), parameters->r); /* A[0][n] = r */
+  mpz_mul(A[0][n].get_data(), pow2sigma, parameters->r);
+    /* A[0][n] = 2^sigma r */
 
   for (uint32_t i = 1; i <= n; i++) {
     for (uint32_t j = 0; j <= n; j++) {
       mpz_set_ui(A[i][j].get_data(), 0);
     }
 
-    mpz_set(A[i][i - 1].get_data(), pow2msigma);
-      /* A[i][i - 1] = 2^{m + sigma} */
-    mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), parameters->r);
+    mpz_mul(A[i][i - 1].get_data(), pow2msigma, parameters->r);
       /* A[i][i - 1] = 2^{m + sigma} r */
-    mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), pow2lsigma);
-      /* A[i][i - 1] = 2^{m + sigma} 2^{l - sigma} r = 2^{m + l} r */
+    mpz_mul(A[i][i - 1].get_data(), A[i][i - 1].get_data(), pow2l);
+      /* A[i][i - 1] = 2^{m + sigma + l} r */
   }
 
   /* Reduce the matrix. */
@@ -322,6 +333,9 @@ void lattice_compute_reduced_diagonal_basis(
 
   /* Clear memory. */
   mpz_clear(alpha);
+  mpz_clear(tmp);
+
+  mpz_clear(pow2l);
+  mpz_clear(pow2sigma);
   mpz_clear(pow2msigma);
-  mpz_clear(pow2lsigma);
 }

@@ -16,6 +16,7 @@
  */
 
 #include "distribution.h"
+#include "errors.h"
 #include "math.h"
 
 #include <stdint.h>
@@ -90,9 +91,18 @@ int main(int argc, char ** argv) {
   long double total_abs_delta = 0;
   long double max_abs_delta = 0;
 
-  for (int32_t td = -30; td <= 30; td++) {
+  const uint32_t t_a = distribution_a.parameters.t;
+  const uint32_t t_b = distribution_b.parameters.t;
+
+  if ((t_a > 256) || (t_b > 256)) {
+    critical("main(): The range covered by the distribution is too large.");
+  }
+
+  const int32_t t_max = (int32_t)max_ui(t_a, t_b);
+
+  for (int32_t td = -t_max; td <= t_max; td++) {
     for (int32_t sgnd = 0; sgnd <= 1; sgnd++) {
-      for (int32_t tr = -30; tr <= 30; tr++) {
+      for (int32_t tr = -t_max; tr <= t_max; tr++) {
         for (int32_t sgnr = 0; sgnr <= 1; sgnr++) {
           Distribution_Slice * slice_a = NULL;
           Distribution_Slice * slice_b = NULL;
@@ -135,7 +145,7 @@ int main(int argc, char ** argv) {
 
           if ((NULL == slice_a) || (NULL == slice_b)) {
             fprintf(stderr, "Warning: "
-              "Failed to find slice (%d, %d) in both distributions.\n", td, tr);
+              "Failed to find slice (%d, %d) in one distribution.\n", td, tr);
             continue;
           }
 

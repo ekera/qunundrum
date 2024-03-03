@@ -32,7 +32,6 @@ void test_linear_probability_d_kat() {
   /* As set in main() in main_generate_distribution.cpp. */
   mpfr_set_default_prec(PRECISION);
 
-  /* As set in main() in main_generate_distribution.cpp. */
   const uint32_t m_s_entries[7][2] = {
     { 128, 10}, { 256, 20}, { 512, 30},
     {1024, 40}, {2048, 50}, {4096, 80}, {8192, 80}
@@ -102,7 +101,7 @@ void test_linear_probability_d_kat() {
             "Failed to verify probability estimate.");
         }
 
-        if (!test_cmp_ld(norm_ld, exp_norm_ld)) {
+        if (TRUE != test_cmp_ld(norm_ld, exp_norm_ld)) {
           critical("test_linear_probability_d_kat(): "
             "Failed to verify probability estimate.");
         }
@@ -131,7 +130,6 @@ void test_linear_probability_r_kat() {
   /* As set in main() in main_generate_distribution.cpp. */
   mpfr_set_default_prec(PRECISION);
 
-  /* As set in main() in main_generate_distribution.cpp. */
   const uint32_t m_s_entries[7][2] = {
     { 128, 10}, { 256, 20}, { 512, 30},
     {1024, 40}, {2048, 50}, {4096, 80}, {8192, 80}
@@ -202,7 +200,7 @@ void test_linear_probability_r_kat() {
             "Failed to verify probability estimate.");
         }
 
-        if (!test_cmp_ld(norm_ld, exp_norm_ld)) {
+        if (TRUE != test_cmp_ld(norm_ld, exp_norm_ld)) {
           critical("test_linear_probability_r_kat(): "
             "Failed to verify probability estimate.");
         }

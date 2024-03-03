@@ -8,7 +8,7 @@ Synopsis: info_distribution <distribution>
 Prints information on a distribution to the console.
 
 ### Mandatory command line arguments
-An entry <code>\<distribution\></code> where
+An argument <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ## Interpreting the output
@@ -90,11 +90,11 @@ Total error: 2.276648537893891726088e-05
 Most elements of the printout are rather self-explanatory. The precision is the default precision set when generating the distribution. Note that the precision when computing the distribution may be considerably higher in some steps of the computation to ensure numeric stability, and that lower precision is used to store the distribution on file.
 
 As for the other parameters
-  - m is the length in bits of the order
-  - s is the tradeoff factor
-  - l is the padding length, or zero, if l was explicitly specified
-  - r is the order
-  - d is the logarithm
+  - $m$ is the bit length of the order $r$,
+  - $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, or zero if $\ell$ was explicitly specified,
+  - $\ell$ is the bit length of the second register, and such that $m + \ell$ is the bit length of the first register,
+  - $r$ is the order, and
+  - $d$ is the logarithm.
 
 The slices section contains a summary of the number of slices that capture a certain share of the probability mass and their dimensions. Note that slices are in general <i>computed</i> for a much large dimension than is reported in the printout, but scaled down when <i>stored</i> in the distribution to save disk space. It is the stored dimension that is reported.
 
@@ -102,6 +102,6 @@ Note furthermore that the values within parenthesis in the summary section is th
 
 A warning is raised if the error bound is close to or exceeds the probability estimate in at least one point. This needs not be an issue in itself, but it indicates that the approximation used to produce the estimate is being pushed close to its limit. This typically happens for large tradeoff factors as in the above example.
 
-The summary section is followed by detailed information about each slice in the distribution. Slices where the error is within a factor 10^2 of the total probability mass captured by the frame are marked with \*\*.
+The summary section is followed by detailed information about each slice in the distribution. Slices where the error is within a factor $10^2$ of the total probability mass captured by the frame are marked with \*\*.
 
 The total number of slices in the distribution, the total probability mass captured by these slices, and the total approximation error for these slices, is last reported, along with the corresponding count, probability and error for a filtered distribution in which the slices marked with \*\* have been left out, reducing the error at the expense of loosing probability mass. The slices marked with \*\* can be filtered out is desired, see the [<code>filter_distribution</code>](filter-distribution.md) executable.

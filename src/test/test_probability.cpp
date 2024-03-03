@@ -34,7 +34,6 @@ void test_probability_approx_heuristic_sigma_kat() {
   /* As set in main() in main_generate_distribution.cpp. */
   mpfr_set_default_prec(PRECISION);
 
-  /* As set in main() in main_generate_distribution.cpp. */
   const uint32_t m_s_entries[8][2] = {
     { 128,  2}, { 256,  4}, { 384,  6}, { 512,  8},
     {1024, 10}, {2048, 30}, {4096, 50}, {8192, 80}
@@ -137,7 +136,7 @@ void test_probability_approx_heuristic_sigma_kat() {
             "Failed to verify probability estimate.");
         }
 
-        if (!test_cmp_ld(norm_ld, exp_norm_ld)) {
+        if (TRUE != test_cmp_ld(norm_ld, exp_norm_ld)) {
           critical("test_probability_approx_heuristic_sigma_kat(): "
             "Failed to verify probability estimate.");
         }
@@ -147,7 +146,7 @@ void test_probability_approx_heuristic_sigma_kat() {
             "Failed to verify error bound estimate.");
         }
 
-        if (!test_cmp_ld(error_ld, exp_error_ld)) {
+        if (TRUE != test_cmp_ld(error_ld, exp_error_ld)) {
           critical("test_probability_approx_heuristic_sigma_kat(): "
             "Failed to verify error bound estimate.");
         }
@@ -162,7 +161,7 @@ void test_probability_approx_heuristic_sigma_kat() {
             "Failed to verify probability estimate.");
         }
 
-        if (!test_cmp_tol_ld(norm_ld, quick_norm_ld, 1e-4)) {
+        if (TRUE != test_cmp_ld(norm_ld, quick_norm_ld, 1e-4)) {
           critical("test_probability_approx_heuristic_sigma_kat(): "
             "Failed to verify ** quick ** probability estimate.");
         }

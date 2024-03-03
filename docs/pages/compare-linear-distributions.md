@@ -8,9 +8,9 @@ Synopsis: compare_linear_distributions <distribution1> <distribution2>
 Compares the slices in two linear distributions and prints the result to the console.
 
 ### Mandatory command line arguments
-An entry <code>\<distribution1\></code> <code><distribution2\></code> where
-- <code>\<distribution1\></code> is the paths to the first distribution
-- <code>\<distribution2\></code> is the paths to the second distribution
+Arguments <code>\<distribution1\></code> <code><distribution2\></code> where
+- <code>\<distribution1\></code> is the path to the first distribution
+- <code>\<distribution2\></code> is the path to the second distribution
 
 ## Interpreting the output
 The console output contains information on the format
@@ -64,18 +64,18 @@ Loading distribution "distributions/collapsed-d-distribution-det-dim-heuristic-s
 0.999904 0.999891 -- 1.26316e-05 (max: 1.14934e-05)
 ```
 
-On each line of the printout, we find (m1+t) (m2+t): p1 p2 -- delta where
-- m1 is the order or logarithm length in bits for the first distribution
-- m2 is the order or logarithm length in bits for the second distribution
-- t is an integer parameter that runs over a sub-interval of [-30, 30]
-- p1 is the probability mass captured by the slice for which m1+t <= abs(alpha) < m1+t+1 in the first distribution
-- p2 is the probability mass captured by the slice for which m2+t <= abs(alpha) < m2+t+1 in the second distribution
-- delta = abs(p1 - p2) is the absolute value of the difference between p1 and p2
+On each line of the printout, we find $m_1 + t$, $m_2 + t$: $p_1$, $p_2$ — $\delta$ where
+- $m_1$ is the bit length of the logarithm $d$ or order $r$ for the first distribution,
+- $m_2$ is the bit length of the logarithm $d$ or order $r$ for the second distribution,
+- $t$ is an integer parameter that runs over a sub-interval of $[-30, 30] \cap \mathbb Z$,
+- $p_1$ is the probability mass captured by the slice for which $m_1 + t \le | \alpha | < m_1 + t + 1$ in the first distribution,
+- $p_2$ is the probability mass captured by the slice for which $m_2 + t \le | \alpha | < m_2 + t + 1$ in the second distribution, and
+- $\delta = | p_1 - p_2 |$ is the absolute value of the difference between $p_1$ and $p_2$.
 
-If a slice is missing from both distributions for a given t, nothing is printed.
+If a slice is missing from both distributions for a given $t$, nothing is printed.
 
-If a slice is only present in one of the distribution for a given t, a warning is printed.
+If a slice is only present in one of the distribution for a given $t$, a warning is printed.
 
-This is followed by the total probability mass captured by the first and second distribution, respectively, the sum of delta, and the maximum delta, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above range of t.
+This is followed by the total probability mass captured by the first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above range of $t$.
 
-Note furthermore that the above comparison assumes that the two distributions are symmetric, in that only slices for positive m1, m2 are compared and p1, p2 doubled accordingly.
+Note furthermore that the above comparison assumes that the two distributions are symmetric, in that only slices for positive $m_1$, $m_2$ are compared and $p_1$, $p_2$ doubled accordingly.

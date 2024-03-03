@@ -948,22 +948,10 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
   }
 
   /* Setup constants. */
-  mpz_t pow2m;
-  mpz_init(pow2m);
-  mpz_set_ui(pow2m, 0);
-  mpz_setbit(pow2m, parameters->m);
-
-  mpz_t rpow2lm;
-  mpz_init(rpow2lm);
-  mpz_set_ui(rpow2lm, 0);
-  mpz_setbit(rpow2lm, parameters->l + parameters->m);
-  mpz_mul(rpow2lm, rpow2lm, parameters->r);
-
-  mpz_t rpow2lsigma;
-  mpz_init(rpow2lsigma);
-  mpz_set_ui(rpow2lsigma, 0);
-  mpz_setbit(rpow2lsigma, parameters->l - parameters->sigma);
-  mpz_mul(rpow2lsigma, rpow2lsigma, parameters->r);
+  mpz_t pow2msigma;
+  mpz_init(pow2msigma);
+  mpz_set_ui(pow2msigma, 0);
+  mpz_setbit(pow2msigma, parameters->m + parameters->sigma);
 
   /* Setup variables. */
   mpz_t candidate_d;
@@ -997,11 +985,12 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
   vector<Z_NR<mpz_t>> v(n + 1);
 
   for (uint32_t j = 0; j < n; j++) {
-    mpz_mul(v[j].get_data(), ks[j], pow2m);
+    mpz_mul(v[j].get_data(), pow2msigma, ks[j]);
+      /* v[j] = 2^(m + sigma) k */
     mpz_mul(v[j].get_data(), v[j].get_data(), parameters->r);
+      /* v[j] = 2^(m + sigma) k r */
     mpz_neg(v[j].get_data(), v[j].get_data());
-
-    mod_reduce(v[j].get_data(), rpow2lm);
+      /* v[j] = - 2^(m + sigma) k r */
   }
 
   mpz_set_ui(v[n].get_data(), 0);
@@ -1015,7 +1004,14 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
   babai_closest_vector(solution, v, G, A, n, precision);
 
   /* Compute the target. */
-  mpz_mul(target_d, parameters->d, parameters->r);
+  mpz_set_ui(target_d, 0);
+    /* target_d = 0 */
+  mpz_setbit(target_d, parameters->sigma);
+    /* target_d = 2^sigma */
+  mpz_mul(target_d, target_d, parameters->d);
+    /* target_d = 2^sigma d */
+  mpz_mul(target_d, target_d, parameters->r);
+    /* target_d = 2^sigma d r */
 
   /* Extract the candidate d. */
   mpz_abs(candidate_d, solution[n].get_data());
@@ -1090,18 +1086,15 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
     /* Execute the enumeration. */
     (*status_d) = LATTICE_STATUS_NOT_RECOVERED;
 
-    mpz_t min_dr;
-    mpz_init(min_dr);
-    mpz_set_ui(min_dr, 0); /* min_dr = 0 */
+    mpz_t min_target_d;
+    mpz_init(min_target_d);
+    mpz_set_ui(min_target_d, 0); /* min_target_d = 0 */
 
-    mpz_t max_dr;
-    mpz_init(max_dr);
-    mpz_set_ui(max_dr, 0);
-    mpz_setbit(max_dr, 2 * parameters->m); /* max_dr = 2^(2m) > d * r */
-
-    mpz_t dr;
-    mpz_init(dr);
-    mpz_mul(dr, parameters->d, parameters->r);
+    mpz_t max_target_d;
+    mpz_init(max_target_d);
+    mpz_set_ui(max_target_d, 0);
+    mpz_setbit(max_target_d, 2 * parameters->m + parameters->sigma);
+      /* max_target_d = 2^(2m+l) > 2^sigma d r */
 
     for (uint32_t t = 0; t < MAX_RADIUS_DOUBLINGS; t++) {
       lattice_enumerate_inner(
@@ -1114,9 +1107,9 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
         M,
         n + 1, /* = k */
         n,
-        min_dr,
-        max_dr,
-        dr,
+        min_target_d,
+        max_target_d,
+        target_d,
         parameters->m, /* = m */
         precision,
         FALSE, /* = detect_smooth */
@@ -1139,9 +1132,8 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
     }
 
     /* Clear memory. */
-    mpz_clear(dr);
-    mpz_clear(min_dr);
-    mpz_clear(max_dr);
+    mpz_clear(min_target_d);
+    mpz_clear(max_target_d);
 
     cu_coordinates.clear();
 
@@ -1157,9 +1149,7 @@ void lattice_enumerate_reduced_basis_for_d_given_r(
   mpz_clear(target_d);
   mpfr_clear(tmp);
 
-  mpz_clear(pow2m);
-  mpz_clear(rpow2lm);
-  mpz_clear(rpow2lsigma);
+  mpz_clear(pow2msigma);
 }
 
 void lattice_enumerate_reduced_basis_for_r(
@@ -1381,6 +1371,7 @@ void lattice_enumerate_for_d_given_r(
   Lattice_Status_Recovery * const status_d,
   const mpz_t * const js,
   const mpz_t * const ks,
+  const int32_t * const etas,
   const uint32_t n,
   const Diagonal_Parameters * const parameters,
   Lattice_Reduction_Algorithm algorithm,
@@ -1399,6 +1390,7 @@ void lattice_enumerate_for_d_given_r(
     lattice_compute_reduced_diagonal_basis(
       A,
       js,
+      etas,
       n,
       parameters,
       (REDUCTION_ALGORITHM_LLL_BKZ == algorithm) ?

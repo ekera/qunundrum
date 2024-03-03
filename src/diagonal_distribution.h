@@ -14,7 +14,7 @@
  * Computing (SISC), volume 26(5), pp. 1484 (1997).
  *
  * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
- * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
+ * discrete logarithms. In: ArXiv Pre-Print 1905.09084v3.
  */
 
 /*!
@@ -32,7 +32,7 @@
  * Computing (SISC), volume 26(5), pp. 1484 (1997).
  *
  * [2] Ekerå, M.: Revisiting Shor's quantum algorithm for computing general
- * discrete logarithms. In: ArXiv Pre-Print 1905.09084v2.
+ * discrete logarithms. In: ArXiv Pre-Print 1905.09084v3.
  */
 
 #ifndef DIAGONAL_DISTRIBUTION_H
@@ -44,9 +44,16 @@
 #include "random.h"
 
 #include <gmp.h>
+#include <mpfr.h>
 
 #include <stdint.h>
 #include <stdio.h>
+
+/*!
+ * \brief   The bound on the absolute value of Delta when creating the histogram
+ *          in Delta used to sample the probability distribution.
+ */
+#define BOUND_DELTA   1000000
 
 /*!
  * \brief   An enumeration of flags indicating how the logarithm d or order r
@@ -345,7 +352,7 @@ const Diagonal_Distribution_Slice * diagonal_distribution_sample_slice(
 
 /*!
  * \brief   Samples a region on the alpha axis from the probability distribution
- *          and returns its bounds.
+ *          for a given peak index eta and returns its bounds and eta.
  *
  * \remark  The region bounds are represented as signed logarithmic alpha values
  *          log_alpha such that alpha = sgn(log_alpha) 2^(abs(log_alpha)).
@@ -355,6 +362,7 @@ const Diagonal_Distribution_Slice * diagonal_distribution_sample_slice(
  *
  * \param[out] min_log_alpha_r    The minimum signed logarithmic alpha_r.
  * \param[out] max_log_alpha_r    The maximum signed logarithmic alpha_r.
+ * \param[out] eta                The peak index eta.
  *
  * \return  Returns #TRUE if a region was successfully sampled, #FALSE if the
  *          region sampled is outside the range of the distribution.
@@ -363,10 +371,12 @@ bool diagonal_distribution_sample_region(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
   double * const min_log_alpha_r,
-  double * const max_log_alpha_r);
+  double * const max_log_alpha_r,
+  int32_t * const eta);
 
 /*!
- * \brief   Samples an argument alpha_r from the probability distribution.
+ * \brief   Samples an argument alpha_r and peak index eta from the probability
+ *          distribution.
  *
  * The argument alpha_r is sampled with high resolution, and is guaranteed to be
  * admissible.
@@ -375,6 +385,7 @@ bool diagonal_distribution_sample_region(
  * \param[in, out] random_state   The random state to use when sampling.
  *
  * \param[in, out] alpha_r        The argument alpha_r.
+ * \param[out] eta                The peak index eta.
  *
  * \return  Returns #TRUE if the argument alpha was successfully sampled, #FALSE
  *          if the argument sampled is outside the range of the distribution.
@@ -382,7 +393,25 @@ bool diagonal_distribution_sample_region(
 bool diagonal_distribution_sample_alpha_r(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
-  mpz_t alpha_r);
+  mpz_t alpha_r,
+  int32_t * const eta);
+
+/*!
+ * \brief   Samples j and eta from the probability distribution.
+ *
+ * \param[in] distribution        The distribution to sample.
+ * \param[in, out] random_state   The random state to use when sampling.
+ *
+ * \param[in, out] j              The integer j.
+ * \param[out] eta                The peak index eta.
+ *
+ * \return  Returns #TRUE if the sampling was successful, #FALSE otherwise.
+ */
+bool diagonal_distribution_sample_j_eta(
+  const Diagonal_Distribution * const distribution,
+  Random_State * const random_state,
+  mpz_t j,
+  int32_t * const eta);
 
 /*!
  * \brief   Samples an integer pair (j, k) from the probability distribution and
@@ -391,14 +420,27 @@ bool diagonal_distribution_sample_alpha_r(
  * \param[in] distribution        The distribution to sample.
  * \param[in, out] random_state   The random state to use when sampling.
  *
+ * \param[in] delta_bound         A bound on the offset Delta from k_0 when
+ *                                sampling k given j.
+ *
  * \param[in, out] j              The integer j.
  * \param[in, out] k              The integer k.
+ * \param[out] eta                The peak index eta.
+ *
+ * \param[in, out] alpha_phi      The argument of the angle phi. Used when
+ *                                estimating tau. May be set to NULL, in which
+ *                                case the argument is not exported.
+ *
+ * \return  Returns #TRUE if the sampling was successful, #FALSE otherwise.
  */
 bool diagonal_distribution_sample_pair_j_k(
   const Diagonal_Distribution * const distribution,
   Random_State * const random_state,
+  const uint32_t delta_bound,
   mpz_t j,
-  mpz_t k);
+  mpz_t k,
+  int32_t * const eta,
+  mpfr_t alpha_phi = NULL);
 
 /*!
  * \}

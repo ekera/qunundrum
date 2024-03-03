@@ -10,7 +10,7 @@ Plots a distribution. Note that the distribution resolution is automatically sca
 The plot is output to file in Latex format. It will be given an appropriate name and written to the <code>plots</code> directory. If this directory does not exist, it will be created. If the plot already exists, an error will be reported.
 
 ### Mandatory command line arguments
-Entries <code>\<distribution\></code> where
+Arguments <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ## Compiling the plot
@@ -32,4 +32,4 @@ Executing the above procedure produces plots similar to the below plot:
 
 ![](./images/plot-distribution-m-2048-s-30.png)
 
-The two-dimensional distribution is plotted in the signed logarithms of the arguments (alpha_d, alpha_r). Collapsed marginal distributions in the signed logarithms of the arguments alpha_d and alpha_r are automatically plotted along the sides of the plotted two-dimensional distribution.
+The two-dimensional distribution is plotted in the signed logarithms of the arguments $(\alpha_d, \alpha_r)$. Collapsed marginal distributions in the signed logarithms of the arguments $\alpha_d$ and $\alpha_r$ are automatically plotted along the sides of the plotted two-dimensional distribution.

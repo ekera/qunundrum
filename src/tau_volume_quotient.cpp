@@ -57,7 +57,7 @@ bool tau_volume_quotient(
    *
    * 3. n 2^(2 (tau + m)) + d^2 = \sum_{i = 1}^{n} alpha^2_i + d^2
    *
-   * 4. sqrt( n 2^(2 (tau + m)) + d^2 ) = 
+   * 4. sqrt( n 2^(2 (tau + m)) + d^2 ) =
    *       sqrt( \sum_{i = 1}^{n} alpha^2_i + d^2 )
    *
    * The steps required to compute v given R are rather self-explanatory.
@@ -106,6 +106,119 @@ bool tau_volume_quotient(
 
   /* Clear memory. */
   mpfr_clear(tmp);
+  mpfr_clear(radius);
+  mpfr_clear(gamma);
+
+  /* Return. */
+  return mpfr_cmp_ui(v, 2) < 0;
+}
+
+bool tau_volume_quotient_diagonal(
+  const uint32_t m,
+  const uint32_t sigma,
+  const uint32_t l,
+  const uint32_t n,
+  const mpz_t d,
+  const long double tau,
+  mpfr_t v)
+{
+  /* Temporary variables. */
+  mpfr_t tmp;
+  mpfr_init2(tmp, PRECISION);
+
+  mpfr_t tmp2;
+  mpfr_init2(tmp2, PRECISION);
+
+  mpfr_t radius;
+  mpfr_init2(radius, PRECISION);
+
+  mpfr_t gamma;
+  mpfr_init2(gamma, PRECISION);
+
+  /*
+   * Given
+   *
+   *    tau = log_( (1 / n) \sum_{i = 1}^{n} alpha^2_i ) / 2 - (m + sigma - l)
+   *
+   * we first compute the radius
+   *
+   *    R = sqrt( \sum_{i = 1}^{n} alpha^2_i + 2^(sigma - l) d^2 ),
+   *
+   * and then the volume quotient
+   *
+   *    v = pi^(D / 2) R^D / Gamma(D / 2 + 1) / 2^((m + sigma) n + sigma - l),
+   *
+   * where D = n + 1 is the dimension of the lattice.
+   *
+   * Below, R is computed from tau in in the following steps:
+   *
+   * 1. 2^(2 (tau + m + sigma - l)) = (1 / n) \sum_{i = 1}^{n} alpha^2_i
+   *
+   * 2. n 2^(2 (tau + m + sigma - l)) = \sum_{i = 1}^{n} alpha^2_i
+   *
+   * 3. n 2^(2 (tau + m + sigma - l)) + d^2 = \sum_{i = 1}^{n} alpha^2_i + d^2
+   *
+   * 4. sqrt( n 2^(2 (tau + m + sigma - l)) + d^2 ) =
+   *       sqrt( \sum_{i = 1}^{n} alpha^2_i + d^2 )
+   *
+   * The steps required to compute v given R are rather self-explanatory.
+   */
+
+  mpfr_set_ld(radius, 2.0f * (tau + m + sigma - l), MPFR_RNDN);
+    /* radius = 2 (tau + m + sigma - l) */
+  mpfr_exp2(radius, radius, MPFR_RNDN);
+    /* radius = 2^(2 (tau + m + sigma - l)) =
+         (1 / n) \sum_{i = 1}^{n} alpha^2_i */
+  mpfr_mul_ui(radius, radius, n, MPFR_RNDN);
+    /* radius = \sum_{i = 1}^{n} alpha^2_i */
+
+  if (NULL == d) {
+    mpfr_set_ui_2exp(tmp, 1, (mpfr_exp_t)m, MPFR_RNDN); /* tmp = 2^m */
+  } else {
+    mpfr_set_z(tmp, d, MPFR_RNDN); /* tmp = d */
+  }
+
+  mpfr_set_ld(tmp2, ((long double)sigma) - ((long double)l), MPFR_RNDN);
+    /* tmp2 = sigma - l */
+  mpfr_exp2(tmp2, tmp2, MPFR_RNDN);
+    /* tmp2 = 2^(sigma - l) */
+  mpfr_mul(tmp, tmp2, tmp, MPFR_RNDN);
+    /* tmp = 2^(sigma - l) d */
+  mpfr_sqr(tmp, tmp, MPFR_RNDN); /* tmp = 2^(2(sigma - l)) d^2 */
+
+  mpfr_add(radius, radius, tmp, MPFR_RNDN);
+    /* radius = \sum_{i = 1}^{n} alpha^2_i + 2^(2(sigma - l)) d^2 */
+  mpfr_sqrt(radius, radius, MPFR_RNDN);
+    /* radius = sqrt( \sum_{i = 1}^{n} alpha^2_i + 2^(2(sigma - l)) d^2 ) */
+
+  mpfr_set_ld(gamma, (long double)(n + 1) / (long double)2 + 1, MPFR_RNDN);
+    /* gamma = (n + 1) / 2 + 1 = D / 2 + 1 */
+  mpfr_gamma(gamma, gamma, MPFR_RNDN);
+    /* gamma = Gamma(D / 2 + 1) */
+
+  /* Compute the volume of a D-dimensional ball of radius R. */
+  mpfr_const_pi(v, MPFR_RNDN); /* v = pi */
+  mpfr_set_ld(tmp, (long double)(n + 1) / (long double)2, MPFR_RNDN);
+    /* tmp = (n + 1) / 2 = D / 2 */
+  mpfr_pow(v, v, tmp, MPFR_RNDN); /* v = pi^(D / 2) */
+
+  mpfr_set_ui(tmp, n + 1, MPFR_RNDN); /* tmp = n + 1 = D */
+  mpfr_pow(tmp, radius, tmp, MPFR_RNDN); /* tmp = radius^D */
+  mpfr_mul(v, v, tmp, MPFR_RNDN); /* v = pi^(D / 2) radius^D */
+  mpfr_div(v, v, gamma, MPFR_RNDN);
+    /* v = pi^(D / 2) radius^D / Gamma(D / 2 + 1) */
+
+  /* Divide by the determinant. */
+  mpfr_set_ui_2exp(tmp, 1,
+    (mpfr_exp_t)((m + sigma) * n + sigma - l), MPFR_RNDN);
+      /* tmp = 2^((m + sigma) n + sigma - l) */
+  mpfr_div(v, v, tmp, MPFR_RNDN);
+    /* v = pi^(D / 2) radius^D / Gamma(D / 2 + 1) / \
+              2^((m + sigma) n + sigma - l) */
+
+  /* Clear memory. */
+  mpfr_clear(tmp);
+  mpfr_clear(tmp2);
   mpfr_clear(radius);
   mpfr_clear(gamma);
 

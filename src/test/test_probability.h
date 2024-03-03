@@ -26,7 +26,7 @@
 void test_probability_approx_heuristic_sigma_kat();
 
 /*!
- * \brief   Execute all unit tests for the
+ * \brief   Executes all unit tests for the
  *          \ref two_dimensional_distribution_probability module.
  */
 void test_probability();

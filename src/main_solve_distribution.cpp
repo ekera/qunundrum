@@ -24,6 +24,7 @@
 #include "lattice.h"
 #include "lattice_enumerate.h"
 #include "lattice_solve.h"
+#include "log.h"
 #include "math.h"
 #include "random.h"
 #include "sample.h"
@@ -272,7 +273,7 @@ static bool arguments_init_parse_command_line(
     break;
   }
 
-  /* Set default parameters if arguments where not explicitly specified. */
+  /* Set default parameters if arguments were not explicitly specified. */
   if (SOLUTION_METHOD_DEFAULT == arguments->solution_method) {
     arguments->solution_method = SOLUTION_METHOD_CLOSEST;
   }
@@ -354,6 +355,12 @@ static bool arguments_init_parse_command_line(
   return TRUE;
 }
 
+/*!
+ * \brief   Broadcasts the command line arguments to all other nodes.
+ *
+ * \param[in] arguments   The parsed command line arguments to broadcast.
+ * \param[in] root        The rank of the root node.
+ */
 static void arguments_bcast_send(
   const Solve_Distribution_Arguments * const arguments,
   const int root)
@@ -410,6 +417,13 @@ static void arguments_bcast_send(
   }
 }
 
+/*!
+ * \brief   Initializes the command line arguments by receiving a broadcast from
+ *          a node.
+ *
+ * \param[in, out] arguments  The command line arguments to initialize.
+ * \param[in] root            The rank of the node from which to receive.
+ */
 static void arguments_init_bcast_recv(
   Solve_Distribution_Arguments * const arguments,
   const int root)
@@ -487,6 +501,71 @@ static void arguments_init_bcast_recv(
 }
 
 /*!
+ * \brief   Prints the command line arguments.
+ *
+ * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in] arguments     The parsed command line arguments to print.
+ */
+static void arguments_fprintf(
+  FILE * const file,
+  const Solve_Distribution_Arguments * const arguments)
+{
+  switch (arguments->search_strategy) {
+    case SEARCH_STRATEGY_DEFAULT:
+    case SEARCH_STRATEGY_ADAPTIVE:
+      fprintf(file, "# Search strategy: Adaptive\n");
+      break;
+
+    case SEARCH_STRATEGY_NON_ADAPTIVE:
+      fprintf(file, "# Search strategy: Non-adaptive\n");
+      break;
+
+    case SEARCH_STRATEGY_NON_ADAPTIVE_EARLY_ABORT:
+      fprintf(file, "# Search strategy: Non-adaptive with early abort\n");
+      break;
+  }
+
+  switch (arguments->solution_method) {
+    case SOLUTION_METHOD_DEFAULT:
+    case SOLUTION_METHOD_CLOSEST:
+      fprintf(file, "# Solution method: Closest\n");
+      break;
+
+    case SOLUTION_METHOD_ENUMERATE:
+      fprintf(file, "# Solution method: Enumerate (timeout: %u s)\n",
+        arguments->timeout);
+      break;
+  }
+
+  switch (arguments->reduction_algorithm) {
+    case REDUCTION_ALGORITHM_DEFAULT:
+    case REDUCTION_ALGORITHM_LLL_BKZ:
+      fprintf(file, "# Reduction algorithm: LLL then BKZ\n");
+      break;
+
+    case REDUCTION_ALGORITHM_LLL:
+      fprintf(file, "# Reduction algorithm: LLL\n");
+      break;
+
+    case REDUCTION_ALGORITHM_BKZ:
+      fprintf(file, "# Reduction algorithm: BKZ\n");
+      break;
+
+    case REDUCTION_ALGORITHM_HKZ:
+      fprintf(file, "# Reduction algorithm: HKZ\n");
+      break;
+  }
+
+  if (TRUE == arguments->detect_smooth_order) {
+    fprintf(file, "# Detect smooth order: True\n");
+  } else {
+    fprintf(file, "# Detect smooth order: False\n");
+  }
+
+  log_timestamp_fprintf(file);
+}
+
+/*!
  * \brief   Clears an initialized command line arguments data structure.
  *
  * \param[in, out] arguments   The arguments data structure to clear.
@@ -551,6 +630,7 @@ static void main_server(
   }
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(entry->path));
+  arguments_fprintf(log_file, arguments);
 
   /* Broadcast the distribution. */
   distribution_bcast_send(distribution, MPI_RANK_ROOT);

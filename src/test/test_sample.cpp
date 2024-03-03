@@ -8,6 +8,8 @@
 
 #include "test_sample.h"
 
+#include "test_common.h"
+
 #include "../common.h"
 #include "../diagonal_parameters.h"
 #include "../distribution.h"
@@ -24,6 +26,11 @@
 
 #include <stdint.h>
 #include <stdio.h>
+
+/*!
+ * \brief   The maximum buffer size in bytes.
+ */
+#define MAX_BUFFER_SIZE 8192
 
 void test_sample_approximate_alpha_from_region() {
   printf("Testing sample_approximate_alpha_from_region()...\n");
@@ -592,6 +599,7 @@ void test_sample_j_from_diagonal_alpha_r() {
   printf("Testing sample_j_from_diagonal_alpha_r()...\n");
 
   const uint32_t t = 30;
+  const uint32_t eta_bound = 0;
   const uint32_t m = 2048;
   const uint32_t sigma = 5;
   const uint32_t l = m + sigma;
@@ -622,7 +630,8 @@ void test_sample_j_from_diagonal_alpha_r() {
 
   Diagonal_Parameters parameters;
   diagonal_parameters_init(&parameters);
-  diagonal_parameters_explicit_m_l(&parameters, d, r, m, sigma, l, t);
+  diagonal_parameters_explicit_m_l(
+    &parameters, d, r, m, sigma, l, eta_bound, t);
 
   for (uint32_t i = m - 30; i < m + sigma - 1; i++) {
     for (uint32_t i2 = 0; i2 < 10; i2++) {
@@ -665,6 +674,165 @@ void test_sample_j_from_diagonal_alpha_r() {
 
   random_close(&random_state);
   diagonal_parameters_clear(&parameters);
+}
+
+void test_sample_k_from_diagonal_j_eta_pivot_kat() {
+  printf("Testing test_sample_k_from_diagonal_j_eta_pivot_kat() via KAT...\n");
+
+  /* As set in main() in main_generate_distribution.cpp. */
+  mpfr_set_default_prec(PRECISION);
+
+  const uint32_t m_s_entries[7][2] = {
+    { 128, 10},
+    { 256, 20},
+    { 512, 30},
+    {1024, 40},
+    {2048, 50},
+    {4096, 80},
+    {8192, 80}
+  };
+
+  const uint32_t s_entries[16] = {
+    1, 2, 3, 4, 5, 6, 7, 8, 10, 20, 30, 40, 50, 60, 70, 80
+  };
+
+  const uint32_t sigma_entries[6] = {
+    0, 1, 2, 3, 4, 5
+  };
+
+  for (uint32_t m_index = 0; m_index < 7; m_index++) {
+    const uint32_t m = m_s_entries[m_index][0];
+    const uint32_t s_max = m_s_entries[m_index][1];
+
+    for (uint32_t s_index = 0; s_index < 16; s_index++) {
+      const uint32_t s = s_entries[s_index];
+      if (s > s_max) {
+        break;
+      }
+
+      for (uint32_t sigma_index = 0; sigma_index < 6; sigma_index++) {
+        const uint32_t sigma = sigma_entries[sigma_index];
+        const uint32_t l = ceil(((double)m) / ((double)s));
+
+        const uint32_t precision = 2 * l;
+
+        mpz_t d;
+        mpz_init(d);
+
+        mpz_t r;
+        mpz_init(r);
+
+        parameters_selection_deterministic_d_r(d, r, m);
+
+        Diagonal_Parameters parameters;
+        diagonal_parameters_init(&parameters);
+        diagonal_parameters_explicit_m_l(
+          &parameters,
+          d,
+          r,
+          m,
+          sigma,
+          l,
+          25, /* eta_bound = 25 */
+          30); /* t = 30 */
+
+        char path[MAX_BUFFER_SIZE];
+        sprintf(path,
+          "res/test-vectors/sample-k-from-diagonal-j-eta-pivot-"
+            "m-%u-sigma-%u-s-%u.txt", m, sigma, s);
+        printf(" Processing: %s\n", path);
+
+        FILE * file = fopen(path, "rb");
+        if (NULL == file) {
+          critical("test_sample_k_from_diagonal_j_eta_pivot_kat(): "
+            "Failed to open \"%s\".", path);
+        }
+
+        /* Declare variables. */
+        mpz_t j;
+        mpz_init(j);
+
+        mpz_t k;
+        mpz_init(k);
+
+        mpz_t exp_k;
+        mpz_init(exp_k);
+
+        mpfr_t alpha_phi;
+        mpfr_init2(alpha_phi, precision);
+
+        mpfr_t exp_alpha_phi;
+        mpfr_init2(exp_alpha_phi, precision);
+
+        for (uint32_t iteration = 0; iteration < 25; iteration++) {
+          /* Load j. */
+          test_mpz_load(j, file);
+
+          /* Load eta. */
+          int32_t eta;
+          if (1 != fscanf(file, "%d\n", &eta)) {
+            critical("test_sample_k_from_diagonal_j_eta_pivot_kat(): "
+              "Failed to load eta from file.");
+          }
+
+          /* Load pivot. */
+          long double pivot;
+          if (1 != fscanf(file, "%Lf\n", &pivot)) {
+            critical("test_sample_k_from_diagonal_j_eta_pivot_kat(): "
+              "Failed to load pivot from file.");
+          }
+
+          /* Load expected k. */
+          test_mpz_load(exp_k, file);
+
+          /* Load expected alpha_phi. */
+          test_mpfr_load(exp_alpha_phi, file);
+
+          /* Compute k and alpha_phi. */
+          sample_k_from_diagonal_j_eta_pivot(
+            &parameters,
+            pivot,
+            j,
+            eta,
+            UINT32_MAX, /* = delta_bound */
+            k,
+            alpha_phi);
+
+          if (0 != mpz_cmp(exp_k, k)) {
+            critical("test_sample_k_from_diagonal_j_eta_pivot_kat(): "
+              "Failed to verify k.");
+          }
+
+          const long double alpha_phi_ld =
+            mpfr_get_ld(alpha_phi, MPFR_RNDN);
+          const long double exp_alpha_phi_ld =
+            mpfr_get_ld(exp_alpha_phi, MPFR_RNDN);
+
+          if (TRUE != test_cmp_ld(exp_alpha_phi_ld, alpha_phi_ld)) {
+            critical("test_sample_k_from_diagonal_j_eta_pivot_kat(): "
+              "Failed to verify alpha_phi.");
+          }
+        }
+
+        /* Close the file. */
+        fclose(file);
+        file = NULL;
+
+        /* Clear memory. */
+        mpz_clear(d);
+        mpz_clear(r);
+
+        mpz_clear(j);
+        mpz_clear(k);
+        mpz_clear(exp_k);
+
+        mpfr_clear(alpha_phi);
+        mpfr_clear(exp_alpha_phi);
+
+        diagonal_parameters_clear(&parameters);
+      }
+    }
+  }
 }
 
 void test_sample() {

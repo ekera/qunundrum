@@ -1,26 +1,27 @@
 /*!
- * \file    main_estimate_runs_distribution.cpp
- * \ingroup estimate_runs_distribution_exe
+ * \file    main_estimate_runs_diagonal_distribution.cpp
+ * \ingroup estimate_runs_diagonal_distribution_exe
  *
  * \brief   The definition of the main entry point to the
- *          estimate_runs_distribution executable, and of associated functions.
+ *          estimate_runs_diagonal_distribution executable, and of associated
+ *          functions.
  */
 
 /*!
- * \defgroup estimate_runs_distribution_exe \
- *           The estimate_runs_distribution executable
+ * \defgroup estimate_runs_diagonal_distribution_exe \
+ *           The estimate_runs_diagonal_distribution executable
  * \ingroup  volume_executable
  *
- * \brief    A module for the estimate_runs_distribution executable.
+ * \brief    A module for the estimate_runs_diagonal_distribution executable.
  */
 
 #include "executables.h"
 #include "executables_estimate_runs_distribution.h"
 
 #include "common.h"
-#include "distribution.h"
-#include "distribution_loader.h"
 #include "errors.h"
+#include "diagonal_distribution.h"
+#include "diagonal_distribution_loader.h"
 #include "log.h"
 #include "random.h"
 #include "string_utilities.h"
@@ -43,14 +44,30 @@
 /*!
  * \brief   A data structure representing parsed command line arguments.
  *
- * \ingroup estimate_runs_distribution_exe
+ * \ingroup estimate_runs_diagonal_distribution_exe
  */
 typedef struct {
-
   /*!
    * \brief   The bound on the volume quotient.
    */
   mpfr_t v_bound;
+
+  /*!
+   * \brief   The bound on the offset Delta from k_0 when sampling k given j.
+   */
+  uint32_t delta_bound;
+
+  /*!
+   * \brief   The bound on the peak index eta.
+   */
+  uint32_t eta_bound;
+
+  /*!
+   * \brief   A boolean flag that indicates whether the bound on the peak index
+   *          eta has been specified. Otherwise, the eta bound used to setup
+   *          each distribution is used.
+   */
+  bool eta_bound_specified;
 
   /*!
    * \brief   The number of distributions to process.
@@ -61,8 +78,7 @@ typedef struct {
    * \brief   Paths to the distributions to process.
    */
   char ** paths;
-
-} Estimate_Runs_Distribution_Arguments;
+} Estimate_Runs_Diagonal_Distribution_Arguments;
 
 
 /*!
@@ -90,13 +106,18 @@ typedef struct {
  *           only partially initialized and memory only partially allocated.
  */
 static bool arguments_init_parse_command_line(
-  Estimate_Runs_Distribution_Arguments * const arguments,
+  Estimate_Runs_Diagonal_Distribution_Arguments * const arguments,
   const int argc,
   char ** argv)
 {
   /* Initialize the arguments data structure. */
+  arguments->delta_bound = BOUND_DELTA;
+  arguments->eta_bound = 0;
+  arguments->eta_bound_specified = FALSE;
   arguments->paths = NULL;
   arguments->count = 0;
+
+  bool delta_bound_specified = FALSE;
 
   mpfr_init2(arguments->v_bound, PRECISION);
   mpfr_set_ui(arguments->v_bound, 0, MPFR_RNDN);
@@ -107,14 +128,14 @@ static bool arguments_init_parse_command_line(
   for (i = 1; i < argc; i++) {
     if (0 == strcmp(argv[i], "-v-bound")) {
       if ((i + 1) >= argc) {
-        fprintf(stderr,
-          "Error: Expected <v-bound> to follow after -v-bound.\n");
+        fprintf(stderr, "Error: Expected <v-bound> to follow after "
+          "-v-bound.\n");
         return FALSE;
       }
 
       if (mpfr_cmp_ui(arguments->v_bound, 0) != 0) {
-        fprintf(stderr, "Error: The volume quotient bound cannot be twice "
-          "specified.\n");
+        fprintf(stderr,
+          "Error: The volume quotient bound cannot be twice specified.\n");
         return FALSE;
       }
 
@@ -124,10 +145,70 @@ static bool arguments_init_parse_command_line(
       }
 
       if (mpfr_cmp_ui(arguments->v_bound, 0) <= 0) {
-        fprintf(stderr,
-          "Error: The <v-bound> after -v-bound must be positive.\n");
+        fprintf(stderr, "Error: The <v-bound> after -v-bound must be "
+          "positive.\n");
         return FALSE;
       }
+
+      i++;
+
+      continue;
+    }
+
+    /* Parse the delta bound. */
+    if (0 == strcmp(argv[i], "-delta-bound")) {
+      /* Check that a delta bound has not already been specified. */
+      if (FALSE != delta_bound_specified) {
+        fprintf(stderr, "Error: The delta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <delta-bound> to follow after "
+          "-delta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if (x < 0) {
+        fprintf(stderr, "Error: The <delta-bound> passed to -delta-bound must "
+          "be non-negative.\n");
+        return FALSE;
+      }
+
+      /* Store the delta bound. */
+      arguments->delta_bound = (uint32_t)x;
+      delta_bound_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
+    /* Parse the eta bound. */
+    if (0 == strcmp(argv[i], "-eta-bound")) {
+      /* Check that an eta bound has not already been specified. */
+      if (FALSE != arguments->eta_bound_specified) {
+        fprintf(stderr, "Error: The eta bound cannot be twice specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected <eta-bound> to follow after "
+          "-eta-bound.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i + 1]);
+      if ((x < 0) || (x > 256)) {
+        fprintf(stderr, "Error: The <eta-bound> passed to -eta-bound must be "
+          "on the interval [0, 256].\n");
+        return FALSE;
+      }
+
+      /* Store the eta bound. */
+      arguments->eta_bound = (uint32_t)x;
+      arguments->eta_bound_specified = TRUE;
 
       i++;
 
@@ -178,12 +259,25 @@ static bool arguments_init_parse_command_line(
  *
  * \param[in, out] file     Then file to which to print the arguments.
  * \param[in] arguments     The arguments data structure to print to the file.
+ * \param[in] distribution  The distribution being processed.
  */
 static void arguments_fprintf(
   FILE * const file,
-  const Estimate_Runs_Distribution_Arguments * const arguments)
+  const Estimate_Runs_Diagonal_Distribution_Arguments * const arguments,
+  const Diagonal_Distribution * const distribution)
 {
-  mpfr_fprintf(file, "# Bounds: (v = %Rg)\n", arguments->v_bound);
+  if (TRUE == arguments->eta_bound_specified) {
+    mpfr_fprintf(file, "# Bounds: (eta = %u (%u), delta = %u, v = %Rg)\n",
+      arguments->eta_bound,
+      distribution->parameters.eta_bound,
+      arguments->delta_bound,
+      arguments->v_bound);
+  } else {
+    mpfr_fprintf(file, "# Bounds: (eta = <all> (%u), delta = %u, v = %Rg)\n",
+      distribution->parameters.eta_bound,
+      arguments->delta_bound,
+      arguments->v_bound);
+  }
 
   log_timestamp_fprintf(file);
 }
@@ -194,11 +288,11 @@ static void arguments_fprintf(
  * \param[in, out] arguments   The arguments data structure to clear.
  */
 static void arguments_clear(
-  Estimate_Runs_Distribution_Arguments * const arguments)
+  Estimate_Runs_Diagonal_Distribution_Arguments * const arguments)
 {
   mpfr_clear(arguments->v_bound);
 
-  memset(arguments, 0, sizeof(Estimate_Runs_Distribution_Arguments));
+  memset(arguments, 0, sizeof(Estimate_Runs_Diagonal_Distribution_Arguments));
 }
 
 /*!
@@ -213,8 +307,21 @@ static void arguments_clear(
 static void main_client()
 {
   /* Receive broadcast of the distribution. */
-  Distribution distribution;
-  distribution_init_bcast_recv(&distribution, MPI_RANK_ROOT);
+  Diagonal_Distribution distribution;
+  diagonal_distribution_init_bcast_recv(&distribution, MPI_RANK_ROOT);
+
+  /* Receive broadcast the delta and eta bounds. */
+  uint32_t bounds[2];
+
+  if (MPI_SUCCESS !=
+    MPI_Bcast(bounds, 2, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
+  {
+    critical("main_server(): "
+      "Failed to receive broadcast of the delta and eta bounds.");
+  };
+
+  const uint32_t delta_bound = bounds[0];
+  const uint32_t eta_bound = bounds[1];
 
   /* Setup a random state. */
   Random_State random_state;
@@ -222,14 +329,9 @@ static void main_client()
 
   while (TRUE) {
     /* Setup the ordered lists. */
-    Tau_Ordered_List tau_d_ordered_list;
+    Tau_Ordered_List tau_ordered_list;
     tau_ordered_list_init(
-        &tau_d_ordered_list,
-        TAU_CHUNK_COUNT * TAU_CHUNK_SIZE / 100); /* Keep top one percent. */
-
-    Tau_Ordered_List tau_r_ordered_list;
-    tau_ordered_list_init(
-        &tau_r_ordered_list,
+        &tau_ordered_list,
         TAU_CHUNK_COUNT * TAU_CHUNK_SIZE / 100); /* Keep top one percent. */
 
     /* Receive broadcast of n. */
@@ -283,33 +385,45 @@ static void main_client()
       }
 
       if (MPI_JOB_STOP == job) {
-        tau_ordered_list_send_merge(&tau_d_ordered_list, MPI_RANK_ROOT);
-        tau_ordered_list_send_merge(&tau_r_ordered_list, MPI_RANK_ROOT);
+        tau_ordered_list_send_merge(&tau_ordered_list, MPI_RANK_ROOT);
 
         break;
       } else if (MPI_JOB_ESTIMATE_TAU != job) {
         critical("main_client(): Unknown job (%u).", job);
       }
 
-      for (uint32_t i = 0; i < TAU_CHUNK_SIZE; i++) {
-        long double tau_d;
-        long double tau_r;
+      /* Receive the chunk identifier. Use it setup deterministic randomness. */
+      uint32_t chunk;
 
-        tau_estimate(
+      if (MPI_SUCCESS != MPI_Recv(
+          &chunk,
+          1, /* count */
+          MPI_UNSIGNED,
+          MPI_RANK_ROOT,
+          MPI_TAG_CHUNK,
+          MPI_COMM_WORLD,
+          &status))
+      {
+        critical("main_client(): Failed to receive MPI_TAG_CHUNK.");
+      }
+
+      for (uint32_t i = 0; i < TAU_CHUNK_SIZE; i++) {
+        long double tau;
+
+        tau_estimate_diagonal(
           &distribution,
           &random_state,
           n,
-          tau_d,
-          tau_r);
+          delta_bound,
+          eta_bound,
+          tau);
 
-        tau_ordered_list_insert(&tau_d_ordered_list, tau_d);
-        tau_ordered_list_insert(&tau_r_ordered_list, tau_r);
+        tau_ordered_list_insert(&tau_ordered_list, tau);
       }
     }
 
     /* Clear memory. */
-    tau_ordered_list_clear(&tau_d_ordered_list);
-    tau_ordered_list_clear(&tau_r_ordered_list);
+    tau_ordered_list_clear(&tau_ordered_list);
   }
 
   /* Close the random state. */
@@ -330,53 +444,44 @@ static void main_server_stop()
   uint32_t n = 0;
 
   if (MPI_SUCCESS != MPI_Bcast(
-        &n,
-        1, /* count */
-        MPI_UNSIGNED,
-        MPI_RANK_ROOT,
-        MPI_COMM_WORLD))
+      &n,
+      1, /* count */
+      MPI_UNSIGNED,
+      MPI_RANK_ROOT,
+      MPI_COMM_WORLD))
   {
     critical("main_server_stop(): Failed to broadcast n.");
   }
 }
 
 /*!
- * \brief   A function on the server node for estimating volume quotients.
+ * \brief   A function on the server node for estimating a volume quotient.
  *
  * This function is called by main_server() one or more times for each
  * distribution to generate estimates for various n.
  *
  * Note that this function only issues jobs to client nodes where the actual
- * estimates are computed, for detail see main_client().
+ * estimate is computed, for detail see main_client().
  *
- * \param[in, out] v_d     An arbitrary precision floating point value in which
- *                         to store the volume quotient v_d computed.
- * \param[in, out] v_r     An arbitrary precision floating point value in which
- *                         to store the volume quotient v_r computed.
- * \param[in] n            The value of n for which to compute the estimates.
- * \param[in] distribution The distribution to sample to compute the estimates.
+ * \param[in, out] v       An arbitrary precision floating point value in which
+ *                         to store the volume quotient computed.
+ * \param[in] n            The value of n for which to compute the estimate.
+ * \param[in] distribution The distribution to sample to compute the estimate.
  * \param[in] mpi_size     The number of nodes.
  *
- * \return  Returns #TRUE if both estimates were successfully computed.
- *          Otherwise, if either one, or both, estimates computed are out of
- *          bounds, #FALSE is returned.
+ * \return  Returns #TRUE if the estimate was successfully computed. Otherwise,
+ *          if the estimate computed is out of bounds, #FALSE is returned.
  */
-static bool main_server_estimate_volume_quotients(
-  mpfr_t v_d,
-  mpfr_t v_r,
+static bool main_server_estimate_volume_quotient(
+  mpfr_t v,
   uint32_t n,
-  const Distribution * const distribution,
+  const Diagonal_Distribution * const distribution,
   const int mpi_size)
 {
   /* Setup the ordered lists. */
-  Tau_Ordered_List tau_d_ordered_list;
+  Tau_Ordered_List tau_ordered_list;
   tau_ordered_list_init(
-      &tau_d_ordered_list,
-      TAU_CHUNK_COUNT * TAU_CHUNK_SIZE / 100); /* Keep top one percent. */
-
-  Tau_Ordered_List tau_r_ordered_list;
-  tau_ordered_list_init(
-      &tau_r_ordered_list,
+      &tau_ordered_list,
       TAU_CHUNK_COUNT * TAU_CHUNK_SIZE / 100); /* Keep top one percent. */
 
   /* Broadcast n. */
@@ -387,7 +492,7 @@ static bool main_server_estimate_volume_quotients(
         MPI_RANK_ROOT,
         MPI_COMM_WORLD))
   {
-    critical("main_server_estimate_volume_quotients(): Failed to broadcast n.");
+    critical("main_server_estimate_volume_quotient(): Failed to broadcast n.");
   }
 
   printf("Processing n = %u...\n", n);
@@ -411,12 +516,12 @@ static bool main_server_estimate_volume_quotients(
         MPI_COMM_WORLD,
         &status))
     {
-      critical("main_server_estimate_volume_quotients(): "
+      critical("main_server_estimate_volume_quotient(): "
         "Failed to receive notification.");
     }
 
     if (MPI_NOTIFY_READY != notification) {
-      critical("main_server_estimate_volume_quotients(): "
+      critical("main_server_estimate_volume_quotient(): "
         "Unexpected notification (%u).", notification);
     }
 
@@ -435,8 +540,20 @@ static bool main_server_estimate_volume_quotients(
           MPI_TAG_JOB,
           MPI_COMM_WORLD))
       {
-        critical("main_server_estimate_volume_quotients(): "
+        critical("main_server_estimate_volume_quotient(): "
           "Failed to send job.");
+      }
+
+      if (MPI_SUCCESS != MPI_Send(
+          &chunks_submitted,
+          1, /* count */
+          MPI_UNSIGNED,
+          status.MPI_SOURCE,
+          MPI_TAG_CHUNK,
+          MPI_COMM_WORLD))
+      {
+        critical("main_server_estimate_volume_quotient(): "
+          "Failed to send MPI_TAG_CHUNK.");
       }
 
       /* Increment the counter. */
@@ -455,13 +572,12 @@ static bool main_server_estimate_volume_quotients(
           MPI_TAG_JOB,
           MPI_COMM_WORLD))
       {
-        critical("main_server_estimate_volume_quotients(): "
+        critical("main_server_estimate_volume_quotient(): "
           "Failed to send job.");
       }
 
       /* Fetch the lists from the node and merge with the server list. */
-      tau_ordered_list_recv_merge(&tau_d_ordered_list, status.MPI_SOURCE);
-      tau_ordered_list_recv_merge(&tau_r_ordered_list, status.MPI_SOURCE);
+      tau_ordered_list_recv_merge(&tau_ordered_list, status.MPI_SOURCE);
 
       active_nodes--;
 
@@ -475,38 +591,40 @@ static bool main_server_estimate_volume_quotients(
   /* Open the logfile. */
   char log_path[MAX_SIZE_PATH_BUFFER];
   safe_snprintf(log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/estimate-runs.txt", LOGS_DIRECTORY);
+    "%s/estimate-runs-diagonal.txt", LOGS_DIRECTORY);
 
   FILE * logfile = fopen(log_path, "a+");
   if (NULL == logfile) {
-    critical("main_server_estimate_volume_quotients(): "
+    critical("main_server_estimate_volume_quotient(): "
       "Failed to open \"%s\" for appending.", log_path);
   }
 
   /* Extract constants from the distribution parameters. */
   const uint32_t m = distribution->parameters.m;
+  const uint32_t sigma = distribution->parameters.sigma;
   const uint32_t l = distribution->parameters.l;
   const uint32_t s = distribution->parameters.s;
 
-  /* Extract the tau_d and tau_r values. */
-  const long double tau_d = tau_d_ordered_list.tau[0];
-  const long double tau_r = tau_r_ordered_list.tau[0];
+  /* Extract the tau value. */
+  long double tau = tau_ordered_list.tau[0];
 
-  /* Check if the value of tau returned is out of bound. */
-  if ((DBL_MAX == tau_d) || (DBL_MAX == tau_r)) {
-    /* The tau_d and tau_r values returned were sampled out of bounds of the
-     * distribution so we have no data from which to compute the quotients. */
-     printf("Warning: The tau_d and tau_r returned are out of bounds.\n");
+  /* Check if the values of tau returned is out of bounds. */
+  if (DBL_MAX == tau) {
+    /* The tau value returned was sampled out of bounds of the distribution so
+     * we have no data from which to compute the quotients. */
+     printf("Warning: The tau returned is out of bounds.\n");
 
     /* Log a note to this effect... */
-    mpfr_fprintf(logfile, "m: %u %c: %u n: %u -- *** -- *** "
+    mpfr_fprintf(logfile, "m: %u sigma: %u %c: %u n: %u -- *** "
       "<-- out of bounds\n",
       m,
+      sigma,
       (0 != s) ? 's' : 'l',
       (0 != s) ?  s  :  l,
       n);
-    mpfr_printf("m: %u %c: %u n: %u -- *** -- *** <-- out of bounds\n",
+    mpfr_printf("m: %u sigma: %u %c: %u n: %u -- *** <-- out of bounds\n",
       m,
+      sigma,
       (0 != s) ? 's' : 'l',
       (0 != s) ?  s  :  l,
       n);
@@ -518,48 +636,47 @@ static bool main_server_estimate_volume_quotients(
   }
 
   /* Check and print the number of values of tau that are out of bounds. */
-  uint32_t i_d, i_r;
+  uint32_t i;
 
-  for (i_d = 0; i_d < tau_d_ordered_list.size; i_d++) {
-    if (DBL_MAX != tau_d_ordered_list.tau[tau_d_ordered_list.size - 1 - i_d]) {
+  for (i = 0; i < tau_ordered_list.size; i++) {
+    if (DBL_MAX != tau_ordered_list.tau[tau_ordered_list.size - 1 - i]) {
       break;
     }
   }
 
-  for (i_r = 0; i_r < tau_r_ordered_list.size; i_r++) {
-    if (DBL_MAX != tau_r_ordered_list.tau[tau_r_ordered_list.size - 1 - i_r]) {
-      break;
-    }
-  }
-
-  /* Compute the volume quotients. */
-  tau_volume_quotient(m, l, n, distribution->parameters.d, tau_d, v_d);
-  tau_volume_quotient(m, l, n, distribution->parameters.r, tau_r, v_r);
-
-  /* Log the tau values and associated volume quotients. */
-  mpfr_fprintf(logfile, "m: %u %c: %u n: %u -- "
-    "tau_d %Lf v_d: %RG <%u> -- tau_r: %Lf v_r: %RG <%u>\n",
+  /* Compute the volume quotient. */
+  tau_volume_quotient_diagonal(
     m,
+    sigma,
+    l,
+    n,
+    distribution->parameters.d,
+    tau,
+    v);
+
+  /* Log the tau value and associated volume quotient. */
+  mpfr_fprintf(logfile, "m: %u sigma: %u %c: %u n: %u -- "
+    "tau: %Lf v: %RG <%u>\n",
+    m,
+    sigma,
     (0 != s) ? 's' : 'l',
     (0 != s) ?  s  :  l,
     n,
-    tau_d, v_d, i_d,
-    tau_r, v_r, i_r);
-  mpfr_printf("m: %u %c: %u n: %u -- "
-    "tau_d: %Lf v_d: %RG <%u> -- tau_r: %Lf v_r: %RG <%u>\n",
+    tau, v, i);
+  mpfr_printf("m: %u sigma: %u %c: %u n: %u -- "
+    "tau: %Lf v: %RG <%u>\n",
     m,
+    sigma,
     (0 != s) ? 's' : 'l',
     (0 != s) ?  s  :  l,
     n,
-    tau_d, v_d, i_d,
-    tau_r, v_r, i_r);
+    tau, v, i);
 
   fclose(logfile);
   logfile = NULL;
 
   /* Clear memory. */
-  tau_ordered_list_clear(&tau_d_ordered_list);
-  tau_ordered_list_clear(&tau_r_ordered_list);
+  tau_ordered_list_clear(&tau_ordered_list);
 
   /* Signal success. */
   return TRUE;
@@ -571,43 +688,48 @@ static bool main_server_estimate_volume_quotients(
  * This function is called once by main() for each distribution to process.
  *
  * \param[in] arguments    The parsed command line arguments.
- * \param[in] distribution The distribution to sample to compute the estimates.
+ * \param[in] distribution The distribution to sample to compute the estimate.
  * \param[in] path         The path to the distribution.
  * \param[in] mpi_size     The number of nodes.
  */
 static void main_server(
-  const Estimate_Runs_Distribution_Arguments * const arguments,
-  const Distribution * const distribution,
+  const Estimate_Runs_Diagonal_Distribution_Arguments * const arguments,
+  const Diagonal_Distribution * const distribution,
   char * path,
   int mpi_size)
 {
   /* Declare variables. */
-  mpfr_t v_d_0;
-  mpfr_init2(v_d_0, PRECISION);
+  mpfr_t v_0;
+  mpfr_init2(v_0, PRECISION);
 
-  mpfr_t v_d_1;
-  mpfr_init2(v_d_1, PRECISION);
+  mpfr_t v_1;
+  mpfr_init2(v_1, PRECISION);
 
-  mpfr_t v_d_n;
-  mpfr_init2(v_d_n, PRECISION);
+  mpfr_t v_n;
+  mpfr_init2(v_n, PRECISION);
 
-  mpfr_t factor_d;
-  mpfr_init2(factor_d, PRECISION);
-
-  mpfr_t v_r_0;
-  mpfr_init2(v_r_0, PRECISION);
-
-  mpfr_t v_r_1;
-  mpfr_init2(v_r_1, PRECISION);
-
-  mpfr_t v_r_n;
-  mpfr_init2(v_r_n, PRECISION);
-
-  mpfr_t factor_r;
-  mpfr_init2(factor_r, PRECISION);
+  mpfr_t factor;
+  mpfr_init2(factor, PRECISION);
 
   /* Broadcast the distribution. */
-  distribution_bcast_send(distribution, MPI_RANK_ROOT);
+  diagonal_distribution_bcast_send(distribution, MPI_RANK_ROOT);
+
+  /* Broadcast the delta and eta bounds. */
+  uint32_t bounds[2];
+
+  bounds[0] = arguments->delta_bound;
+
+  if (TRUE == arguments->eta_bound_specified) {
+    bounds[1] = arguments->eta_bound;
+  } else {
+    bounds[1] = distribution->parameters.eta_bound;
+  }
+
+  if (MPI_SUCCESS !=
+    MPI_Bcast(bounds, 2, MPI_UNSIGNED, MPI_RANK_ROOT, MPI_COMM_WORLD))
+  {
+    critical("main_server(): Failed to broadcast the delta and eta bounds.");
+  };
 
   /* Create the log directory if it does not exist. */
   if (0 != access(LOGS_DIRECTORY, F_OK)) {
@@ -620,7 +742,7 @@ static void main_server(
   /* Write an entry in the logfile. */
   char log_path[MAX_SIZE_PATH_BUFFER];
   safe_snprintf(log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/estimate-runs.txt", LOGS_DIRECTORY);
+    "%s/estimate-runs-diagonal.txt", LOGS_DIRECTORY);
 
   FILE * logfile = fopen(log_path, "a+");
   if (NULL == logfile) {
@@ -628,7 +750,7 @@ static void main_server(
   }
 
   fprintf(logfile, "\n# Processing: %s\n", truncate_path(path));
-  arguments_fprintf(logfile, arguments);
+  arguments_fprintf(logfile, arguments, distribution);
 
   fclose(logfile);
   logfile = NULL;
@@ -642,51 +764,38 @@ static void main_server(
   /* Compute the maximum volume quotient for n = s. */
   bool result;
 
-  result =
-    main_server_estimate_volume_quotients(
-      v_d_0, v_r_0, s, distribution, mpi_size);
+  result = main_server_estimate_volume_quotient(v_0, s, distribution, mpi_size);
   if (FALSE == result) {
     main_server_stop();
     goto main_server_clear;
   }
-  if ((mpfr_cmp(v_d_0, arguments->v_bound) < 0) &&
-      (mpfr_cmp(v_r_0, arguments->v_bound) < 0))
-  {
+  if (mpfr_cmp(v_0, arguments->v_bound) < 0) {
     main_server_stop();
     goto main_server_clear;
   }
 
   /* Compute the maximum volume quotient for n = s + 1. */
   result =
-    main_server_estimate_volume_quotients(
-        v_d_1, v_r_1, s + 1, distribution, mpi_size);
+    main_server_estimate_volume_quotient(v_1, s + 1, distribution, mpi_size);
   if (FALSE == result) {
     main_server_stop();
     goto main_server_clear;
   }
-  if ((mpfr_cmp(v_d_1, arguments->v_bound) < 0) &&
-      (mpfr_cmp(v_r_1, arguments->v_bound) < 0))
-  {
+  if (mpfr_cmp(v_1, arguments->v_bound) < 0) {
     main_server_stop();
     goto main_server_clear;
   }
 
   /* Interpolate and jump ahead. */
-  mpfr_div(factor_d, v_d_0, v_d_1, MPFR_RNDN);
-  mpfr_div(factor_r, v_r_0, v_r_1, MPFR_RNDN);
-
-  mpfr_div(v_d_n, v_d_1, factor_d, MPFR_RNDN);
-  mpfr_div(v_r_n, v_r_1, factor_r, MPFR_RNDN);
+  mpfr_div(factor, v_0, v_1, MPFR_RNDN);
+  mpfr_div(v_n, v_1, factor, MPFR_RNDN);
 
   for (n = s + 2 ; n <= MAX_N; n++) {
-    if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
-        (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
-    {
+    if (mpfr_cmp(v_n, arguments->v_bound) < 0) {
       break;
     }
 
-    mpfr_div(v_d_n, v_d_n, factor_d, MPFR_RNDN);
-    mpfr_div(v_r_n, v_r_n, factor_r, MPFR_RNDN);
+    mpfr_div(v_n, v_n, factor, MPFR_RNDN);
   }
 
   if (MAX_N == n) {
@@ -694,29 +803,23 @@ static void main_server(
   }
 
   /* Compute for n. */
-  result =
-    main_server_estimate_volume_quotients(
-      v_d_n, v_r_n, n, distribution, mpi_size);
+  result = main_server_estimate_volume_quotient(v_n, n, distribution, mpi_size);
   if (FALSE == result) {
     main_server_stop();
     goto main_server_clear;
   }
 
-  if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
-      (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
-  {
+  if (mpfr_cmp(v_n, arguments->v_bound) < 0) {
     /* Decrease n by one until an unacceptable n is found. We require n >= s and
-     * we have already computed v_d and v_r for n = s and n = s + 1. */
+     * we have already computed v for n = s and n = s + 1. */
+
     for (n--; n > (s + 1); n--) {
       result =
-        main_server_estimate_volume_quotients(
-          v_d_n, v_r_n, n, distribution, mpi_size);
+        main_server_estimate_volume_quotient(v_n, n, distribution, mpi_size);
       if (FALSE == result) {
         break;
       }
-      if ((mpfr_cmp(v_d_n, arguments->v_bound) >= 0) ||
-          (mpfr_cmp(v_r_n, arguments->v_bound) >= 0))
-      {
+      if (mpfr_cmp(v_n, arguments->v_bound) >= 0) {
         break;
       }
     }
@@ -724,14 +827,11 @@ static void main_server(
     /* Increase n by one until an acceptable n is found. */
     for (n++; n <= MAX_N; n++) {
       result =
-        main_server_estimate_volume_quotients(
-          v_d_n, v_r_n, n, distribution, mpi_size);
+        main_server_estimate_volume_quotient(v_n, n, distribution, mpi_size);
       if (FALSE == result) {
         break;
       }
-      if ((mpfr_cmp(v_d_n, arguments->v_bound) < 0) &&
-          (mpfr_cmp(v_r_n, arguments->v_bound) < 0))
-      {
+      if (mpfr_cmp(v_n, arguments->v_bound) < 0) {
         break;
       }
     }
@@ -746,17 +846,11 @@ static void main_server(
 main_server_clear:
 
   /* Clear memory. */
-  mpfr_clear(v_d_0);
-  mpfr_clear(v_d_1);
-  mpfr_clear(v_d_n);
+  mpfr_clear(v_0);
+  mpfr_clear(v_1);
+  mpfr_clear(v_n);
 
-  mpfr_clear(factor_d);
-
-  mpfr_clear(v_r_0);
-  mpfr_clear(v_r_1);
-  mpfr_clear(v_r_n);
-
-  mpfr_clear(factor_r);
+  mpfr_clear(factor);
 }
 
 /*!
@@ -767,17 +861,31 @@ main_server_clear:
 static void print_synopsis(
   FILE * const file)
 {
-  fprintf(file, "Synopsis: mpirun estimate_runs_distribution \\\n"
-          "   [ -v-bound <v-bound> ] <distribution> { <distribution> }\n");
+  fprintf(file, "Synopsis: mpirun estimate_runs_diagonal_distribution \\\n"
+          "   [ -v-bound <v-bound> ] [ -delta-bound <delta-bound> ] \\\n"
+          "      [ -eta-bound <eta-bound> ] \\\n"
+          "         <distribution> { <distribution> }\n");
 
   fprintf(file, "\n");
   fprintf(file, "Volume quotient bound: -- defaults to 2\n");
   fprintf(file,
-    " -v-bound  explicitly set the volume quotient bound to <v-bound>\n");
+    " -v-bound      explicitly set the volume quotient bound to <v-bound>\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Delta bound: -- defaults to %u\n", BOUND_DELTA);
+  fprintf(file,
+    " -delta-bound  explicitly set the delta bound to <delta-bound>\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Eta bound: -- "
+    "defaults to the eta bound for the distribution\n");
+  fprintf(file,
+    " -eta-bound    explicitly set the eta bound to <eta-bound>\n");
 }
 
 /*!
- * \brief The main entry point to the estimate_runs_distribution executable.
+ * \brief   The main entry point to the estimate_runs_diagonal_distribution
+ *          executable.
  *
  * \param[in, out] argc   The arguments count.
  * \param[in, out] argv   The arguments vector.
@@ -833,7 +941,7 @@ int main(int argc, char ** argv) {
   /* Parse the command line arguments and signal errors in a graceful way. */
   uint32_t result;
 
-  Estimate_Runs_Distribution_Arguments arguments;
+  Estimate_Runs_Diagonal_Distribution_Arguments arguments;
 
   if (MPI_RANK_ROOT == mpi_rank) {
     result =
@@ -898,20 +1006,29 @@ int main(int argc, char ** argv) {
       critical("main(): Failed to broadcast the number of distributions.");
     }
 
-    /* Setup a distribution loader. */
-    Distribution_Loader loader;
-    distribution_loader_init(&loader, arguments.paths, arguments.count);
+    Diagonal_Distribution_Loader loader;
+    diagonal_distribution_loader_init(
+      &loader, arguments.paths, arguments.count);
 
     for (uint32_t i = 0; i < arguments.count; i++) {
-      Distribution * distribution = distribution_loader_pop(&loader);
+      Diagonal_Distribution * distribution =
+        diagonal_distribution_loader_pop(&loader);
 
       printf("Processing: %s\n", arguments.paths[i]);
+
+      if (TRUE == arguments.eta_bound_specified) {
+        if (arguments.eta_bound > distribution->parameters.eta_bound) {
+          critical("main(): The eta bound specified via -eta-bound is greater "
+            "than the eta bound used to generate the distribution.");
+        }
+      }
+
       main_server(&arguments, distribution, arguments.paths[i], mpi_size);
 
-      distribution_clear(distribution);
+      diagonal_distribution_clear(distribution);
     }
 
-    distribution_loader_clear(&loader);
+    diagonal_distribution_loader_clear(&loader);
 
     arguments_clear(&arguments);
   } else {
