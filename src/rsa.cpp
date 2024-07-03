@@ -62,6 +62,11 @@ void rsa_generate_modulus(
         continue;
       }
 
+      /* Check that p is not equal to q. */
+      if (0 == mpz_cmp(p, q)) {
+        continue;
+      }
+
       break;
     }
 
