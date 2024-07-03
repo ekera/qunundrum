@@ -541,7 +541,7 @@ static bool parse_command_line(
   if (4 == argc) {
     if (0 != strcmp("-check-modulus-size", argv[argv_offset++])) {
       fprintf(stderr, "Error: Expected the -check-modulus-size flag but found "
-        "a different first command line argument..\n");
+        "a different first command line argument.\n");
       return FALSE;
     }
 
@@ -587,7 +587,7 @@ static void print_synopsis(
   fprintf(file, "   [ -check-modulus-size ] <modulus_length> <records>\n");
   fprintf(file, "\n");
   fprintf(file, "Check modulus size: -- defaults to false\n");
-  fprintf(file, " --check-modulus-size  "
+  fprintf(file, " -check-modulus-size   "
     "Only accept moduli N < 2^n.\n");
   fprintf(file, "\n");
   fprintf(file, "The length n in bits of p, q in N = pq is "
