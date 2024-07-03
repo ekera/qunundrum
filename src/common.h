@@ -73,15 +73,21 @@
 
 /*!
  * \brief   A notification code used with the MPI_TAG_NOTIFY tag to indicate
+ *          that the node skips over computing a slice.
+ */
+#define MPI_NOTIFY_SLICE_SKIP                     17114
+
+/*!
+ * \brief   A notification code used with the MPI_TAG_NOTIFY tag to indicate
  *          that the node has computed a solution.
  */
 #define MPI_NOTIFY_SOLUTION_DONE                  17113
 
 /*!
  * \brief   A notification code used with the MPI_TAG_NOTIFY tag to indicate
- *          that the node skips over computing a slice.
+ *          that a job is done.
  */
-#define MPI_NOTIFY_SLICE_SKIP                     17114
+#define MPI_NOTIFY_JOB_DONE                       17117
 
 /*!
  * \brief   A notification code used with the MPI_TAG_NOTIFY tag to indicate
@@ -149,6 +155,18 @@
 #define MPI_TAG_SOLUTION                          17027
 
 /*!
+ * \brief   An MPI tag used to send and receive information about the solution
+ *          of a problem instance in tau.
+ */
+#define MPI_TAG_SOLUTION_TAU                      17029
+
+/*!
+ * \brief   An MPI tag used to send and receive information about the solution
+ *          of a problem instance in delta.
+ */
+#define MPI_TAG_SOLUTION_DELTA                    17020
+
+/*!
  * \}
  */
 
@@ -176,6 +194,11 @@
  * \brief   The job code used to indicate the node should estimate tau.
  */
 #define MPI_JOB_ESTIMATE_TAU                      17232
+
+/*!
+ * \brief   The job code used to indicate the node should tabulate a bound.
+ */
+#define MPI_JOB_TABULATE_BOUND                    17532
 
 /*!
  * \brief   The job code used to indicate the node should solve a system.
