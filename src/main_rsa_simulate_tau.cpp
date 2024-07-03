@@ -555,9 +555,9 @@ static bool parse_command_line(
     return FALSE;
   }
 
-  if (((*modulus_length) <= 0) || (0 != ((*modulus_length) % 2))) {
+  if (((*modulus_length) < 128) || (0 != ((*modulus_length) % 2))) {
     fprintf(stderr,
-      "Error: The <modulus_length> must be a positive even integer.\n");
+      "Error: The <modulus_length> must be a positive even integer >= 128.\n");
     return FALSE;
   }
 
@@ -583,7 +583,7 @@ static bool parse_command_line(
 static void print_synopsis(
   FILE * const file)
 {
-  fprintf(file, "Synopsis: mpirun rsa_simulate_tau\n");
+  fprintf(file, "Synopsis: mpirun rsa_simulate_tau \\\n");
   fprintf(file, "   [ -check-modulus-size ] <modulus_length> <records>\n");
   fprintf(file, "\n");
   fprintf(file, "Check modulus size: -- defaults to false\n");
@@ -591,8 +591,8 @@ static void print_synopsis(
     "Only accept moduli N < 2^n.\n");
   fprintf(file, "\n");
   fprintf(file, "The length n in bits of p, q in N = pq is "
-    "<modulus_length>/2. You must \n");
-  fprintf(file, "specify an even value for <modulus_length>. A total of "
+    "<modulus_length>/2. Specify \n");
+  fprintf(file, "an even <modulus_length> that is >= 128. A total of "
     "%u * <records>\n", SAMPLES_PER_RECORD);
   fprintf(file, "random moduli N are generated when statistics is "
     "collected.\n");
