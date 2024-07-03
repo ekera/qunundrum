@@ -609,13 +609,7 @@ static void print_synopsis(
 int main(int argc, char ** argv) {
   mpfr_set_default_prec(PRECISION);
 
-  int provided;
-
-  if (MPI_SUCCESS != MPI_Init_thread(
-                        &argc,
-                        &argv,
-                        MPI_THREAD_FUNNELED, /* requested level of support */
-                        &provided))
+  if (MPI_SUCCESS != MPI_Init(&argc, &argv))
   {
     critical("main(): Failed to initialize MPI.");
   }
@@ -680,34 +674,6 @@ int main(int argc, char ** argv) {
 
   if (MPI_RANK_ROOT == mpi_rank) {
     printf("Number of MPI processors: %u\n", mpi_size);
-
-    /* Report back information on the level of MPI thread support provided. */
-    switch (provided) {
-      case MPI_THREAD_SINGLE:
-        printf("MPI level of thread support provided: "
-          "MPI_THREAD_SINGLE\n");
-        break;
-
-      case MPI_THREAD_FUNNELED:
-        printf("MPI level of thread support provided: "
-          "MPI_THREAD_FUNNELED\n");
-        break;
-
-      case MPI_THREAD_SERIALIZED:
-        printf("MPI level of thread support provided: "
-          "MPI_THREAD_SERIALIZED\n");
-        break;
-
-      case MPI_THREAD_MULTIPLE:
-        printf("MPI level of thread support provided: "
-          "MPI_THREAD_MULTIPLE\n");
-        break;
-
-      default:
-        printf("Level of thread support provided: "
-          "Unknown (%d)\n", provided);
-        break;
-    }
 
     printf("\n");
 
