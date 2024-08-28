@@ -1,6 +1,6 @@
 <a href="README.md">![Qunundrum](./docs/pages/images/qunundrum.png)</a>
 
-# Qunundrum
+# The Qunundrum suite of MPI programs
 This repository contains the source code of MPI programs for computing the probability distributions induced by:
 
 * Shor's order-finding algorithm [[Shor94]](https://doi.org/10.1109/SFCS.1994.365700) [[Shor97]](https://doi.org/10.1137/S0097539795293172)
