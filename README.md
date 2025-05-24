@@ -155,6 +155,8 @@ This source code was developed by [Martin Ekerå](mailto:ekera@kth.se), in part 
 
 Funding and support for this work was provided by the Swedish NCSA that is a part of the [Swedish Armed Forces](https://www.mil.se).
 
-Computations were performed on the [Beskow Cray XC40](https://www.pdc.kth.se/about/history-of-pdc/recent-systems-at-pd/beskow-1.737436) supercomputer and its pre- and post-processing cluster [Tegner](https://www.pdc.kth.se/about/history-of-pdc/recent-systems-at-pd/tegner-1.737437) at [PDC](https://www.pdc.kth.se) at [KTH](https://www.kth.se/en). Access was provided by the [Swedish National Infrastructure for Computing (SNIC)](https://www.snic.se). This version of the source code is intended to be run on generic Linux-based clusters.
+Computations were originally performed on the [Beskow Cray XC40](https://www.pdc.kth.se/about/history-of-pdc/previous-systems-at-pdc/beskow-1.737436) supercomputer and its pre- and post-processing cluster [Tegner](https://www.pdc.kth.se/about/history-of-pdc/previous-systems-at-pdc/tegner-1.737437) at [PDC](https://www.pdc.kth.se) at [KTH](https://www.kth.se/en). Access was provided by the Swedish National Infrastructure for Computing (SNIC).
 
 More recently, computations were performed on the [Dardel HPE Cray EX](https://www.pdc.kth.se/hpc-services/computing-systems/about-the-dardel-hpc-system-1.1053338) supercomputer at [PDC](https://www.pdc.kth.se) at [KTH](https://www.kth.se/en). Access was provided by the [National Academic Infrastructure for Super­computing in Sweden (NAISS)](https://www.naiss.se).
+
+This version of the source code is intended to be run on generic Linux-based clusters.
