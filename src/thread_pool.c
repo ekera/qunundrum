@@ -59,8 +59,8 @@ void thread_pool_spawn(
     }
   }
 
-  /* The thread pool is at maximum capacity. Join the oldest train in the thread
-   * pool with the main thread to free up a slot in the pool. */
+  /* The thread pool is at maximum capacity. Join the oldest thread in the
+   * thread pool with the main thread to free up a slot in the pool. */
 
   /* Find the oldest thread in the pool. */
   uint32_t min_index = 0xFFFFFFFFU;
