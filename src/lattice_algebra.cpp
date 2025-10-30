@@ -80,7 +80,7 @@ void solve_left_coordinates(
   mpfr_init2(x, precision);
 
   for (uint32_t i = 0; i <= n; i++) {
-    /* Let tmp = 1/x for x the element at index (i, i) in the matrix A_tmp. */
+    /* Let c = 1/x for x the element at index (i, i) in the matrix A_tmp. */
     mpfr_set_ui(c, 1, MPFR_RNDN);
 
     /* Test if x is zero. */
