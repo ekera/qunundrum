@@ -1,4 +1,4 @@
-# The <code>solve_linear_distribution</code> distribution
+# The <code>solve_linear_distribution</code> executable
 
 ## Synopsis
 ```console

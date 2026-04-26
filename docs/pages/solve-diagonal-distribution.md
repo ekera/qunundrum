@@ -1,4 +1,4 @@
-# The <code>solve_diagonal_distribution</code> distribution
+# The <code>solve_diagonal_distribution</code> executable
 
 ## Synopsis
 ```console
