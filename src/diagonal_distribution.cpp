@@ -345,7 +345,7 @@ bool diagonal_distribution_sample_region(
   #ifdef DEBUG_TRACE_SAMPLING
   printf("diagonal_distribution_sample_region(): "
     "Debug: Sampled region via diagonal_distribution_slice_sample_region(): "
-      "%f %f %dn", *min_log_alpha_r, *max_log_alpha_r, *eta);
+      "%f %f %d\n", *min_log_alpha_r, *max_log_alpha_r, *eta);
   #endif
 
   /* Signal success. */
@@ -448,7 +448,7 @@ bool diagonal_distribution_sample_j_eta(
   gmp_printf("diagonal_distribution_sample_j_eta(): "
     "Debug: Sampled alpha_r via "
       "diagonal_distribution_sample_alpha_r():\n"
-        "   alpha_r: %Zd eta: %d\n", alpha_r, eta);
+        "   alpha_r: %Zd eta: %d\n", alpha_r, *eta);
   #endif
 
   /* Sample an integer j given alpha_r. */
