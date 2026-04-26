@@ -17,7 +17,7 @@ Arguments <code>\<distribution\></code> where
 
 ### Optional command line arguments
 Flag specifying the bound $B_v$ in $v$ (defaults to 2):
-- <code>-v-bound <v-bound\></code> sets the bound $B_v$ to <code>\<v-bound\></code>
+- <code>-v-bound \<v-bound\></code> sets the bound $B_v$ to <code>\<v-bound\></code>
 
 ## Interpreting the output
 The log file <code>logs/estimate-runs-linear.txt</code> is on the format
