@@ -42,7 +42,7 @@ void linear_distribution_slice_compute(
   mpfr_t * norm_vector =
     (mpfr_t *)malloc((2 * dimension + 1) * sizeof(mpfr_t));
   if (NULL == norm_vector) {
-    critical("linear_distribution_slice_compute_d(): "
+    critical("linear_distribution_slice_compute(): "
       "Failed to allocate memory.");
   }
 

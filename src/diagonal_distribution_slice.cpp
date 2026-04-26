@@ -51,7 +51,7 @@ void diagonal_distribution_slice_init(
   slice->norm_vector =
     (long double *)malloc(dimension * sizeof(long double));
   if (NULL == (slice->norm_vector)) {
-    critical("distribution_slice_init(): Failed to allocate memory.");
+    critical("diagonal_distribution_slice_init(): Failed to allocate memory.");
   }
 
   memset(slice->norm_vector, 0, dimension * sizeof(long double));

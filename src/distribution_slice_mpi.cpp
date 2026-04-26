@@ -81,7 +81,7 @@ static void distribution_slice_recv_common(
       MPI_COMM_WORLD,
       &status))
   {
-    critical("distribution_slice_recv(): "
+    critical("distribution_slice_recv_common(): "
       "Failed to receive the total error.");
   }
 

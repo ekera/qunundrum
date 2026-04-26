@@ -371,7 +371,7 @@ void linear_distribution_slice_bcast_send(
       root,
       MPI_COMM_WORLD))
   {
-    critical("linear_distribution_slice_init_bcast_recv(): "
+    critical("linear_distribution_slice_bcast_send(): "
       "Failed to broadcast the total probability.");
   }
 
