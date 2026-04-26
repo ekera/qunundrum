@@ -20,7 +20,7 @@ Arguments <code>\<n\></code> where
 - <code>\<n\></code> is the even bit length $n$ of the RSA integer $N = pq$
 
 ### Optional command line arguments
-Flags specifying the value of $d$ (defaults to <code>-det</code>):
+Flags specifying the value of $d$ (defaults to <code>-max</code>):
 - <code>-max</code> selects maximal $d = 2^m - 1$
 - <code>-rnd</code> selects $d$ uniformly at random from $(2^{m-1}, 2^m)$
 - <code>-exp \<p\> \<q\></code> explicitly sets $p$ and $q$ to <code>\<p\></code> and <code>\<q\></code>, respectively, and then sets $d = (p - 1)/2 + (q - 1)/2 - 2^m$ where it is required that $2^{(n/2)-1} < p, q < 2^{n/2}$.
