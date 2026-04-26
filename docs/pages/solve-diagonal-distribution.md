@@ -27,7 +27,7 @@ Tuples <code>\<distribution\> <n></code> where
 
 ### Optional command line arguments
 Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>DELTA_BOUND</code>):
-- <code>-delta-bound \<eta-bound\></code> sets $B_\Delta$ to <code>\<eta-bound\></code>
+- <code>-delta-bound \<delta-bound\></code> sets $B_\Delta$ to <code>\<delta-bound\></code>
 
    All $\Delta \in [-B_\Delta, B_\Delta] \cap \mathbb Z$ are searched when sampling $k_i$ given $j_i$ and $\eta_i$.
 

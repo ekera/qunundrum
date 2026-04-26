@@ -25,7 +25,7 @@ Flag specifying the bound $B_v$ in $v$ (defaults to $2$):
 - <code>-v-bound \<v-bound\></code> sets the bound $B_v$ to <code>\<v-bound\></code>
 
 Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>DELTA_BOUND</code>):
-- <code>-delta-bound \<eta-bound\></code> sets $B_\Delta$ to <code>\<eta-bound\></code>
+- <code>-delta-bound \<delta-bound\></code> sets $B_\Delta$ to <code>\<delta-bound\></code>
 
    All $\Delta \in [-B_\Delta, B_\Delta] \cap \mathbb Z$ are searched when sampling $k$ given $j$ and $\eta$.
 

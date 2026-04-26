@@ -20,7 +20,7 @@ An optional argument specifying the number of samples (defaults to 1000):
 - <code>\<n\></code> sets the number of samples to <code>\<n\></code>
 
 Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>DELTA_BOUND</code>):
-- <code>-delta-bound \<eta-bound\></code> sets $B_\Delta$ to <code>\<eta-bound\></code>
+- <code>-delta-bound \<delta-bound\></code> sets $B_\Delta$ to <code>\<delta-bound\></code>
 
    The bound $B_\Delta$ controls how large an offset from $k_{\eta, 0}(j)$ is considered when sampling $k = k_{\eta, 0}(j) + \Delta$ from the distribution given $j$ and $\eta$: More specifically, all offsets $\Delta \in [-B_\Delta, B_\Delta] \cap \mathbb Z$ are considered. For further details, see [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
 
