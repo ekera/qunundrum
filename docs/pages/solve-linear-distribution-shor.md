@@ -9,7 +9,7 @@ Synopsis: mpirun solve_linear_distribution_shor
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for the order $r$ using Shor's original post-processing algorithm based on continued fraction expansion.
 
-In total $10^3$ problem instances are consider to gather statistics.
+In total $10^3$ problem instances are considered to gather statistics.
 
 The results are written to the console and to <code>logs/solve-linear-shor.txt</code>.
 

@@ -14,7 +14,7 @@ Simulates the quantum algorithm by sampling the distribution, and solves the sim
 
 This when accepting to search all combinations of peak indices $\eta_1, \ldots, \eta_n$ such that $\eta_i \in [-B_\eta, B_\eta] \cap \mathbb Z$.
 
-In total $10^3$ problem instances are consider to gather statistics.
+In total $10^3$ problem instances are considered to gather statistics.
 
 The results are written to the console and to <code>logs/solve-diagonal.txt</code>.
 

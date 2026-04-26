@@ -9,7 +9,7 @@ Synopsis: mpirun solve_diagonal_distribution_shor \
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for the logarithm $d$ given the order $r$ using Shor's original post-processing algorithm modified to search over $t$ and $\eta$ as explained in [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
 
-In total $10^3$ problem instances are consider to gather statistics.
+In total $10^3$ problem instances are considered to gather statistics.
 
 The results are written to the console and to <code>logs/solve-diagonal-shor.txt</code>.
 

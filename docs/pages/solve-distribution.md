@@ -12,7 +12,7 @@ Synopsis: mpirun solve_distribution \
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs of $n$ runs for the logarithm $d$ and order $r$.
 
-In total $10^3$ problem instances are consider to gather statistics.
+In total $10^3$ problem instances are considered to gather statistics.
 
 The results are written to the console and to <code>logs/solve.txt</code>.
 
