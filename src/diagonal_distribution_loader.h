@@ -8,7 +8,7 @@
  */
 
 /*!
- * \defgroup  diagonal_distribution_loader Linear distribution loader
+ * \defgroup  diagonal_distribution_loader Diagonal distribution loader
  * \ingroup   diagonal_distribution
  *
  * \brief     A module for a multi-threaded loader for diagonal probability

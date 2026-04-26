@@ -3,7 +3,7 @@
  * \ingroup diagonal_distribution
  *
  * \brief   The definitions of functions for exporting information about
- *          linear probability distributions.
+ *          diagonal probability distributions.
  */
 
 #include "diagonal_distribution.h"

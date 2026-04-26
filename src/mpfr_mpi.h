@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 /*!
- * \brief   Sends an arbitrary precision integer to a node.
+ * \brief   Sends an arbitrary precision floating point value to a node.
  *
  * \param[in] value       The floating point value to send.
  * \param[in] rank        The rank of the destination node to which to send.
@@ -26,7 +26,7 @@ void mpfr_send(
   const int rank);
 
 /*!
- * \brief   Receives an arbitrary precision integer from a node.
+ * \brief   Receives an arbitrary precision floating point value from a node.
  *
  * \param[in, out] value  The floating point value to be set to the value
  *                        received.
