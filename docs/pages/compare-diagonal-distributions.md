@@ -201,7 +201,7 @@ On each line of the printout, we find $m_1+t$, $m_2+t$: $p_1$, $p_2$ — $\delta
 
 If no slice is present in either distribution for a given $t$, nothing is printed.
 
-If one or more slices are present in only one of the distribution for a given $t$, a warning is printed.
+If one or more slices are present in only one of the distributions for a given $t$, a warning is printed.
 
 This is followed by the total probability mass captured by the first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above range of t.
 

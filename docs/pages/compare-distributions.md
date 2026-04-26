@@ -42,6 +42,6 @@ On each line of the printout, we find $(\pm m_1 + t_d, \pm m_1 + t_r)$, $(\pm m_
 
 If a slice is missing from both distributions for a given combination $(t_d, t_r)$, nothing is printed.
 
-If a slice is only present in one of the distribution for a given combination $(t_d, t_r)$, a warning is printed.
+If a slice is only present in one of the distributions for a given combination $(t_d, t_r)$, a warning is printed.
 
 This is followed by the total probability mass captured by the slices in first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above ranges of $t_d$ and $t_r$.
