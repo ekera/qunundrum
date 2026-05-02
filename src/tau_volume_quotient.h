@@ -41,11 +41,11 @@
  * \param[in] m       The parameter m.
  * \param[in] l       The parameter l.
  * \param[in] n       The number of runs n.
- * \param[in] tau     The tau estimate.
  * \param[in] d_or_r  The logarithm d or order r, depending on the context in
  *                    which the volume quotient is computed. May be set to NULL
  *                    to slightly over-estimate the volume quotient by forcing
  *                    the last component of the sum to 2^m.
+ * \param[in] tau     The tau estimate.
  * \param[in, out] v  The volume quotient estimate.
  *
  * \return  #TRUE if the volume quotient is less than two, #FALSE otherwise.
@@ -79,10 +79,10 @@ bool tau_volume_quotient(
  * \param[in] sigma   The parameter sigma.
  * \param[in] l       The parameter l.
  * \param[in] n       The number of runs n.
- * \param[in] tau     The tau estimate.
  * \param[in] d       The logarithm d. May be set to NULL to slightly
  *                    over-estimate the volume quotient by forcing the last
  *                    component of the sum to 2^m.
+ * \param[in] tau     The tau estimate.
  * \param[in, out] v  The volume quotient estimate.
  *
  * \return  #TRUE if the volume quotient is less than two, #FALSE otherwise.
