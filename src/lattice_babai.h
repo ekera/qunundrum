@@ -25,13 +25,13 @@
  *
  * The basis matrix must be LLL- or BKZ-reduced to form a nearly orthogonal
  * basis. The caller must provide an orthogonal basis matrix G such that
- * A = G * M where M is triangular matrix of projection factors as computed
+ * A = M * G where M is a triangular matrix of projection factors as computed
  * by calling gram_schmidt_orthogonalization().
  *
  * \param[in, out] solution   A vector in L that is close to the target vector.
  * \param[in] target          The target vector in (n + 1)-dimensional Z-space.
- * \param[in] G               An Gram-Schmidt orthogonalized basis matrix G
- *                            such that A = G * M, where M is a triangular
+ * \param[in] G               A Gram-Schmidt orthogonalized basis matrix G
+ *                            such that A = M * G, where M is a triangular
  *                            matrix of Gram-Schmidt projection factors, see
  *                            the gram_schmidt_orthogonalization() function.
  * \param[in] A               An  LLL- or BKZ-reduced full rank basis matrix
