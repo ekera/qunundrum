@@ -50,7 +50,7 @@ typedef struct {
    *          fraction of the total probability mass are processed first.
    *
    * The distance is sum_{x in {d, r}} abs(abs(min_log_alpha_x) - m)^2 with the
-   * caveat that the distance is forced to zero for diagonal element.
+   * caveat that the distance is forced to zero for diagonal elements.
    *
    * This entry is not really needed, as it can be computed from the values of
    * the parameter m, Distribution_Coordinate::min_log_alpha_d and
