@@ -157,6 +157,11 @@ void diagonal_distribution_enumerator_init(
 void diagonal_distribution_enumerator_clear(
   Diagonal_Distribution_Enumerator * const enumerator)
 {
+  for (uint32_t i = 0; i < enumerator->count; i++) {
+    free(enumerator->coordinates[i]);
+    enumerator->coordinates[i] = NULL;
+  }
+
   free(enumerator->coordinates);
 }
 
