@@ -141,18 +141,23 @@ void distribution_init_import(
 void distribution_clear(
   Distribution * const distribution)
 {
+  /* Clear and deallocate the slices. */
   for (uint32_t i = 0; i < distribution->count; i++) {
     distribution_slice_clear(distribution->slices[i]);
     distribution_slice_dealloc(&(distribution->slices[i]));
   }
 
+  /* Deallocate the list of slices. */
   free(distribution->slices);
   distribution->slices = NULL;
 
+  /* Clear the parameters. */
   parameters_clear(&(distribution->parameters));
 
+  /* Clear the lattice alpha. */
   lattice_alpha_clear(&(distribution->lattice_alpha));
 
+  /* Zeroize the distribution. */
   memset((void *)distribution, 0, sizeof(Distribution));
 }
 
@@ -336,7 +341,7 @@ void distribution_export_clear_dealloc(
   uint32_t count = distribution->count;
   fprintf(file, "%u\n", count);
 
-  /* Export the slices. */
+  /* Export, clear and deallocate the slices. */
   for (uint32_t i = 0; i < count; i++) {
     distribution_slice_export(distribution->slices[i], file);
 
