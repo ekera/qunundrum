@@ -3,7 +3,7 @@
  * \ingroup estimating_volume_quotients
  *
  * \brief   The definition of data structures for collecting tau estimates in a
- *          truncated order list, and the declaration of functions for
+ *          truncated ordered list, and the declaration of functions for
  *          manipulating such lists.
  */
 
@@ -13,8 +13,7 @@
 #include <stdint.h>
 
 /*!
- * \brief   A data structure for representing an order truncated list of tau
- *          estimates.
+ * \brief   A data structure for representing an ordered list of tau estimates.
  */
 typedef struct {
   /*!
