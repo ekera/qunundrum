@@ -352,6 +352,9 @@ void distribution_export_clear_dealloc(
   /* Clear the parameters. */
   parameters_clear(&(distribution->parameters));
 
+  /* Clear the lattice alpha. */
+  lattice_alpha_clear(&(distribution->lattice_alpha));
+
   /* Zeroize the distribution. */
   memset((void *)distribution, 0, sizeof(Distribution));
 }
