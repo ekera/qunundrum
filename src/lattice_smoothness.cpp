@@ -11,7 +11,6 @@
 #include "common.h"
 
 #include <gmp.h>
-#include <mpfr.h>
 
 #include <stdint.h>
 
@@ -30,17 +29,6 @@ void lattice_smoothness_remove_smooth_factors(
 
   mpz_t tmp_z;
   mpz_init(tmp_z);
-
-  mpfr_t B;
-  mpfr_init(B);
-
-  mpfr_t tmp_f;
-  mpfr_init(tmp_f);
-
-  /* Set B = 2^(cm). */
-  mpfr_set_d(B, c * m, MPFR_RNDN);
-  mpfr_set_ui(tmp_f, 2, MPFR_RNDN);
-  mpfr_pow(B, tmp_f, B, MPFR_RNDN);
 
   /* Reduce r. */
   mpz_set(reduced_z, z);
@@ -81,9 +69,6 @@ void lattice_smoothness_remove_smooth_factors(
   mpz_clear(q);
   mpz_clear(pow_q);
   mpz_clear(tmp_z);
-
-  mpfr_clear(B);
-  mpfr_clear(tmp_f);
 }
 
 bool lattice_smoothness_is_smooth(
