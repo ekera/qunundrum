@@ -2,7 +2,7 @@
  * \file    rotate.h
  * \ingroup keccak
  *
- * \brief   The definition the macros for cyclically rotating unsigned integers.
+ * \brief   The definition of macros for cyclically rotating unsigned integers.
  */
 
 #ifndef ROTATE_H

@@ -194,7 +194,7 @@ long double max_ld(const long double a, const long double b);
  */
 
 /*!
- * \brief Reduces x modulo n and constrains the result to [n/2, n/2).
+ * \brief Reduces x modulo n and constrains the result to [-n/2, n/2).
  *
  * In the notation of Shor and following authors, this function computes {x}_n.
  *

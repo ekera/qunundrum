@@ -10,7 +10,7 @@
  * \defgroup mpi Message passing
  * \ingroup  utility
  *
- * \brief    A module for conveniency functions for message passing.
+ * \brief    A module for convenience functions for message passing.
  */
 
 #ifndef GMP_MPI_H
@@ -45,7 +45,7 @@ void mpz_recv(
 /*!
  * \brief   Sends a broadcast of an arbitrary precision integer.
  *
- * \param[in] value       The integer to broadcast.
+ * \param[in] value       The integer to send.
  * \param[in] root        The rank of the broadcasting node.
  */
 void mpz_bcast_send(
@@ -55,7 +55,7 @@ void mpz_bcast_send(
 /*!
  * \brief   Receives a broadcast of an arbitrary precision integer.
  *
- * \param[in, out] value  The integer to broadcast.
+ * \param[in, out] value  The integer to be set to the value received.
  * \param[in] root        The rank of the broadcasting node.
  */
 void mpz_bcast_recv(

@@ -62,7 +62,7 @@ typedef enum {
 
   /*!
    * \brief   Indicates that the number of pairs n included in the lattice
-   *          should be adaptively increased on decreased to find the minimum
+   *          should be adaptively increased or decreased to find the minimum
    *          number of pairs required to bound the failure rate below a limit.
    */
   SEARCH_STRATEGY_ADAPTIVE = 1,
@@ -117,13 +117,13 @@ typedef enum {
 typedef enum {
   /*!
    * \brief   Indicates that smooth orders should be detected and leveraged to
-   *          faciliate solving when possible.
+   *          facilitate solving when possible.
    */
   DETECT_SMOOTH_ORDER_TRUE = 1,
 
   /*!
    * \brief   Indicates that smooth orders should not be detected, and hence
-   *          not leveraged to faciliate solving.
+   *          not leveraged to facilitate solving.
    */
   DETECT_SMOOTH_ORDER_FALSE = 2,
 

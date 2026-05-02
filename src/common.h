@@ -67,7 +67,7 @@
 
 /*!
  * \brief   A notification code used with the MPI_TAG_NOTIFY tag to indicate
- *          that the node is has computed a slice.
+ *          that the node has computed a slice.
  */
 #define MPI_NOTIFY_SLICE_DONE                     17112
 

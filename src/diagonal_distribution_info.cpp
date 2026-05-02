@@ -19,7 +19,7 @@
 
 /*!
  * \brief   The maximum supported slice dimension when exporting information
- *          on linear probability distributions.
+ *          on diagonal probability distributions.
  */
 #define MAX_SLICE_DIMENSION                     16384
 

@@ -257,7 +257,7 @@ void distribution_slice_init_import(
  *
  * If the dimension of the slice imported does not match the dimension for
  * which the destination slice was initialized, this function will
- * re-initialized the destination slice. Hence, calling this function may
+ * re-initialize the destination slice. Hence, calling this function may
  * result in memory being deallocated and allocated.
  *
  * \param[in, out] slice  The destination slice.
@@ -270,8 +270,8 @@ void distribution_slice_import(
 /*!
  * \brief   Export a slice to file.
  *
- * \param[in, out] slice  The slice to export to file.
- * \param[in, out] file   The file from which to export the slice.
+ * \param[in] slice       The slice to export to file.
+ * \param[in, out] file   The file to which to export the slice.
  */
 void distribution_slice_export(
   const Distribution_Slice * const slice,
@@ -351,7 +351,7 @@ void distribution_slice_bcast_send(
  *
  * \param[in, out] slice        The slice to compute.
  * \param[in] parameters        The parameters for which to compute the slice.
- * \param[in] method            The method to use to compute the size, with
+ * \param[in] method            The method to use to compute the slice, with
  *                              respect to which approximation method to use
  *                              and how to select parameters. See the
  *                              Distribution_Slice_Compute_Method enumeration
@@ -374,7 +374,7 @@ void distribution_slice_compute(
  *
  * \param[in, out] slice        The slice to compute.
  * \param[in] parameters        The parameters for which to compute the slice.
- * \param[in] method            The method to use to compute the size, with
+ * \param[in] method            The method to use to compute the slice, with
  *                              respect to which approximation method to use
  *                              and how to select parameters. See the
  *                              Distribution_Slice_Compute_Method enumeration

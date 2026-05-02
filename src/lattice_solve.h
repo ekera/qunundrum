@@ -231,7 +231,7 @@ void lattice_solve_for_d(
   const bool detect_smooth_r);
 
 /*!
- * \brief   Given n integers j, this function attempts to recover d by using j
+ * \brief   Given n integers j, this function attempts to recover r by using j
  *          to construct a basis for the lattice L, reducing the basis, and
  *          solving a shortest non-zero vector problem in L.
  *

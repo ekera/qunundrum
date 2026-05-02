@@ -58,7 +58,7 @@ typedef struct {
  * \brief   Initializes an alpha lattice.
  *
  * \param[in, out] lattice    The alpha lattice to initialize.
- * \param[in] parameters      The distribution parameters to use to initialized
+ * \param[in] parameters      The distribution parameters to use to initialize
  *                            the alpha lattice.
  */
 void lattice_alpha_init(

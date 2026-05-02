@@ -116,7 +116,7 @@ void distribution_loader_clear(
  *
  * \param[in, out] loader   An initialized distribution loader.
  *
- * \return  The point to the distribution popped, or NULL, if there are no more
+ * \return  The pointer to the distribution popped, or NULL, if there are no more
  *          distributions left to pop.
  */
 Distribution * distribution_loader_pop(

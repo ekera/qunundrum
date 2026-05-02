@@ -112,7 +112,7 @@ typedef enum {
 
   /*!
    * \brief   Indicates that sigma is optimized to minimize the error bound in
-   *          each slice using an heuristic exhaustive search.
+   *          each slice using a heuristic exhaustive search.
    *
    * This selection method is considerably slower than #SIGMA_METHOD_HEURISTIC.
    *

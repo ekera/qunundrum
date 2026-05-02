@@ -86,7 +86,7 @@ typedef struct {
  *
  * \param[in, out] loader   The distribution loader to be initialized.
  * \param[in] paths         The paths to the distributions to be loaded.
- * \param count             The number of distributions to be loaded.
+ * \param[in] count         The number of distributions to be loaded.
  */
 void linear_distribution_loader_init(
   Linear_Distribution_Loader * const loader,
@@ -115,8 +115,8 @@ void linear_distribution_loader_clear(
  *
  * \param[in, out] loader   An initialized distribution loader.
  *
- * \return  The point to the distribution popped, or NULL, if there are no more
- *          distributions left to pop.
+ * \return  The pointer to the distribution popped, or NULL, if there are no
+ *          more distributions left to pop.
  */
 Linear_Distribution * linear_distribution_loader_pop(
   Linear_Distribution_Loader * const loader);

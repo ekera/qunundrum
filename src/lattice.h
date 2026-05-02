@@ -3,7 +3,7 @@
  * \ingroup lattice
  *
  * \brief   The definition of constants and enumerations used by the various
- *          solvers for lattice problem.
+ *          solvers for lattice problems.
  */
 
 /*!

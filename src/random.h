@@ -7,7 +7,7 @@
  *          generation.
  *
  * \remark  This random number generator has not been formally evaluated. It is
- *          not fit for, and must not used for, any cryptographic purposes.
+ *          not fit for, and must not be used for, any cryptographic purposes.
  */
 
 /*!
@@ -85,6 +85,8 @@ void random_init_device(
 
 /*!
  * \brief   Closes the random number generator state.
+ *
+ * \param[in, out] state  The state to close.
  */
 void random_close(
   Random_State * const state);
@@ -153,7 +155,7 @@ long double random_generate_pivot_exclusive(
  *
  * Let 2^(m-1) <= modulus < 2^m. This function then generates an integer on
  * [0, 2^(m + 64 + c)) uniformly at random and reduces it by the modulus,
- * for c a constant on (0, 8] such that m + 64 + t is a multiple of 8 bits.
+ * for c a constant on (0, 8] such that m + 64 + c is a multiple of 8 bits.
  *
  * This function calls random_generate() to generate raw random data.
  *

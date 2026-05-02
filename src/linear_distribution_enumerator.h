@@ -10,7 +10,7 @@
  * \defgroup linear_distribution_enumerator Linear distribution enumerator
  * \ingroup  linear_distribution
  *
- * \brief    A module for a enumerating over the slices that are part of a
+ * \brief    A module for enumerating over the slices that are part of a
  *           probability distribution.
  *
  * The enumerator is used to determine the order in which to compute the
@@ -123,7 +123,7 @@ void linear_distribution_enumerator_clear(
  *
  * \param[out] min_log_alpha  A pointer to an integer to set to the signed
  *                            logarithmic alpha_d- or alpha_r-coordinate.
- * \param[in] enumerator      An initialized enumerator.
+ * \param[in, out] enumerator An initialized enumerator.
  *
  * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.

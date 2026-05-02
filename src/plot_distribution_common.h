@@ -2,7 +2,7 @@
  * \file    plot_distribution_common.h
  * \ingroup plot_distribution
  *
- * \brief   The definition of constants, and of an inline functions for mapping
+ * \brief   The definition of constants, and of an inline function for mapping
  *          logarithmic arguments to coordinates.
  */
 

@@ -76,7 +76,7 @@ void parameters_selection_explicit_rsa(
  *
  * This function requires that n is even and that n >= 16.
  *
- * This conveniency function calls rsa_generate_modulus() to generate p and q,
+ * This convenience function calls rsa_generate_modulus() to generate p and q,
  * and parameters_selection_explicit_rsa() to select the logarithm from p and q.
  *
  * \param[in, out] d        The logarithm d.

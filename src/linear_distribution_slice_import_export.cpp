@@ -72,7 +72,7 @@ void linear_distribution_slice_init_import(
   uint32_t dimension;
 
   if (1 != fscanf(file, "%u\n", &dimension)) {
-    critical("linear_distribution_slice_import(): "
+    critical("linear_distribution_slice_init_import(): "
       "Failed to import dimension.");
   }
 

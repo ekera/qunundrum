@@ -47,8 +47,6 @@ typedef struct {
    * \brief   A counter used to assign a running index to each thread spawned.
    *
    * Initially assigned index one and incremented for each thread spawned by
-   * the thread_pool_spawn(). If the counter overflows, this will be result in
-   * a critical error.
    */
   uint32_t index;
 } Thread_Pool;

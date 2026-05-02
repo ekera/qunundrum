@@ -115,7 +115,7 @@ void keccak_random_close(
  *
  * \param[in, out] dst        The destination buffer in which to store the
  *                            output generated.
- * \param[in] length          The number of bytes of generate.
+ * \param[in] length          The number of bytes to generate.
  * \param[in, out] state      The state from which to generate output.
  */
 void keccak_random_generate(

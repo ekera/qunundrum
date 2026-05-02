@@ -331,7 +331,7 @@ void linear_distribution_init_import(
 /*!
  * \brief   Exports a probability distribution to file.
  *
- * \param[in, out] distribution   The distribution to export to file.
+ * \param[in] distribution        The distribution to export to file.
  * \param[in, out] file           The file to which to export the distribution.
  */
 void linear_distribution_export(

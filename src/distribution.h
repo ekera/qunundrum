@@ -186,7 +186,7 @@ void distribution_init_import(
 /*!
  * \brief   Exports a probability distribution to file.
  *
- * \param[in, out] distribution   The distribution to export to file.
+ * \param[in] distribution        The distribution to export to file.
  * \param[in, out] file           The file to which to export the distribution.
  */
 void distribution_export(
@@ -211,7 +211,7 @@ void distribution_export_clear_dealloc(
 /*!
  * \brief   Exports information about a probability distribution to file.
  *
- * \param[in, out] distribution   The distribution to export to file.
+ * \param[in] distribution        The distribution to export to file.
  * \param[in, out] file           The file to which to export information.
  * \param[in] export_slices       Export verbose information on slices.
  */
@@ -291,14 +291,14 @@ void distribution_remove_slice(
  *                                slice with the same (alpha_d, alpha_r)
  *                                coordinate pair as this slice.
  *
- * \remark  If this functions replaces a slices in the distribution, it will
+ * \remark  If this function replaces a slices in the distribution, it will
  *          deallocate memory for the slice removed by replacement operation.
  *
  * \remark  The slice data structure is referenced from the distribution data
  *          structure, rather than being copied into the structure. You may
  *          not modify or deallocate the slice after calling this function.
  *
- * \return  Return #TRUE if a slice with coordinates (alpha_d, alpha_r) was
+ * \return  Returns #TRUE if a slice with coordinates (alpha_d, alpha_r) was
  *          found and replaced, #FALSE otherwise.
  */
 bool distribution_replace_slice(
@@ -418,7 +418,7 @@ bool distribution_sample_approximate_alpha_d_r(
  * The pair is sampled with high resolution, and is guaranteed to be admissible.
  *
  * To map outputs from this function to pairs (j, k), see the function
- * sample_j_k_from_alpha_d_r(). See also the conveniency function
+ * sample_j_k_from_alpha_d_r(). See also the convenience function
  * distribution_sample_pair_j_k() in this module.
  *
  * \param[in] distribution        The distribution to sample.
@@ -439,7 +439,7 @@ bool distribution_sample_alpha_d_r(
  * \brief   Samples an integer pair (j, k) from the probability distribution and
  *          returns the components of the pair.
  *
- * This is a conveniency function. Calling this function is equivalent to first
+ * This is a convenience function. Calling this function is equivalent to first
  * calling distribution_sample_alpha_d_r() and then calling the function
  * sample_j_k_from_alpha_d_r().
  *

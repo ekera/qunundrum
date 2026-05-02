@@ -166,7 +166,7 @@ void parameters_explicit_m_s(
 
 /*!
  * \brief   Sets up the parameters for an explicitly specified d or r, and
- *          explicit specified values of m and l.
+ *          explicitly specified values of m and l.
  *
  * This function sets s = 0.
  *
@@ -226,7 +226,7 @@ void parameters_import(
 /*!
  * \brief   Exports parameters to file.
  *
- * \param[in, out] parameters   The parameters to export.
+ * \param[in] parameters        The parameters to export.
  * \param[in, out] file         The file to which to write the parameters.
  */
 void parameters_export(
@@ -245,7 +245,7 @@ void parameters_export(
 /*!
  * \brief   Sends a broadcast of parameters.
  *
- * \param[in, out] parameters   The parameters to send.
+ * \param[in] parameters        The parameters to send.
  * \param[in] root              The rank of the node broadcasting the
  *                              parameters.
  */

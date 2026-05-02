@@ -148,7 +148,8 @@ void diagonal_parameters_clear(
  * \param[in] sigma             The padding length sigma.
  * \param[in] s                 The tradeoff factor s.
  * \param[in] eta_bound         The bound on the peak index eta.
- * \param[in] t                 The parameter t, see Parameters::t for details.
+ * \param[in] t                 The parameter t, see Diagonal_Parameters::t for
+ *                              details.
  */
 void diagonal_parameters_explicit_m_s(
   Diagonal_Parameters * const parameters,
@@ -173,7 +174,8 @@ void diagonal_parameters_explicit_m_s(
  * \param[in] sigma             The padding length sigma.
  * \param[in] l                 The parameter l.
  * \param[in] eta_bound         The bound on the peak index eta.
- * \param[in] t                 The parameter t, see Parameters::t for details.
+ * \param[in] t                 The parameter t, see Diagonal_Parameters::t for
+ *                              details.
  */
 void diagonal_parameters_explicit_m_l(
   Diagonal_Parameters * const parameters,
@@ -226,7 +228,7 @@ void diagonal_parameters_import(
 /*!
  * \brief   Exports parameters to file.
  *
- * \param[in, out] parameters   The parameters to export.
+ * \param[in] parameters        The parameters to export.
  * \param[in, out] file         The file to which to write the parameters.
  */
 void diagonal_parameters_export(
@@ -245,7 +247,7 @@ void diagonal_parameters_export(
 /*!
  * \brief   Sends a broadcast of parameters.
  *
- * \param[in, out] parameters   The parameters to send.
+ * \param[in] parameters        The parameters to send.
  * \param[in] root              The rank of the node broadcasting the
  *                              parameters.
  */

@@ -10,7 +10,7 @@
  * \defgroup  diagonal_distribution_enumerator Diagonal distribution enumerator
  * \ingroup   diagonal_distribution
  *
- * \brief   A module for a enumerating over the slices that are part of a
+ * \brief   A module for enumerating over the slices that are part of a
  *          probability distribution.
  *
  * The enumerator is used to determine the order in which to compute the
@@ -132,7 +132,7 @@ void diagonal_distribution_enumerator_clear(
  *                              logarithmic alpha_r-coordinate of the slice.
  * \param[out] eta              A pointer to an integer to set to the peak index
  *                              eta of the slice.
- * \param[in] enumerator        An initialized enumerator.
+ * \param[in, out] enumerator   An initialized enumerator.
  *
  * \return #TRUE if the coordinate of the next slice was returned, #FALSE
  *         otherwise in which case all slices have been enumerated.

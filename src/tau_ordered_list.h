@@ -71,7 +71,7 @@ void tau_ordered_list_clear(
  */
 
 /*!
- * \brief   Inserts a tau estimates into an ordered list.
+ * \brief   Inserts a tau estimate into an ordered list.
  *
  * The estimate will be merged into the list to ensure that it is still sorted.
  *
@@ -106,10 +106,10 @@ void tau_ordered_list_send_merge(
   const int rank);
 
 /*!
-  * \brief    Receives an ordered list to another node and merges it into an
+  * \brief    Receives an ordered list from another node and merges it into an
   *           ordered list.
   *
-  * \param[in, out] list    The ordered list into which the merge the ordered
+  * \param[in, out] list    The ordered list into which to merge the ordered
   *                         list received from the node.
   * \param[in] rank         The rank of the node from which to receive the list.
   */

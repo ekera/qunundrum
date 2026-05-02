@@ -198,10 +198,10 @@ void diagonal_distribution_slice_init_import(
 /*!
  * \brief   Imports a slice from file into an already initialized slice.
  *
- * If the dimension of the slice imported does not match the dimension for
- * which the destination slice was initialized, this function will
- * re-initialized the destination slice. Hence, calling this function may
- * result in memory being deallocated and allocated.
+ * If the dimension of the slice imported does not match the dimension for which
+ * the destination slice was initialized, this function will re-initialize the
+ * destination slice. Hence, calling this function may result in memory being
+ * deallocated and allocated.
  *
  * \param[in, out] slice  The destination slice.
  * \param[in, out] file   The file from which to read the source slice.
@@ -213,8 +213,8 @@ void diagonal_distribution_slice_import(
 /*!
  * \brief   Export a slice to file.
  *
- * \param[in, out] slice  The slice to export to file.
- * \param[in, out] file   The file from which to export the slice.
+ * \param[in] slice       The slice to export to file.
+ * \param[in, out] file   The file to which to export the slice.
  */
 void diagonal_distribution_slice_export(
   const Diagonal_Distribution_Slice * const slice,
@@ -252,7 +252,7 @@ void diagonal_distribution_slice_init_bcast_recv(
 /*!
  * \brief   Sends a slice to another node.
  *
- * \param[in, out] slice  The slice to send.
+ * \param[in] slice       The slice to send.
  * \param[in] rank        The rank of the node to which to send the slice.
  */
 void diagonal_distribution_slice_send(

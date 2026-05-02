@@ -208,7 +208,7 @@ void linear_distribution_slice_init_import(
  *
  * If the dimension of the slice imported does not match the dimension for
  * which the destination slice was initialized, this function will
- * re-initialized the destination slice. Hence, calling this function may
+ * re-initialize the destination slice. Hence, calling this function may
  * result in memory being deallocated and allocated.
  *
  * \param[in, out] slice  The destination slice.
@@ -222,7 +222,7 @@ void linear_distribution_slice_import(
  * \brief   Export a slice to file.
  *
  * \param[in] slice       The slice to export to file.
- * \param[in, out] file   The file from which to export the slice.
+ * \param[in, out] file   The file to which to export the slice.
  */
 void linear_distribution_slice_export(
   const Linear_Distribution_Slice * const slice,

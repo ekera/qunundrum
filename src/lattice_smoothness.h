@@ -30,8 +30,8 @@ void lattice_smoothness_remove_smooth_factors(
 
 /*!
  * \brief   Checks if z is smooth in the sense that it is a product of prime
- *          factor powers q^e < 2^m from z, where it is furthermore required
- *          that q <= cm, for c and m constants.
+ *          factor powers q^e < 2^m, where it is furthermore required that
+ *          q <= cm, for c and m constants.
  *
  * \param[in] z   The integer z.
  * \param[in] c   The constant c.
