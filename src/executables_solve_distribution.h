@@ -29,11 +29,11 @@
  * For the initial n, the pivot state #SEARCH_STATE_PIVOT is assumed.
  *
  * If the number of failures is at or below the limit for the initial n, the
- * state will change to #SEARCH_STATE_INCREASE and n will be decreased in
+ * state will change to #SEARCH_STATE_DECREASE and n will be decreased in
  * decrements of one until the limit is exceeded.
  *
  * Analogously, if the number of failures is above the limit for the initial n,
- * the state will change to #SEARCH_STATE_DECREASE and n will be incremented in
+ * the state will change to #SEARCH_STATE_INCREASE and n will be incremented in
  * increments of one until the limit is met or exceeded.
  */
 typedef enum {
