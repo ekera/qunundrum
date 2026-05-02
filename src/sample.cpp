@@ -204,6 +204,7 @@ void sample_j_from_alpha_r(
   mpz_mod(j, j, pow2);
 
   /* Clear memory. */
+  mpz_clear(t_r);
   mpz_clear(pow2);
 }
 
@@ -268,6 +269,7 @@ void sample_j_k_from_alpha_d(
   mpz_mod(j, j, pow2);
 
   /* Clear memory. */
+  mpz_clear(t_d);
   mpz_clear(pow2);
   mpz_clear(tmp);
 }
