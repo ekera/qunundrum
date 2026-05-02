@@ -21,10 +21,10 @@
  *        (n + 1) x (n + 1) basis matrix A and a triangular matrix M of
  *        Gram-Schmidt projection factors such that A = M * G.
  *
- * \param[in, out] G          The Gram-Schmidt (n + 1) x (n + 1) orthogonalized
- *                            basis matrix G.
  * \param[in, out] M          The (n + 1) x (n + 1) triangular matrix M of
  *                            Gram-Schmidt projection factors.
+ * \param[in, out] G          The Gram-Schmidt (n + 1) x (n + 1) orthogonalized
+ *                            basis matrix G.
  * \param[in] A               A full rank (n + 1) x (n + 1) basis matrix.
  * \param[in] n               The integer n.
  * \param[in] precision       The required floating point precision.
