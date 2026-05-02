@@ -17,16 +17,18 @@
 #include <stdlib.h>
 
 /*!
- * \brief Compares two diagonal distribution slice coordinates with respect to
- *        their distance, for the purpose of enabling coordinates to be sorted
- *        with qsort().
+ * \brief   Compares two diagonal distribution slice coordinates with respect to
+ *          the absolute values of their peak indices, and then with respect to
+ *          their distance measures (see
+ *          Diagonal_Distribution_Coordinate::distance) for the purpose of
+ *          enabling coordinates to be sorted with qsort().
  *
  * \param[in] a   A pointer to a pointer to the first coordinate.
  * \param[in] b   A pointer to a pointer to the second coordinate.
  *
- * \return Returns -1 if the the distance for the first coordinate is greater
- *         than that of the second coordinate, -1 if the inverse is true and
- *         0 if the distances are equal.
+ * \return  Returns 1 if the first coordinate is greater than the second
+ *          coordinate when compared in the above metric, -1 if the inverse is
+ *          true, and 0 if the coordinates are equal.
  */
 static int diagonal_distribution_enumerator_sort_coordinates_cmp(
   const void * const a,

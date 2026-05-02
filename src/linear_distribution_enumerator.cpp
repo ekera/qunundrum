@@ -17,16 +17,17 @@
 #include <stdlib.h>
 
 /*!
- * \brief Compares two linear distribution slice coordinates with respect to
- *        their distance from abs(alpha_r) = m, for the purpose of enabling
- *        coordinates to be sorted with qsort().
+ * \brief   Compares two linear distribution slice coordinates with respect to
+ *          their distance measures (see
+ *          Linear_Distribution_Coordinate::distance) for the purpose of
+ *          enabling coordinates to be sorted with qsort().
  *
  * \param[in] a   A pointer to a pointer to the first coordinate.
  * \param[in] b   A pointer to a pointer to the second coordinate.
  *
- * \return Returns -1 if the the distance for the first coordinate is greater
- *         than that of the second coordinate, -1 if the inverse is true and
- *         0 if the distances are equal.
+ * \return  Returns 1 if the distance measure for the first coordinate is
+ *          greater than that of the second coordinate, -1 if the inverse is
+ *          true, and 0 if the distance measures are equal.
  */
 static int linear_distribution_enumerator_sort_coordinates_cmp(
   const void * const a,
