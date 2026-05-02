@@ -53,7 +53,11 @@ typedef struct {
    * caveat that the distance is forced to zero for diagonal element.
    *
    * This entry is not really needed, as it can be computed from the values of
-   * that it has different prototypes on different platforms(!)
+   * the parameter m, Distribution_Coordinate::min_log_alpha_d and
+   * Distribution_Coordinate::min_log_alpha_r. The entry is included to make the
+   * distance available to qsort(), as m cannot be passed to qsort(), and as
+   * qsort_r() that does take an additional parameter is non-portable in that it
+   * has different prototypes on different platforms(!)
    *
    * Previously sorting was implemented natively using bubble sort, but this is
    * inefficient. In the future, we may consider adding a native efficient
