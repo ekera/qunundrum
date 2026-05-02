@@ -161,7 +161,7 @@ void random_generate_mpz(
   Random_State * const state)
 {
   size_t length = mpz_sizeinbase(modulus, 2) + 64;
-  length = (length + 8) / 8;
+  length = (length + 7) / 8;
 
   if (length > RANDOM_MPZ_BUFFER_SIZE) {
     critical("random_generate_mpz(): Generating a random integer for this "
