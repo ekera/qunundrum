@@ -334,8 +334,8 @@ void lattice_enumerate_for_r(
  *                            when r is very smooth and n is close to one.
  *                            Defaults to #TRUE.
  * \param[in] timeout         A timeout in seconds after which the enumeration
- *                            will be aborted if d and r, respectively, has not
- *                            been recovered. May be set to zero to disable the
+ *                            will be aborted if d and r have not been
+ *                            recovered. May be set to zero to disable the
  *                            timeout.
  */
 void lattice_enumerate_for_d_r(
