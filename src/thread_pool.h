@@ -47,6 +47,8 @@ typedef struct {
    * \brief   A counter used to assign a running index to each thread spawned.
    *
    * Initially assigned index one and incremented for each thread spawned by
+   * the thread_pool_spawn() function. If the counter overflows, this will
+   * result in a critical error.
    */
   uint32_t index;
 } Thread_Pool;
@@ -101,9 +103,9 @@ void thread_pool_clear(
  * lowest index is first joined with the thread used to call this function and
  * then re-used to spawn a new thread.
  *
- * The thread handle used to spawned a new thread is assigned an index equal to
- * the counter Thread_Pool::index. The counter is the incremented. If the
- * counter overflows, this will be result in a critical error.
+ * The thread handle used to spawn a new thread is assigned an index equal to
+ * the counter Thread_Pool::index. The counter is then incremented. If the
+ * counter overflows, this will result in a critical error.
  *
  * \param[in, out] pool       The thread pool.
  * \param[in] start_routine   The function to call from the worker thread.
