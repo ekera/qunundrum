@@ -111,9 +111,6 @@ void gram_schmidt_orthogonalization(
   }
 
   /* Setup the projection factors. */
-  mpz_t tmp_z;
-  mpz_init(tmp_z);
-
   mpfr_t tmp_f;
   mpfr_init2(tmp_f, precision);
 
@@ -149,6 +146,5 @@ void gram_schmidt_orthogonalization(
   }
 
   /* Clear memory. */
-  mpz_clear(tmp_z);
   mpfr_clear(tmp_f);
 }
