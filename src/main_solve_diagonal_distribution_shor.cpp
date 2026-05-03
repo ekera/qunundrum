@@ -862,7 +862,7 @@ static void main_client(
     Timer timer_solve_system;
     timer_start(&timer_solve_system);
 
-    /* Set z = (rj - {rj}_{2^(m + l)}) / 2^(m + l). */
+    /* Set z = (rj - {rj}_{2^(m + sigma)}) / 2^(m + sigma). */
     mpz_mul(z, distribution.parameters.r, j); /* z = rj */
     mpz_set(tmp, z); /* tmp = z = rj */
     mod_reduce(tmp, pow2_msigma); /* tmp = {rj}_{2^(m + sigma)} */
