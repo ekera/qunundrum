@@ -1009,13 +1009,6 @@ static void main_server(
 static void main_client(
   const Solve_Distribution_Arguments * const arguments)
 {
-  /* Declare variables. */
-  mpz_t alpha_d;
-  mpz_init(alpha_d);
-
-  mpz_t alpha_r;
-  mpz_init(alpha_r);
-
   /* Receive broadcast of the distribution. */
   Distribution distribution;
   distribution_init_bcast_recv(&distribution, MPI_RANK_ROOT);
@@ -1261,9 +1254,6 @@ static void main_client(
   distribution_clear(&distribution);
 
   random_close(&random_state);
-
-  mpz_clear(alpha_d);
-  mpz_clear(alpha_r);
 }
 
 /*!
