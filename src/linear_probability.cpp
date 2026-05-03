@@ -138,9 +138,9 @@ void linear_probability_d(
   mpfr_set_ui_2exp(tmp, 1,
     (mpfr_exp_t)(parameters->l + parameters->m), MPFR_RNDN);
       /* tmp = 2^(l + m) */
-  mpfr_sub(tmp3, tmp, tmp3, MPFR_RNDN); /* tmp2 = 2^(l + m) - (2^l - 1) d */
+  mpfr_sub(tmp3, tmp, tmp3, MPFR_RNDN); /* tmp3 = 2^(l + m) - (2^l - 1) d */
   mpfr_mul(tmp3, tmp3, one_minus_cos_2l_theta, MPFR_RNDN);
-    /* tmp2 = (2^(l + m) - (2^l - 1) d) (1 - cos(2^l theta_d)) */
+    /* tmp3 = (2^(l + m) - (2^l - 1) d) (1 - cos(2^l theta_d)) */
 
   mpfr_add(tmp, tmp3, tmp2, MPFR_RNDN);
     /* tmp = (2^(l + m) - (2^l - 1) d) (1 - cos(2^l theta_d)) +
@@ -246,7 +246,7 @@ void linear_probability_r(
 
   mpfr_set_ui_2exp(tmp2, 1,
     (mpfr_exp_t)(2 * (parameters->l + parameters->m)), MPFR_RNDN);
-      /* tmp = 2^(2 (l + m)) */
+      /* tmp2 = 2^(2 (l + m)) */
   mpfr_div(norm, tmp, tmp2, MPFR_RNDN);
     /* norm = (beta * (sin((N + 1) * theta_r / 2) / sin(theta_r / 2))^2 +
      *            (r - beta) * (sin(N * theta_r / 2) / sin(theta_r / 2))^2) /
