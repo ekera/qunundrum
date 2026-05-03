@@ -195,8 +195,8 @@ On each line of the printout, we find $m_1+t$, $m_2+t$: $p_1$, $p_2$ — $\delta
 - $m_1$ is the bit length of the order $r$ for the first distribution,
 - $m_2$ is the bit length of the order $r$ for the second distribution,
 - $t$ is an integer parameter that runs over a sub-interval of $[-30, 30] \cap \mathbb Z$,
-- $p_1$ is the probability mass captured by all slices which $m_1 + t$ <= $| \alpha_r | < m_1 + t + 1$ in the first distribution,
-- $p_2$ is the probability mass captured by all slices which $m_2 + t$ <= $| \alpha_r | < m_2 + t + 1$ in the second distribution and
+- $p_1$ is the probability mass captured by all slices for which $m_1 + t \le | \alpha_r | < m_1 + t + 1$ in the first distribution,
+- $p_2$ is the probability mass captured by all slices for which $m_2 + t \le | \alpha_r | < m_2 + t + 1$ in the second distribution, and
 - $\delta = |p_1 - p_2|$ is the absolute value of the difference between $p_1$ and $p_2$.
 
 If no slice is present in either distribution for a given $t$, nothing is printed.
