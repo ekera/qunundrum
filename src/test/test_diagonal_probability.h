@@ -19,12 +19,6 @@
 #define TEST_DIAGONAL_PROBABILITY_H
 
 /*!
- * \brief   Executes unit tests for diagonal_probability() via KAT
- *          vectors.
- */
-void test_diagonal_probability_approx_kat();
-
-/*!
  * \brief   Executes all unit tests for the
  *          \ref diagonal_distribution_probability module.
  */
