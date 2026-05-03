@@ -43,7 +43,7 @@
  * default precision of #PRECISION internally. However, there is no need to go
  * beyond the default precision in theta_d when calling the function.
  *
- * \param[in, out] norm   The approximate probability for the pair.
+ * \param[in, out] norm   The exact probability for the pair.
  * \param[in] theta_d     The angle theta_d.
  * \param[in] parameters  The parameters for the probability distribution.
  */
@@ -74,7 +74,7 @@ void linear_probability_d(
  * This function uses the default precision #PRECISION internally. There is no
  * need to go beyond the default precision in theta_r when calling the function.
  *
- * \param[in, out] norm   The approximate probability for the pair.
+ * \param[in, out] norm   The exact probability for the pair.
  * \param[in] theta_r     The angle theta_r.
  * \param[in] parameters  The parameters for the probability distribution.
  */
