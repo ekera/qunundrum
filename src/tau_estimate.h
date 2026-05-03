@@ -33,7 +33,7 @@
  *
  * For x in {d, r}, we define tau_x as
  *
- *    tau_x = log_( (1 / n) sum_{i = 1}^{n} alpha^2_{x, i} ) / 2 - m.
+ *    tau_x = log_2( (1 / n) sum_{i = 1}^{n} alpha^2_{x, i} ) / 2 - m.
  *
  * To compute the volume quotients v_d and v_r, you may convert the output from
  * this function into volume quotients using tau_volume_quotient().
@@ -62,7 +62,7 @@ bool tau_estimate(
  * to MAX_DBL and #FALSE is returned. Otherwise, tau is a valid estimate and
  * #TRUE is returned.
  *
- * We define tau = log_( (1 / n) sum_{i = 1}^{n} alpha^2_i ) / 2 - m.
+ * We define tau = log_2( (1 / n) sum_{i = 1}^{n} alpha^2_i ) / 2 - m.
  *
  * To compute the volume quotient v, you may convert the output from this
  * function into a volume quotient using tau_volume_quotient().
@@ -91,7 +91,7 @@ bool tau_estimate_linear(
  *
  * We define tau as
  *
- *    tau = log_( (1 / n) sum_{i = 1}^{n} alpha^2_i ) / 2 - (m + sigma - l).
+ *    tau = log_2( (1 / n) sum_{i = 1}^{n} alpha^2_i ) / 2 - (m + sigma - l).
  *
  * To compute the volume quotient v, you may convert the output from this
  * function into volume quotients using tau_volume_quotient_diagonal().
