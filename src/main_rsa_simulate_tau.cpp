@@ -55,8 +55,8 @@
 #define SAMPLES_PER_RECORD 100
 
 /*!
- * \brief   The maximum tau for which a lower bound on the success probablity
- *          is available, giving raise to an expected lower bound.
+ * \brief   The maximum tau for which a lower bound on the success probability
+ *          is available, giving rise to an expected lower bound.
  */
 #define MAX_TAU_EXPECTED 22
 

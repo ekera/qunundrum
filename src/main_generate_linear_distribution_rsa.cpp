@@ -62,7 +62,7 @@ typedef struct {
   uint32_t l;
 
   /*!
-   * \brief   The parameter l.
+   * \brief   The parameter n.
    */
   uint32_t n;
 
