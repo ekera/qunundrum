@@ -3,7 +3,7 @@
 ## Synopsis
 ```console
 Synopsis: mpirun solve_linear_distribution_shor
-   [ -search-bound-j <bound> ] [ -search-bound-cofactors <bound> ]
+   [ -t-bound <t-bound> ] [ -cofactor-bound <cofactor-bound> ]
       <distribution> { <distribution> }
 ```
 
@@ -20,11 +20,11 @@ Arguments <code>\<distribution\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 
 ### Optional command line arguments
-Flag specifying the search bound (defaults to 2^8):
-- <code>-search-bound-j \<bound\></code> sets the search bound for $j$ to <code>\<bound\></code>
+Flag specifying the search bound on $t$ (defaults to $2^8$):
+- <code>-t-bound \<t-bound\></code> sets the search bound on $|t|$ to <code>\<t-bound\></code>; all integers $j + t$ are solved for the order $r$
 
-Flag specifying the search bound (defaults to 2^16):
-- <code>-search-bound-cofactors \<bound\></code> sets the search bound for cofactors to <code>\<bound\></code>
+Flag specifying the search bound on the cofactor (defaults to $2^{16}$):
+- <code>-cofactor-bound \<cofactor-bound\></code> sets the bound on the cofactor between the order $r$ and the denominator to <code>\<cofactor-bound\></code>
 
 ## Interpreting the output
 The log file <code>logs/solve-linear-shor.txt</code> is on the format
@@ -41,7 +41,7 @@ m: 2048 s: 1 n: 1 -- success: 220 -- fail: 780 (0) -- prepare:     0.949 ms solv
 ```
 where we find $m$, $s$ or $\ell$, $n$ — #success — #fail — prep-time — solve-time, and where
 - $m$ is the bit length of the order $r$,
-- $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, if $s$ was specified when the distribution was generated, otherwise $\ell$ is explicitly stated instead,
+- $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, if $s$ was specified when the distribution was generated; otherwise $\ell$ is explicitly stated instead,
 - $n$ is the number of runs,
 - #success is the number of problem instances that were successfully solved,
 - #fail is the number of problem instances not solved, where the count within parenthesis is the number of problem instances that failed due to sampling errors,
