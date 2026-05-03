@@ -118,7 +118,7 @@ static bool arguments_init_parse_command_line(
       }
 
       if (mpfr_set_str(arguments->v_bound, argv[i + 1], 10, MPFR_RNDN) != 0) {
-        fprintf(stderr, "Error: Failed to parse <v-bound> after -bound.\n");
+        fprintf(stderr, "Error: Failed to parse <v-bound> after -v-bound.\n");
         return FALSE;
       }
 

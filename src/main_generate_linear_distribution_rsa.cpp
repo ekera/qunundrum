@@ -252,7 +252,7 @@ static bool arguments_init_parse_command_line(
         /* Check that p and q are distinct. */
         if (mpz_cmp(arguments->p, arguments->q) == 0) {
           fprintf(stderr,
-            "Error: The values of <q> and <q> after -exp must be dinstict.\n");
+            "Error: The values of <p> and <q> after -exp must be distinct.\n");
           return FALSE;
         }
 
