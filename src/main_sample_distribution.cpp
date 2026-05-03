@@ -45,7 +45,7 @@ static void print_synopsis(
 /*!
  * \brief The main entry point to the sample_distribution executable.
  *
- * This is a conveniency executable provide for increased accessibility.
+ * This is a convenience executable provided for increased accessibility.
  *
  * \param[in, out] argc   The arguments count.
  * \param[in, out] argv   The arguments vector.
