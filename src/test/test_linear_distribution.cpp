@@ -281,7 +281,7 @@ void test_linear_distribution_slice_det_d() {
     }
 
     if (TRUE != test_cmp_ld(slice.total_probability, tmp_sum)) {
-      critical("test_diagonal_distribution_slice_det_d(): "
+      critical("test_linear_distribution_slice_det_d(): "
         "Incorrect total probability.");
     }
   }
@@ -530,7 +530,7 @@ void test_linear_distribution_slice_det_r() {
     }
 
     if (TRUE != test_cmp_ld(slice.total_probability, tmp_sum)) {
-      critical("test_diagonal_distribution_slice_det_r(): "
+      critical("test_linear_distribution_slice_det_r(): "
         "Incorrect total probability.");
     }
   }

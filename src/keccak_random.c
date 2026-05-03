@@ -93,7 +93,7 @@ void keccak_random_close(
   memset(state, 0, sizeof(Keccak_Random_State));
 
   #ifdef DEBUG_TRACE_RNG
-  printf("keccak_random_init(): Debug: Closed state: %p\n", state);
+  printf("keccak_random_close(): Debug: Closed state: %p\n", state);
   #endif
 }
 

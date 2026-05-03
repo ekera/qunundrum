@@ -95,7 +95,7 @@ void linear_distribution_slice_copy_scale(
   const Linear_Distribution_Slice * const src_slice)
 {
   if ((src_slice->dimension % dst_slice->dimension) != 0) {
-    critical("distribution_slice_scale(): Incompatible dimensions.");
+    critical("linear_distribution_slice_copy_scale(): Incompatible dimensions.");
   }
 
   const uint32_t scale = src_slice->dimension / dst_slice->dimension;
