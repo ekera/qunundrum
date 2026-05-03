@@ -64,6 +64,9 @@ void distribution_slice_compute_richardson(
   }
 
   slice->total_error = 2 * double_slice.total_error - slice->total_error;
+  if (slice->total_error < 0) {
+    slice->total_error = 0;
+  }
 
   /* Update the method flag. */
   slice->flags |= SLICE_FLAGS_METHOD_RICHARDSON;
