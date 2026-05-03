@@ -36,8 +36,8 @@ On each line of the printout, we find $(\pm m_1 + t_d, \pm m_1 + t_r)$, $(\pm m_
 - $m_1$ is the bit length of the order $r$ for the first distribution,
 - $m_2$ is the bit length of the order $r$ for the second distribution,
 - $t_d$, $t_r$ are integer parameters that run over a sub-interval of $[-30, 30] \cap \mathbb Z$,
-- $p_1$ is the probability mass captured by the slice for which $m_1 + t_d \le \alpha_d < m_1 + t_d + 1$ and $m_1 + t_r \le \alpha_r < m_1 + t_r + 1$ in the first distribution,
-- $p_2$ is the probability mass captured by the slice for which $m_2 + t_d \le \alpha_d < m_2 + t_d + 1$ and $m_2 + t_r \le \alpha_r < m_2 + t_r + 1$ in the second distribution, and
+- $p_1$ is the probability mass captured by the slice for which $\pm m_1 + t_d \le \alpha_d < \pm m_1 + t_d + 1$ and $\pm m_1 + t_r \le \alpha_r < \pm m_1 + t_r + 1$ in the first distribution,
+- $p_2$ is the probability mass captured by the slice for which $\pm m_2 + t_d \le \alpha_d < \pm m_2 + t_d + 1$ and $\pm m_2 + t_r \le \alpha_r < \pm m_2 + t_r + 1$ in the second distribution, and
 - $\delta = |p_1 - p_2|$ is the absolute value of the difference between $p_1$ and $p_2$.
 
 If a slice is missing from both distributions for a given combination $(t_d, t_r)$, nothing is printed.
