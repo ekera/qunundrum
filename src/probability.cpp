@@ -268,10 +268,10 @@ bool probability_approx(
   mpfr_add_ui(tmp2, tmp, 2, MPFR_RNDN);
     /* tmp2 = 2 + (2^sigma / 2) (abs(theta_d) + abs(theta_r)) */
   mpfr_mul(tmp, tmp, tmp2, MPFR_RNDN);
-    /* tmp2 = (2^sigma / 2) (abs(theta_d) + abs(theta_r)) *
+    /* tmp = (2^sigma / 2) (abs(theta_d) + abs(theta_r)) *
      *          (2 + (2^sigma / 2) (abs(theta_d) + abs(theta_r)) */
   mpfr_mul(tmp, tmp, norm, MPFR_RNDN);
-    /* tmp2 = (2^sigma / 2) (abs(theta_d) + abs(theta_r)) *
+    /* tmp = (2^sigma / 2) (abs(theta_d) + abs(theta_r)) *
      *          (2 + (2^sigma / 2) (abs(theta_d) + abs(theta_r)) * norm */
 
   mpfr_set_ui_2exp(tmp2, 1,
