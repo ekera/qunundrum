@@ -96,12 +96,12 @@ As for the other parameters
   - $r$ is the order, and
   - $d$ is the logarithm.
 
-The slices section contains a summary of the number of slices that capture a certain share of the probability mass and their dimensions. Note that slices are in general <i>computed</i> for a much large dimension than is reported in the printout, but scaled down when <i>stored</i> in the distribution to save disk space. It is the stored dimension that is reported.
+The slices section contains a summary of the number of slices that capture a certain share of the probability mass and their dimensions. Note that slices are in general <i>computed</i> for a much larger dimension than is reported in the printout, but scaled down when <i>stored</i> in the distribution to save disk space. It is the stored dimension that is reported.
 
 Note furthermore that the values within parenthesis in the summary section is the probability captured by the slices in the group, followed by the number of slices for which at least one warning flag was raised during the course of the computation. When the slice is computed, a probability estimate and an upper bound on the error in the estimate are computed in many different points throughout the region of the argument plane covered by the slice.
 
 A warning is raised if the error bound is close to or exceeds the probability estimate in at least one point. This needs not be an issue in itself, but it indicates that the approximation used to produce the estimate is being pushed close to its limit. This typically happens for large tradeoff factors as in the above example.
 
-The summary section is followed by detailed information about each slice in the distribution. Slices where the error is within a factor $10^2$ of the total probability mass captured by the frame are marked with \*\*.
+The summary section is followed by detailed information about each slice in the distribution. Slices where the error is within a factor $10^2$ of the total probability mass captured by the slice are marked with \*\*.
 
-The total number of slices in the distribution, the total probability mass captured by these slices, and the total approximation error for these slices, is last reported, along with the corresponding count, probability and error for a filtered distribution in which the slices marked with \*\* have been left out, reducing the error at the expense of loosing probability mass. The slices marked with \*\* can be filtered out is desired, see the [<code>filter_distribution</code>](filter-distribution.md) executable.
+The total number of slices in the distribution, the total probability mass captured by these slices, and the total approximation error for these slices, is last reported, along with the corresponding count, probability and error for a filtered distribution in which the slices marked with \*\* have been left out, reducing the error at the expense of losing probability mass. The slices marked with \*\* can be filtered out is desired, see the [<code>filter_distribution</code>](filter-distribution.md) executable.
