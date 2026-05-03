@@ -24,7 +24,7 @@ Arguments <code>\<distribution\></code> where
 Flag specifying the bound $B_v$ in $v$ (defaults to $2$):
 - <code>-v-bound \<v-bound\></code> sets the bound $B_v$ to <code>\<v-bound\></code>
 
-Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>DELTA_BOUND</code>):
+Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>BOUND_DELTA</code>):
 - <code>-delta-bound \<delta-bound\></code> sets $B_\Delta$ to <code>\<delta-bound\></code>
 
    All $\Delta \in [-B_\Delta, B_\Delta] \cap \mathbb Z$ are searched when sampling $k$ given $j$ and $\eta$.

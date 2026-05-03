@@ -26,7 +26,7 @@ Tuples <code>\<distribution\> \<n\></code> where
 - <code>\<n\></code> is the number of runs
 
 ### Optional command line arguments
-Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>DELTA_BOUND</code>):
+Flag specifying the search bound $B_\Delta$ in $\Delta$ (defaults to <code>BOUND_DELTA</code>):
 - <code>-delta-bound \<delta-bound\></code> sets $B_\Delta$ to <code>\<delta-bound\></code>
 
    All $\Delta \in [-B_\Delta, B_\Delta] \cap \mathbb Z$ are searched when sampling $k_i$ given $j_i$ and $\eta_i$.
