@@ -45,7 +45,7 @@ m: 2048 sigma: 12 s: 30 n: 31 -- tau: 6.028474 v: 1.49257E+49 <1467>
 m: 2048 sigma: 12 s: 30 n: 34 -- tau: 6.141849 v: 2.13424E-05 <1583>
 m: 2048 sigma: 12 s: 30 n: 33 -- tau: 6.103036 v: 1.75424E+13 <1557>
 ```
-where we find $m$, $\varsigma$, $s$ or $\ell$, $n$ — $\tau$ $v$ \<#errors\> on each line, and where
+where we find $m$, $\varsigma$, $s$ or $\ell$, $n$ — $\tau$, $v$, \<#errors\> on each line, and where
 - $m$ is the bit length of the order $r$,
 - $\varsigma$ is the bit length of the padding,
 - $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, if $s$ was specified when the distribution was generated, otherwise $\ell$ is explicitly stated instead,
