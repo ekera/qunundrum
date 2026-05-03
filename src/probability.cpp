@@ -46,6 +46,8 @@ bool probability_approx_adjust_sigma(
 
   bool best_bounded_error = bounded_error;
 
+  bool updated = FALSE;
+
   /* Attempt to decrease sigma and see if we obtain better values. */
   for (uint32_t sigma = best_sigma - 1; sigma >= 1; sigma--) {
     bool bounded_error = probability_approx(
@@ -55,25 +57,29 @@ bool probability_approx_adjust_sigma(
                           theta_d,
                           theta_r,
                           parameters);
-
     if (mpfr_cmp(error, best_error) >= 0) {
-      if (best_sigma != sigma) {
-        mpfr_clear(norm);
-        mpfr_clear(error);
-
-        return best_bounded_error;
-      } else {
-        break;
-      }
+      /* Worse sigma. */
+      break;
     }
 
     mpfr_set(best_error, error, MPFR_RNDN);
     mpfr_set(best_norm, norm, MPFR_RNDN);
     best_bounded_error = bounded_error;
     best_sigma = sigma;
+
+    updated = TRUE;
   }
 
-  /* Attempt to increase sigma and see if we obtain better values. */
+  /* If a better sigma was found, return. */
+  if (TRUE == updated) {
+    mpfr_clear(norm);
+    mpfr_clear(error);
+
+    return best_bounded_error;
+  }
+
+  /* Attempt to increase sigma and see if we obtain better values. Note that
+   * this code only execute if best_sigma was not updated above. */
   for (uint32_t sigma = best_sigma + 1; sigma < (parameters->l - 1); sigma++) {
     bool bounded_error = probability_approx(
                           norm,
@@ -83,6 +89,7 @@ bool probability_approx_adjust_sigma(
                           theta_r,
                           parameters);
     if (mpfr_cmp(error, best_error) >= 0) {
+      /* Worse sigma. */
       break;
     }
 
