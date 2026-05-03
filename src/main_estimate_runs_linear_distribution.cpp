@@ -175,7 +175,7 @@ static bool arguments_init_parse_command_line(
 /*!
  * \brief   Prints the command line arguments.
  *
- * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in, out] file     The file to which to print the arguments.
  * \param[in] arguments     The arguments data structure to print to the file.
  */
 static void arguments_fprintf(

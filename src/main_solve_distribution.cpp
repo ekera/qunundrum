@@ -503,7 +503,7 @@ static void arguments_init_bcast_recv(
 /*!
  * \brief   Prints the command line arguments.
  *
- * \param[in, out] file     Then file to which to print the arguments.
+ * \param[in, out] file     The file to which to print the arguments.
  * \param[in] arguments     The parsed command line arguments to print.
  */
 static void arguments_fprintf(
