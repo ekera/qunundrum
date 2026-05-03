@@ -22,7 +22,7 @@
 #define MPI_MPFR_LENGTH_TAG                       11021
 
 /*!
- * \brief   An MPI tag used to send the the serialized representation of an
+ * \brief   An MPI tag used to send the serialized representation of an
  *          arbitrary precision floating point value.
  */
 #define MPI_MPFR_DATA_TAG                         11022
