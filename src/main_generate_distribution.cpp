@@ -403,7 +403,7 @@ static bool arguments_init_parse_command_line(
       i++;
 
       continue;
-    } else if (0 == strcmp(argv[i], "-heuristic-dim")) {
+    } else if (0 == strcmp(argv[i], "-dim-heuristic")) {
       /* Check that a dimension has not already been specified. */
       if (DIMENSION_UNDEFINED != arguments->dimension) {
         fprintf(stderr, "Error: The dimension cannot be twice specified.\n");
@@ -1418,7 +1418,7 @@ static void print_synopsis(
   fprintf(file,
     " -dim <dimension>  explicitly set the slice dimension to <dimension>\n");
   fprintf(file,
-    " -heuristic-dim    explicitly specifies heuristic selection\n");
+    " -dim-heuristic    explicitly specifies heuristic selection\n");
 
   fprintf(file, "\n");
   fprintf(file,
