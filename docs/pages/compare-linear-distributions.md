@@ -8,7 +8,7 @@ Synopsis: compare_linear_distributions <distribution1> <distribution2>
 Compares the slices in two linear distributions and prints the result to the console.
 
 ### Mandatory command line arguments
-Arguments <code>\<distribution1\></code> <code><distribution2\></code> where
+Arguments <code>\<distribution1\></code> <code>\<distribution2\></code> where
 - <code>\<distribution1\></code> is the path to the first distribution
 - <code>\<distribution2\></code> is the path to the second distribution
 

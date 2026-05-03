@@ -8,7 +8,7 @@ Synopsis: compare_distributions <distribution1> <distribution2>
 Compares the slices in two distributions and prints the result to the console.
 
 ### Mandatory command line arguments
-Arguments <code>\<distribution1\></code> <code><distribution2\></code> where
+Arguments <code>\<distribution1\></code> <code>\<distribution2\></code> where
 - <code>\<distribution1\></code> is the path to the first distribution
 - <code>\<distribution2\></code> is the path to the second distribution
 
@@ -44,4 +44,4 @@ If a slice is missing from both distributions for a given combination $(t_d, t_r
 
 If a slice is only present in one of the distributions for a given combination $(t_d, t_r)$, a warning is printed.
 
-This is followed by the total probability mass captured by the slices in first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above ranges of $t_d$ and $t_r$.
+This is followed by the total probability mass captured by the slices in the first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above ranges of $t_d$ and $t_r$.

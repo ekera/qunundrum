@@ -23,7 +23,7 @@ Arguments <code>\<distribution\></code> where
 Flag specifying the search bound $B_t$ in $t$ (defaults to zero):
 - <code>-t-bound \<t-bound\></code> sets the search bound $B_t$ to <code>\<t-bound\></code>
 
-   All $t \in [-B_t, B_t] \cap \mathbb Z$ are searched when when solving $(j, k)$ for $d$ given $r$.
+   All $t \in [-B_t, B_t] \cap \mathbb Z$ are searched when solving $(j, k)$ for $d$ given $r$.
 
    The search bound $B_\Delta$ in $\Delta$ is selected as a function of $B_t$.
 

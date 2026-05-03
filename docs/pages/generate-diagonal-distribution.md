@@ -13,7 +13,7 @@ Computes a part of the distribution induced by Shor's algorithm for computing ge
 
 The full distribution is two-dimensional in $(\alpha_d, \alpha_r)$. This executable computes and stores a distribution in $(\alpha_r, \eta)$ for $\eta \in [-B_\eta, B_\eta] \cap \mathbb Z$ via the expression for $f_\eta(\theta_r)$ given in [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
 
-When the distribution is to be sampled by other executables, $(\alpha_r, \eta)$ is first sampled from the part of the distribution computed by this executable. Then $j$ is sampled uniformly at random from all values of $j$ that yield $\alpha_r$. Finally, $k$ is then sampled given $j$ and $\eta$ via the angle $\phi_\eta$ and the expression for $h(\phi_\eta)$ given in [[E19p]](https://doi.org/10.48550/arXiv.1905.09084)
+When the distribution is to be sampled by other executables, $(\alpha_r, \eta)$ is first sampled from the part of the distribution computed by this executable. Then $j$ is sampled uniformly at random from all values of $j$ that yield $\alpha_r$. Finally, $k$ is then sampled given $j$ and $\eta$ via the angle $\phi_\eta$ and the expression for $h(\phi_\eta)$ given in [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
 
 The distribution is said to be diagonal since constructive interference is expected to arise on the "diagonal" in the argument plane where the angle $\phi_\eta$ is small.
 

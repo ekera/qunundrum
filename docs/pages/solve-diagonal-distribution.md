@@ -21,7 +21,7 @@ The results are written to the console and to <code>logs/solve-diagonal.txt</cod
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
 ### Mandatory command line arguments
-Tuples <code>\<distribution\> <n></code> where
+Tuples <code>\<distribution\> \<n\></code> where
 - <code>\<distribution\></code> is the path to the distribution
 - <code>\<n\></code> is the number of runs
 

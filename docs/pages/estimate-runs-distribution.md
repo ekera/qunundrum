@@ -32,7 +32,7 @@ m: 2048 s: 30 n: 35 -- tau_d 6.890261 v_d: 1.34245E-15 <3968> -- tau_r: 6.138421
 m: 2048 s: 30 n: 34 -- tau_d 6.834617 v_d: 424.872 <3729> -- tau_r: 6.079734 v_r: 4.72936E-06 <3729>
 ```
 where we find $m$, $s$ or $\ell$, $n$ — $\tau_d$, $v_d$, \<#errors\> — $\tau_r$, $v_r$, \<#errors\> on each line, and where
-- $m$ is bit length of the order $r$,
+- $m$ is the bit length of the order $r$,
 - $s$ is the tradeoff factor such that $\ell = \lceil m / s \rceil$, if $s$ was specified when the distribution was generated, otherwise $\ell$ is explicitly stated instead,
 - $n$ is the number of runs,
 - $\tau_d$ is a value related to the radius $R_d$ for $d$,

@@ -8,7 +8,7 @@ Synopsis: compare_diagonal_distributions <distribution1> <distribution2>
 Compares the slices in two diagonal distributions and prints the result to the console.
 
 ### Mandatory command line arguments
-Arguments <code>\<distribution1\></code> <code><distribution2\></code> where
+Arguments <code>\<distribution1\></code> <code>\<distribution2\></code> where
 - <code>\<distribution1\></code> is the path to the first distribution
 - <code>\<distribution2\></code> is the path to the second distribution
 
@@ -203,6 +203,6 @@ If no slice is present in either distribution for a given $t$, nothing is printe
 
 If one or more slices are present in only one of the distributions for a given $t$, a warning is printed.
 
-This is followed by the total probability mass captured by the first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above range of t.
+This is followed by the total probability mass captured by the first and second distribution, respectively, the sum of $\delta$, and the maximum $\delta$, on the last line. Note that the totals on the last line only consider the slices that exist in both distributions for the above range of $t$.
 
 Note furthermore that the above comparison assumes that the two distributions are symmetric, in that only slices for positive $m_1$, $m_2$ are compared and $p_1$, $p_2$ doubled accordingly.
