@@ -433,7 +433,7 @@ static bool arguments_init_parse_command_line(
 
       arguments->entries[j].s = (uint32_t)s;
       arguments->entries[j].l =
-        (uint32_t)ceil((double)(m + sigma) / (double)s);
+        (uint32_t)ceil((double)m / (double)s);
     } else {
       const int l = atoi(argv[i + 2]);
       if (l < 0) {
