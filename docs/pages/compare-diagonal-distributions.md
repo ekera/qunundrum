@@ -15,7 +15,7 @@ Arguments <code>\<distribution1\></code> <code>\<distribution2\></code> where
 ## Interpreting the output
 The console output contains information on the format
 ```console
-$ ./compare_diagonal_distributions distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-10-s-30.txt distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-30.txt 
+$ ./compare_diagonal_distributions distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-10-s-30.txt distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-30.txt
 Loading distribution "distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-10-s-30.txt"...
 Loading distribution "distributions/diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-30.txt"...
 

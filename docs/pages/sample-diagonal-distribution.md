@@ -28,7 +28,7 @@ Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to same as for the
 - <code>-eta-bound \<eta-bound\></code> sets $B_\eta$ to <code>\<eta-bound\></code>
 
    The bound $B_\eta$ controls how many peak indices $\eta$ are considered when sampling $(\alpha_r, \eta)$ from the distribution: More specifically, the peaks with peak indices $\eta \in [-B_\eta, B_\eta] \cap \mathbb Z$ are considered. For further details, see [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
-  
+
 ## Interpreting the output
 The console output contains samples on the format
 ```console

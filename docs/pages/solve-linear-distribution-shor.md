@@ -34,12 +34,12 @@ The log file is on the format
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 256, cofactor: 65536)
 # Timestamp: 2024-02-29 01:46:32 CET
-m: 2048 s: 1 n: 1 -- success: 999 -- fail: 1 (0) -- prepare:    20.329 ms solve:    20.699 ms [    9.937,  5111.765] 
+m: 2048 s: 1 n: 1 -- success: 999 -- fail: 1 (0) -- prepare:    20.329 ms solve:    20.699 ms [    9.937,  5111.765]
 
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 0, cofactor: 1)
 # Timestamp: 2024-02-29 01:48:36 CET
-m: 2048 s: 1 n: 1 -- success: 220 -- fail: 780 (0) -- prepare:     0.949 ms solve:    11.039 ms [    9.886,    12.118] 
+m: 2048 s: 1 n: 1 -- success: 220 -- fail: 780 (0) -- prepare:     0.949 ms solve:    11.039 ms [    9.886,    12.118]
 ```
 where we find $m$, $s$ or $\ell$, $n$ — #success — #fail — prep-time — solve-time, and where
 - $m$ is the bit length of the order $r$,

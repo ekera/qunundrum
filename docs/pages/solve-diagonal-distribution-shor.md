@@ -40,22 +40,22 @@ The log file is on the format
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
 # Bounds: (eta = 100 (100), t = 10000)
 # Timestamp: 2024-02-28 21:00:24 CET
-m: 2048 sigma: 0 s: 1 n: 1 -- success: 1000 -- fail: 0 (0) -- prepare:     1.360 ms solve:    36.747 ms [    0.049,  3412.087] 
+m: 2048 sigma: 0 s: 1 n: 1 -- success: 1000 -- fail: 0 (0) -- prepare:     1.360 ms solve:    36.747 ms [    0.049,  3412.087]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
 # Bounds: (eta = 0 (100), t = 0)
 # Timestamp: 2024-02-29 11:45:30 CET
-m: 2048 sigma: 0 s: 1 n: 1 -- success: 612 -- fail: 388 (44) -- prepare:     1.362 ms solve:     0.071 ms [    0.047,     0.320] 
+m: 2048 sigma: 0 s: 1 n: 1 -- success: 612 -- fail: 388 (44) -- prepare:     1.362 ms solve:     0.071 ms [    0.047,     0.320]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
 # Bounds: (eta = 0 (100), t = 10000)
 # Timestamp: 2024-02-29 11:47:32 CET
-m: 2048 sigma: 0 s: 1 n: 1 -- success: 793 -- fail: 207 (0) -- prepare:     1.822 ms solve:     8.095 ms [    0.046,    40.735] 
+m: 2048 sigma: 0 s: 1 n: 1 -- success: 793 -- fail: 207 (0) -- prepare:     1.822 ms solve:     8.095 ms [    0.046,    40.735]
 
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-5-s-1.txt
 # Bounds: (eta = 0 (0), t = 10000)
 # Timestamp: 2024-02-29 11:47:38 CET
-m: 2048 sigma: 5 s: 1 n: 1 -- success: 993 -- fail: 7 (7) -- prepare:     1.782 ms solve:     0.072 ms [    0.048,     1.863] 
+m: 2048 sigma: 5 s: 1 n: 1 -- success: 993 -- fail: 7 (7) -- prepare:     1.782 ms solve:     0.072 ms [    0.048,     1.863]
 ```
 where we find $m$, $\varsigma$, $s$ or $\ell$, $n$ — #success — #fail — prep-time — solve-time, and where
 - $m$ is the bit length of the order $r$,
