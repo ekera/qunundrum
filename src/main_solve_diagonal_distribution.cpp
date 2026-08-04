@@ -679,24 +679,8 @@ static void main_server(
   const Diagonal_Distribution * const distribution,
   const int mpi_size)
 {
-  /* Create the log directory if it does not exist. */
-  if (0 != access(LOGS_DIRECTORY, F_OK)) {
-    if (0 != mkdir(LOGS_DIRECTORY, DIRECTORY_PERMISSIONS)) {
-      critical("main_server(): Failed to create the directory \"%s\".",
-        LOGS_DIRECTORY);
-    }
-  }
-
   /* Open the log file. */
-  char log_path[MAX_SIZE_PATH_BUFFER];
-  safe_snprintf(
-    log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/solve-diagonal.txt", LOGS_DIRECTORY);
-
-  FILE * log_file = fopen(log_path, "a+");
-  if (NULL == log_file) {
-    critical("main_server(): Failed to open \"%s\" for appending.", log_path);
-  }
+  FILE * log_file = log_open("solve-diagonal");
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(entry->path));
   arguments_fprintf(log_file, arguments, distribution);

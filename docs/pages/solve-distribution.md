@@ -14,7 +14,7 @@ Simulates the quantum algorithm by sampling the distribution, and solves the sim
 
 In total $10^3$ problem instances are considered to gather statistics.
 
-The results are written to the console and to <code>logs/solve.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -48,7 +48,7 @@ Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bk
 - <code>-lll-then-bkz</code> use LLL and then BKZ if solving the LLL-reduced basis fails
 
 ## Interpreting the output
-The log file <code>logs/solve.txt</code> is on the format
+The log file is on the format
 ```
 # Processing: distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt
 # Search strategy: Adaptive

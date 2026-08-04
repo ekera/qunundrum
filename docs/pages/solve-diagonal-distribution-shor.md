@@ -11,7 +11,7 @@ Simulates the quantum algorithm by sampling the distribution, and solves the sim
 
 In total $10^3$ problem instances are considered to gather statistics.
 
-The results are written to the console and to <code>logs/solve-diagonal-shor.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-diagonal-shor-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -33,7 +33,7 @@ Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to zero):
    All $\eta \in [-B_\eta, B_\eta] \cap \mathbb Z$ are searched when sampling $j$ and $\eta$, and when solving $(j, k)$ for $d$ given $r$.
 
 ## Interpreting the output
-The log file <code>logs/solve-diagonal-shor.txt</code> is on the format
+The log file is on the format
 ```
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
 # Bounds: (eta = 100 (100), t = 10000)

@@ -12,7 +12,7 @@ Estimates the number of runs required to solve a diagonal distribution for the l
 
 This when accepting to search all combinations of peak indices $\eta_1, \ldots, \eta_n$ such that $\eta_i \in [-B_\eta, B_\eta] \cap \mathbb Z$.
 
-The results are written to the console and to <code>logs/estimate-runs-diagonal.txt</code>.
+The results are written to the console and to a log file <code>logs/estimate-runs-diagonal-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -35,7 +35,7 @@ Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to same as for the
    All $\eta_i \in [-B_\eta, B_\eta] \cap \mathbb Z$ are searched when sampling $j_i$ and $\eta_i$.
 
 ## Interpreting the output
-The log file <code>logs/estimate-runs-diagonal.txt</code> is on the format
+The log file is on the format
 ```
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-12-s-30.txt
 # Bounds: (eta = <all> (0), delta = 1000000, v = 2)

@@ -473,15 +473,7 @@ static bool main_server_estimate_volume_quotients(
   }
 
   /* Open the logfile. */
-  char log_path[MAX_SIZE_PATH_BUFFER];
-  safe_snprintf(log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/estimate-runs.txt", LOGS_DIRECTORY);
-
-  FILE * logfile = fopen(log_path, "a+");
-  if (NULL == logfile) {
-    critical("main_server_estimate_volume_quotients(): "
-      "Failed to open \"%s\" for appending.", log_path);
-  }
+  FILE * logfile = log_open("estimate-runs");
 
   /* Extract constants from the distribution parameters. */
   const uint32_t m = distribution->parameters.m;
@@ -609,23 +601,8 @@ static void main_server(
   /* Broadcast the distribution. */
   distribution_bcast_send(distribution, MPI_RANK_ROOT);
 
-  /* Create the log directory if it does not exist. */
-  if (0 != access(LOGS_DIRECTORY, F_OK)) {
-    if (0 != mkdir(LOGS_DIRECTORY, DIRECTORY_PERMISSIONS)) {
-      critical("main_server(): Failed to create the directory \"%s\".",
-        LOGS_DIRECTORY);
-    }
-  }
-
   /* Write an entry in the logfile. */
-  char log_path[MAX_SIZE_PATH_BUFFER];
-  safe_snprintf(log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/estimate-runs.txt", LOGS_DIRECTORY);
-
-  FILE * logfile = fopen(log_path, "a+");
-  if (NULL == logfile) {
-    critical("main_server(): Failed to open \"%s\" for appending.", log_path);
-  }
+  FILE * logfile = log_open("estimate-runs");
 
   fprintf(logfile, "\n# Processing: %s\n", truncate_path(path));
   arguments_fprintf(logfile, arguments);

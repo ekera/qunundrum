@@ -11,7 +11,7 @@ Simulates the quantum algorithm by sampling the distribution, and solves the sim
 
 In total $10^3$ problem instances are considered to gather statistics.
 
-The results are written to the console and to <code>logs/solve-linear-shor.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-linear-shor-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -27,7 +27,7 @@ Flag specifying the search bound on the cofactor (defaults to $2^{16}$):
 - <code>-cofactor-bound \<cofactor-bound\></code> sets the bound on the cofactor between the order $r$ and the denominator to <code>\<cofactor-bound\></code>
 
 ## Interpreting the output
-The log file <code>logs/solve-linear-shor.txt</code> is on the format
+The log file is on the format
 ```
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 256, cofactor: 65536)

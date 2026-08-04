@@ -412,24 +412,8 @@ static void main_server(
     critical("main_server(): Expected a distribution for order finding.");
   }
 
-  /* Create the log directory if it does not exist. */
-  if (0 != access(LOGS_DIRECTORY, F_OK)) {
-    if (0 != mkdir(LOGS_DIRECTORY, DIRECTORY_PERMISSIONS)) {
-      critical("main_server(): Failed to create the directory \"%s\".",
-        LOGS_DIRECTORY);
-    }
-  }
-
   /* Open the log file. */
-  char log_path[MAX_SIZE_PATH_BUFFER];
-  safe_snprintf(
-    log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/solve-linear-shor.txt", LOGS_DIRECTORY);
-
-  FILE * log_file = fopen(log_path, "a+");
-  if (NULL == log_file) {
-    critical("main_server(): Failed to open \"%s\" for appending.", log_path);
-  }
+  FILE * log_file = log_open("solve-linear-shor");
 
   fprintf(log_file, "\n# Processing: %s\n", truncate_path(path));
   arguments_fprintf(log_file, arguments);

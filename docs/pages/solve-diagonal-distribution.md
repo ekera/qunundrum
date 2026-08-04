@@ -16,7 +16,7 @@ This when accepting to search all combinations of peak indices $\eta_1, \ldots, 
 
 In total $10^3$ problem instances are considered to gather statistics.
 
-The results are written to the console and to <code>logs/solve-diagonal.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-diagonal-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -57,7 +57,7 @@ Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bk
 - <code>-lll-then-bkz</code> use LLL and then BKZ if solving the LLL-reduced basis fails
 
 ## Interpreting the output
-The log file <code>logs/solve-diagonal.txt</code> is on the format
+The log file is on the format
 ```
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-12-s-30.txt
 # Bounds: (eta = <all> (0), delta = 1000000)
