@@ -23,6 +23,8 @@ Flag specifying the bound $B_v$ in $v$ (defaults to 2):
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: estimate-runs-20240229-012736+0100-3f2a9c41.txt
+
 # Processing: distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt
 # Bounds: (v = 2)
 # Timestamp: 2024-02-29 01:27:36 CET

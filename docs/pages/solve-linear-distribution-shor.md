@@ -29,6 +29,8 @@ Flag specifying the search bound on the cofactor (defaults to $2^{16}$):
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: solve-linear-shor-20240229-014632+0100-6c1b4d72.txt
+
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 256, cofactor: 65536)
 # Timestamp: 2024-02-29 01:46:32 CET

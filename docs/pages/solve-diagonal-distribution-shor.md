@@ -35,6 +35,8 @@ Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to zero):
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: solve-diagonal-shor-20240228-210024+0100-e29a71f3.txt
+
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-0-s-1.txt
 # Bounds: (eta = 100 (100), t = 10000)
 # Timestamp: 2024-02-28 21:00:24 CET

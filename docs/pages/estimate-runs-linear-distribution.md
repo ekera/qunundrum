@@ -22,6 +22,8 @@ Flag specifying the bound $B_v$ in $v$ (defaults to 2):
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: estimate-runs-linear-20240229-012216+0100-7b1e4a09.txt
+
 # Processing: linear-distribution-det-dim-2048-d-m-2048-s-30.txt
 # Bounds: (v = 2)
 # Timestamp: 2024-02-29 01:22:16 CET

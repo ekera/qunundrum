@@ -37,6 +37,8 @@ Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to same as for the
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: estimate-runs-diagonal-20240229-084724+0100-a4c8d2f6.txt
+
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-12-s-30.txt
 # Bounds: (eta = <all> (0), delta = 1000000, v = 2)
 # Timestamp: 2024-02-29 08:47:24 CET

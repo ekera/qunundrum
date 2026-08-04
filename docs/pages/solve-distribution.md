@@ -50,6 +50,8 @@ Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bk
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: solve-20240229-013600+0100-1d6f8b23.txt
+
 # Processing: distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt
 # Search strategy: Adaptive
 # Solution method: Closest

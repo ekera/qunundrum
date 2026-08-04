@@ -59,6 +59,8 @@ Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bk
 ## Interpreting the output
 The log file is on the format
 ```
+# Log file: solve-diagonal-20240229-111815+0100-5a3f9c88.txt
+
 # Processing: diagonal-distribution-det-dim-2048-m-2048-sigma-12-s-30.txt
 # Bounds: (eta = <all> (0), delta = 1000000)
 # Search strategy: Adaptive
