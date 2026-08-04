@@ -15,6 +15,7 @@
 #include "../parameters.h"
 #include "../parameters_selection.h"
 #include "../probability.h"
+#include "../string_utilities.h"
 
 #include <gmp.h>
 #include <mpfr.h>
@@ -101,7 +102,8 @@ void test_probability_approx_heuristic_sigma_kat() {
       mpfr_init2(quick_norm, PRECISION);
 
       char path[MAX_BUFFER_SIZE];
-      sprintf(path, "res/test-vectors/probabilities-det-m-%u-s-%u.txt", m, s);
+      safe_snprintf(path, MAX_BUFFER_SIZE,
+        "res/test-vectors/probabilities-det-m-%u-s-%u.txt", m, s);
       printf(" Processing: %s\n", path);
 
       FILE * file = fopen(path, "rb");

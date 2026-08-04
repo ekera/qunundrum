@@ -14,6 +14,7 @@
 #include "../linear_probability.h"
 #include "../parameters.h"
 #include "../parameters_selection.h"
+#include "../string_utilities.h"
 
 #include <gmp.h>
 #include <mpfr.h>
@@ -76,7 +77,7 @@ void test_linear_probability_d_kat() {
       mpfr_init2(exp_norm, PRECISION);
 
       char path[MAX_BUFFER_SIZE];
-      sprintf(path,
+      safe_snprintf(path, MAX_BUFFER_SIZE,
         "res/test-vectors/linear-probabilities-det-d-m-%u-s-%u.txt", m, s);
       printf(" Processing: %s\n", path);
 
@@ -174,7 +175,7 @@ void test_linear_probability_r_kat() {
       mpfr_init2(exp_norm, PRECISION);
 
       char path[MAX_BUFFER_SIZE];
-      sprintf(path,
+      safe_snprintf(path, MAX_BUFFER_SIZE,
         "res/test-vectors/linear-probabilities-det-r-m-%u-s-%u.txt", m, s);
       printf(" Processing: %s\n", path);
 
