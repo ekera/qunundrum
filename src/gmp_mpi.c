@@ -98,7 +98,7 @@ void mpz_recv(
     return;
   }
 
-  uint8_t * buffer = malloc(length * sizeof(uint8_t));
+  uint8_t * buffer = (uint8_t *)malloc(length * sizeof(uint8_t));
   if (NULL == buffer) {
     critical("mpz_recv(): Failed to allocate memory.");
   }
@@ -185,7 +185,7 @@ void mpz_bcast_recv(
     return;
   }
 
-  uint8_t * buffer = malloc(length * sizeof(uint8_t));
+  uint8_t * buffer = (uint8_t *)malloc(length * sizeof(uint8_t));
   if (NULL == buffer) {
     critical("mpz_bcast_recv(): Failed to allocate memory.");
   }

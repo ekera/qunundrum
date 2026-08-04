@@ -99,7 +99,7 @@ void random_generate(
   }
 
   if (NULL == state->random_device) {
-    keccak_random_generate(dst, length, &(state->keccak_state));
+    keccak_random_generate((uint8_t *)dst, length, &(state->keccak_state));
   } else {
     if (1 != fread(dst, length, 1, state->random_device)) {
       critical("random_generate(): Failed to read random data.");
