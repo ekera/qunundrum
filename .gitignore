@@ -1,7 +1,8 @@
 # Files and directories produced during runs
 distributions/*
-plots/*
 logs/*
+plots/*
+scripts/*
 
 # Files and directories produced when generating documentation
 docs/html/*
