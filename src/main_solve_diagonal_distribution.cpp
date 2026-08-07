@@ -107,6 +107,11 @@ typedef struct {
   uint32_t timeout;
 
   /*!
+   * \brief   The number of problem instances to solve for each n.
+   */
+  uint32_t instances;
+
+  /*!
    * \brief   The number of distributions to process.
    */
   uint32_t count;
@@ -155,11 +160,13 @@ static bool arguments_init_parse_command_line(
   arguments->solution_method = SOLUTION_METHOD_DEFAULT;
   arguments->reduction_algorithm = REDUCTION_ALGORITHM_DEFAULT;
   arguments->timeout = 0;
+  arguments->instances = 0;
   arguments->entries = NULL;
   arguments->count = 0;
 
   bool delta_bound_specified = FALSE;
   bool timeout_specified = FALSE;
+  bool instances_specified = FALSE;
 
   /* Iterate over the command line arguments. */
   int i;
@@ -329,6 +336,35 @@ static bool arguments_init_parse_command_line(
       continue;
     }
 
+    /* Parse the number of problem instances to solve. */
+    if (0 == strcmp(argv[i], "-instances")) {
+      /* Check that the number of instances has not already been specified. */
+      if (instances_specified) {
+        fprintf(stderr, "Error: The number of instances cannot be twice "
+          "specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected value to follow after -instances.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i+1]);
+      if (x <= 0) {
+        fprintf(stderr, "Error: The number of instances must be positive.\n");
+        return FALSE;
+      }
+
+      /* Store the number of instances. */
+      arguments->instances = (uint32_t)x;
+      instances_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
     /* Stop parsing. */
     break;
   }
@@ -348,6 +384,10 @@ static bool arguments_init_parse_command_line(
 
   if (TRUE != timeout_specified) {
     arguments->timeout = 300;
+  }
+
+  if (TRUE != instances_specified) {
+    arguments->instances = 1000;
   }
 
   /* Parse tuples { <distribution> <n> }. */
@@ -423,7 +463,7 @@ static void arguments_bcast_send(
 {
   int result;
 
-  uint32_t data[8];
+  uint32_t data[9];
   data[0] = arguments->delta_bound;
   data[1] = arguments->eta_bound;
   data[2] = (TRUE == arguments->eta_bound_specified) ? 1 : 0;
@@ -432,9 +472,10 @@ static void arguments_bcast_send(
   data[4] = (uint32_t)(arguments->solution_method);
   data[5] = (uint32_t)(arguments->reduction_algorithm);
   data[6] = (uint32_t)(arguments->timeout);
-  data[7] = (uint32_t)(arguments->count);
+  data[7] = (uint32_t)(arguments->instances);
+  data[8] = (uint32_t)(arguments->count);
 
-  result = MPI_Bcast(data, 8, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 9, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_bcast_send(): Failed to send broadcast.");
   };
@@ -491,9 +532,9 @@ static void arguments_init_bcast_recv(
 
   int result;
 
-  uint32_t data[8];
+  uint32_t data[9];
 
-  result = MPI_Bcast(data, 8, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 9, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_init_bcast_recv(): "
       "Failed to receive broadcast of collected metadata.");
@@ -506,7 +547,8 @@ static void arguments_init_bcast_recv(
   arguments->solution_method = (Solution_Method)(data[4]);
   arguments->reduction_algorithm = (Lattice_Reduction_Algorithm)(data[5]);
   arguments->timeout = data[6];
-  arguments->count = data[7];
+  arguments->instances = data[7];
+  arguments->count = data[8];
 
   arguments->entries =
     (Solve_Diagonal_Distribution_Arguments_Entry *)malloc(
@@ -631,6 +673,8 @@ static void arguments_fprintf(
       break;
   }
 
+  fprintf(file, "# Problem instances: %u\n", arguments->instances);
+
   log_timestamp_fprintf(file);
 }
 
@@ -707,6 +751,10 @@ static void main_server(
 
   /* Declare state machine state. */
   Adaptive_Search_State state = SEARCH_STATE_PIVOT;
+
+  /* The maximum number of failures allowed, corresponding to a 1% failure rate
+   * relative to the requested number of problem instances. */
+  const uint32_t fail_limit = (arguments->instances) / 100;
 
   while (TRUE) {
      /* Listen for a notification. */
@@ -820,7 +868,7 @@ static void main_server(
     }
 
     /* Check if a state change is in order. */
-    if (solution_status.fail_count > 10) {
+    if (solution_status.fail_count > fail_limit) {
       if (SEARCH_STRATEGY_NON_ADAPTIVE_EARLY_ABORT ==
         arguments->search_strategy)
       {
@@ -850,7 +898,9 @@ static void main_server(
       }
     }
 
-    if ((solution_status.success_count + solution_status.fail_count) >= 1000) {
+    if ((solution_status.success_count + solution_status.fail_count) >=
+      arguments->instances)
+    {
       if (SEARCH_STATE_PIVOT == state) {
         if (SEARCH_STRATEGY_ADAPTIVE == arguments->search_strategy) {
           state = SEARCH_STATE_DECREASE;
@@ -883,9 +933,10 @@ static void main_server(
       }
     }
 
-    /* If the number of issued jobs is already at 1000, sleep the node so that
-     * we can collect jobs from the nodes that are still processing problems. */
-    if (solution_status.issued_count >= 1000) {
+    /* If the number of issued jobs is already at the requested number of
+     * instances, sleep the node so that we can collect jobs from the nodes that
+     * are still processing problems. */
+    if (solution_status.issued_count >= arguments->instances) {
       /* Sleep the node whilst we wait for the other nodes to complete. */
       uint32_t job = MPI_JOB_SLEEP;
 
@@ -1321,8 +1372,9 @@ static void print_synopsis(
           "   [ -delta-bound <delta-bound> ] [ -eta-bound <eta-bound> ] \\\n"
           "      [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \\\n"
           "         [ -closest | -enumerate ] [ -timeout <timeout> ] \\\n"
-          "            [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
-          "               <distribution> <n> { <distribution> <n> }\n");
+          "            [ -instances <instances> ] \\\n"
+          "               [ -lll | -lll-then-bkz | -bkz | -hkz ] \\\n"
+          "                  <distribution> <n> { <distribution> <n> }\n");
 
   fprintf(file, "\n");
   fprintf(file, "Delta bound: -- defaults to %u\n", BOUND_DELTA);
@@ -1360,6 +1412,12 @@ static void print_synopsis(
   fprintf(file, "Timeout: -- defaults to 300 s = 5 min\n");
   fprintf(file,
     " -timeout  explicitly set the timeout to <timeout> seconds\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Problem instances: -- defaults to 1000\n");
+  fprintf(file,
+    " -instances  explicitly set the number of problem instances to\n"
+    "             <instances>; at least 99%% must be solved\n");
 }
 
 /*!

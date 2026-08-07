@@ -60,6 +60,11 @@ typedef struct {
   uint32_t cofactor_bound;
 
   /*!
+   * \brief   The number of problem instances to solve.
+   */
+  uint32_t instances;
+
+  /*!
    * \brief   The number of distributions to process.
    */
   uint32_t count;
@@ -103,11 +108,13 @@ static bool arguments_init_parse_command_line(
   /* Initialize the arguments data structure. */
   arguments->t_bound = 256; /* = 2^8 */
   arguments->cofactor_bound = 65536; /* = 2^16 */
+  arguments->instances = 0;
   arguments->paths = NULL;
   arguments->count = 0;
 
   bool t_bound_specified = FALSE;
   bool cofactor_bound_specified = FALSE;
+  bool instances_specified = FALSE;
 
   /* Iterate over the command line arguments. */
   int i;
@@ -175,8 +182,41 @@ static bool arguments_init_parse_command_line(
       continue;
     }
 
+    /* Parse the number of problem instances to solve. */
+    if (0 == strcmp(argv[i], "-instances")) {
+      /* Check that the number of instances has not already been specified. */
+      if (instances_specified) {
+        fprintf(stderr, "Error: The number of instances cannot be twice "
+          "specified.\n");
+        return FALSE;
+      }
+
+      if ((i + 1) >= argc) {
+        fprintf(stderr, "Error: Expected value to follow after -instances.\n");
+        return FALSE;
+      }
+
+      const int x = atoi(argv[i+1]);
+      if (x <= 0) {
+        fprintf(stderr, "Error: The number of instances must be positive.\n");
+        return FALSE;
+      }
+
+      /* Store the number of instances. */
+      arguments->instances = (uint32_t)x;
+      instances_specified = TRUE;
+
+      i++;
+
+      continue;
+    }
+
     /* Stop parsing. */
     break;
+  }
+
+  if (TRUE != instances_specified) {
+    arguments->instances = 1000;
   }
 
   /* Parse entries on the form {<distribution>}. */
@@ -240,12 +280,13 @@ static void arguments_bcast_send(
 {
   int result;
 
-  uint32_t data[3];
+  uint32_t data[4];
   data[0] = (uint32_t)(arguments->t_bound);
   data[1] = (uint32_t)(arguments->cofactor_bound);
-  data[2] = (uint32_t)(arguments->count);
+  data[2] = (uint32_t)(arguments->instances);
+  data[3] = (uint32_t)(arguments->count);
 
-  result = MPI_Bcast(data, 3, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 4, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_bcast_send(): "
       "Failed to send broadcast of collected metadata.");
@@ -294,9 +335,9 @@ static void arguments_init_bcast_recv(
 
   int result;
 
-  uint32_t data[3];
+  uint32_t data[4];
 
-  result = MPI_Bcast(data, 3, MPI_UNSIGNED, root, MPI_COMM_WORLD);
+  result = MPI_Bcast(data, 4, MPI_UNSIGNED, root, MPI_COMM_WORLD);
   if (MPI_SUCCESS != result) {
     critical("arguments_init_bcast_recv(): "
       "Failed to receive broadcast of collected metadata.");
@@ -304,7 +345,8 @@ static void arguments_init_bcast_recv(
 
   arguments->t_bound = data[0];
   arguments->cofactor_bound = data[1];
-  arguments->count = data[2];
+  arguments->instances = data[2];
+  arguments->count = data[3];
 
   arguments->paths = (char **)malloc((arguments->count) * sizeof(char *));
   if (NULL == arguments->paths) {
@@ -359,6 +401,8 @@ static void arguments_fprintf(
 {
   fprintf(file, "# Bounds: (t: %u, cofactor: %u)\n",
     arguments->t_bound, arguments->cofactor_bound);
+
+  fprintf(file, "# Problem instances: %u\n", arguments->instances);
 
   log_timestamp_fprintf(file);
 }
@@ -513,14 +557,17 @@ static void main_server(
       solution_status_print(stdout, &solution_status, NULL);
     }
 
-    if ((solution_status.success_count + solution_status.fail_count) >= 1000) {
+    if ((solution_status.success_count + solution_status.fail_count) >=
+      arguments->instances)
+    {
       solution_status_print(log_file, &solution_status, NULL);
       break;
     }
 
-    /* If the number of issued jobs is already at 1000, sleep the node so that
-     * we can collect jobs from the nodes that are still processing problems. */
-    if (solution_status.issued_count >= 1000) {
+    /* If the number of issued jobs is already at the requested number of
+     * instances, sleep the node so that we can collect jobs from the nodes that
+     * are still processing problems. */
+    if (solution_status.issued_count >= arguments->instances) {
       /* Sleep the node whilst we wait for the other nodes to complete. */
       uint32_t job = MPI_JOB_SLEEP;
 
@@ -856,7 +903,8 @@ static void print_synopsis(
 {
   fprintf(file, "Synopsis: mpirun solve_linear_distribution_shor\n"
             "   [ -t-bound <t-bound> ] [ -cofactor-bound <cofactor-bound> ]\n"
-            "      <distribution> { <distribution> }\n");
+            "      [ -instances <instances> ]\n"
+            "         <distribution> { <distribution> }\n");
   fprintf(file, "\n");
   fprintf(file, "Search bound on t: -- defaults to 2^8\n");
   fprintf(file,
@@ -867,6 +915,12 @@ static void print_synopsis(
   fprintf(file,
     " -cofactor-bound  sets the bound <cofactor-bound> on the cofactor\n"
     "                  between the order r and denominator\n");
+
+  fprintf(file, "\n");
+  fprintf(file, "Problem instances: -- defaults to 1000\n");
+  fprintf(file,
+    " -instances       explicitly set the number of problem instances to\n"
+    "                  <instances>\n");
 }
 
 /*!

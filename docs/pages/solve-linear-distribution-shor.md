@@ -4,12 +4,13 @@
 ```console
 Synopsis: mpirun solve_linear_distribution_shor
    [ -t-bound <t-bound> ] [ -cofactor-bound <cofactor-bound> ]
-      <distribution> { <distribution> }
+      [ -instances <instances> ]
+         <distribution> { <distribution> }
 ```
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for the order $r$ using Shor's original post-processing algorithm based on continued fraction expansion.
 
-In total $10^3$ problem instances are considered to gather statistics.
+In total $10^3$ problem instances are considered by default to gather statistics; this may be changed via the <code>-instances</code> flag.
 
 The results are written to the console and to a log file <code>logs/solve-linear-shor-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
@@ -25,6 +26,9 @@ Flag specifying the search bound on $t$ (defaults to $2^8$):
 
 Flag specifying the search bound on the cofactor (defaults to $2^{16}$):
 - <code>-cofactor-bound \<cofactor-bound\></code> sets the bound on the cofactor between the order $r$ and the denominator to <code>\<cofactor-bound\></code>
+
+Flag specifying the number of problem instances to solve (defaults to $10^3$):
+- <code>-instances \<instances\></code> sets the number of problem instances to <code>\<instances\></code>
 
 ## Interpreting the output
 The log file is on the format

@@ -4,12 +4,13 @@
 ```console
 Synopsis: mpirun solve_diagonal_distribution_shor \
    [ -t-bound <t-bound> ] [ -eta-bound <eta-bound> ] \
-      <distribution> { <distribution> }
+      [ -instances <instances> ] \
+         <distribution> { <distribution> }
 ```
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for the logarithm $d$ given the order $r$ using Shor's original post-processing algorithm modified to search over $t$ and $\eta$ as explained in [[E19p]](https://doi.org/10.48550/arXiv.1905.09084).
 
-In total $10^3$ problem instances are considered to gather statistics.
+In total $10^3$ problem instances are considered by default to gather statistics; this may be changed via the <code>-instances</code> flag.
 
 The results are written to the console and to a log file <code>logs/solve-diagonal-shor-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
@@ -29,6 +30,9 @@ Flag specifying the search bound $B_t$ in $t$ (defaults to zero):
 
 Flag specifying the search bound $B_\eta$ in $\eta$ (defaults to zero):
 - <code>-eta-bound \<eta-bound\></code> sets the search bound $B_\eta$ to <code>\<eta-bound\></code>
+
+Flag specifying the number of problem instances to solve (defaults to $10^3$):
+- <code>-instances \<instances\></code> sets the number of problem instances to <code>\<instances\></code>
 
    All $\eta \in [-B_\eta, B_\eta] \cap \mathbb Z$ are searched when sampling $j$ and $\eta$, and when solving $(j, k)$ for $d$ given $r$.
 

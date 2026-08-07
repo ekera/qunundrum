@@ -6,15 +6,16 @@ Synopsis: mpirun solve_diagonal_distribution \
    [ -delta-bound <delta-bound> ] [ -eta-bound <eta-bound> ] \
       [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \
          [ -closest | -enumerate ] [ -timeout <timeout> ] \
-            [ -lll | -lll-then-bkz | -bkz | -hkz ] \
-               <distribution> <n> { <distribution> <n> }
+            [ -instances <instances> ] \
+               [ -lll | -lll-then-bkz | -bkz | -hkz ] \
+                  <distribution> <n> { <distribution> <n> }
 ```
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs of $n$ runs for the logarithm $d$ given the order $r$.
 
 This when accepting to search all combinations of peak indices $\eta_1, \ldots, \eta_n$ such that $\eta_i \in [-B_\eta, B_\eta] \cap \mathbb Z$.
 
-In total $10^3$ problem instances are considered to gather statistics.
+In total $10^3$ problem instances are considered by default to gather statistics; this may be changed via the <code>-instances</code> flag.
 
 The results are written to the console and to a log file <code>logs/solve-diagonal-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
@@ -49,6 +50,11 @@ Flag specifying the enumeration timeout (defaults to 300 s):
 - <code>-timeout \<timeout\></code> sets the enumeration timeout to <code>\<timeout\></code> seconds
 
    Once this timeout is elapsed the enumeration is aborted. This is reported as a failure to solve.
+
+Flag specifying the number of problem instances to solve (defaults to $10^3$):
+- <code>-instances \<instances\></code> sets the number of problem instances to <code>\<instances\></code>
+
+   At least 99% of the problem instances must be solved for the current $n$ to count as a success.
 
 Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bkz</code>):
 - <code>-lll</code> use Lenstra-Lenstra-Lovász (LLL)

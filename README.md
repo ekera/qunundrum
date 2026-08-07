@@ -89,7 +89,7 @@ $ mpirun ./solve_linear_distribution \
      distributions/linear-distribution-max-dim-2048-d-m-256-s-1.txt 2
 ```
 
-By default, the solver does not enumerate the lattice. To enable enumeration, add the <code>-enumerate</code> flag. Note that the enumeration itself is not parallelized. There is a <code>-timeout</code> flag that controls the timeout for enumeration operations. By default, the timeout is set to 5 minutes.
+By default, the solver does not enumerate the lattice. To enable enumeration, add the <code>-enumerate</code> flag. Note that the enumeration itself is not parallelized. There is a <code>-timeout</code> flag that controls the timeout for enumeration operations. By default, the timeout is set to 5 minutes. By default, $10^3$ problem instances are sampled to gather statistics; this may be changed via the <code>-instances</code> flag.
 
 There are additional flags for selecting which lattice basis reduction to use. By default, the solver adaptively seeks to identify the smallest $n$ such that the bound is respected. The search is aborted as soon as this $n$ has been identified. There are also flags for disabling the adaptive search and early abort features.
 
