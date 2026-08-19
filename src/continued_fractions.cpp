@@ -96,7 +96,7 @@ bool continued_fractions_solve(
 
   bool found = FALSE;
 
-  for (uint32_t depth = 1; ; depth++) {
+  while (TRUE) {
     mpfr_floor(integer_part, fraction); /* next coefficient */
 
     /* Construct the next denominator. */

@@ -20,6 +20,7 @@
 #include "../parameters_selection.h"
 #include "../random.h"
 #include "../sample.h"
+#include "../string_utilities.h"
 
 #include <gmp.h>
 #include <mpfr.h>
@@ -737,7 +738,7 @@ void test_sample_k_from_diagonal_j_eta_pivot_kat() {
           30); /* t = 30 */
 
         char path[MAX_BUFFER_SIZE];
-        sprintf(path,
+        safe_snprintf(path, MAX_BUFFER_SIZE,
           "res/test-vectors/sample-k-from-diagonal-j-eta-pivot-"
             "m-%u-sigma-%u-s-%u.txt", m, sigma, s);
         printf(" Processing: %s\n", path);

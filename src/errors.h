@@ -28,7 +28,7 @@ extern "C" {
  * \param[in] msg   The error message, with optional formatting specifiers and
  *                  corresponding trailing arguments.
  */
-void critical(const char * msg, ...);
+void critical(const char * msg, ...) __attribute__((noreturn));
 
 #ifdef __cplusplus
 }

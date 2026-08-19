@@ -15,6 +15,7 @@
 #include "../errors.h"
 #include "../math.h"
 #include "../parameters_selection.h"
+#include "../string_utilities.h"
 
 #include <gmp.h>
 #include <mpfr.h>
@@ -112,7 +113,7 @@ void test_diagonal_probability_f_eta_approx_kat() {
         mpfr_div(scale_factor, scale_factor, tmp, MPFR_RNDN);
 
         char path[MAX_BUFFER_SIZE];
-        sprintf(path,
+        safe_snprintf(path, MAX_BUFFER_SIZE,
           "res/test-vectors/diagonal-probabilities-f-eta-"
             "det-m-%u-sigma-%u-s-%u.txt",
               m, sigma, s);
@@ -232,7 +233,7 @@ void test_diagonal_probability_h_approx_kat() {
           30); /* t = 30 */
 
         char path[MAX_BUFFER_SIZE];
-        sprintf(path,
+        safe_snprintf(path, MAX_BUFFER_SIZE,
           "res/test-vectors/diagonal-probabilities-h-"
             "det-m-%u-sigma-%u-s-%u.txt",
               m, sigma, s);

@@ -7,7 +7,7 @@ Synopsis: mpirun estimate_runs_linear_distribution \
 ```
 Estimates the number of runs required to solve a linear distribution for a logarithm $d$ or order $r$ depending on the type of distribution input with at least 99\% success probability when accepting to enumerate at most $B_v$ vectors in the lattice.
 
-The results are written to the console and to <code>logs/estimate-runs-linear.txt</code>.
+The results are written to the console and to a log file <code>logs/estimate-runs-linear-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -20,8 +20,10 @@ Flag specifying the bound $B_v$ in $v$ (defaults to 2):
 - <code>-v-bound \<v-bound\></code> sets the bound $B_v$ to <code>\<v-bound\></code>
 
 ## Interpreting the output
-The log file <code>logs/estimate-runs-linear.txt</code> is on the format
+The log file is on the format
 ```
+# Log file: estimate-runs-linear-20240229-012216+0100-7b1e4a09.txt
+
 # Processing: linear-distribution-det-dim-2048-d-m-2048-s-30.txt
 # Bounds: (v = 2)
 # Timestamp: 2024-02-29 01:22:16 CET

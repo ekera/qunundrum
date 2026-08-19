@@ -14,7 +14,13 @@
 #include <gmp.h>
 #include <mpfr.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic ignored "-Wtemplate-id-cdtor"
+#endif
 #include <fplll/fplll.h>
+#pragma GCC diagnostic pop
 
 #include <stdint.h>
 

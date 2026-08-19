@@ -18,6 +18,7 @@
 #include "common.h"
 #include "errors.h"
 #include "gmp_mpi.h"
+#include "log.h"
 #include "random.h"
 #include "rsa.h"
 #include "string_utilities.h"
@@ -405,23 +406,8 @@ static void main_server(
 
   uint32_t clients = (uint32_t)(mpi_size - 1);
 
-  /* Create the log directory if it does not exist. */
-  if (0 != access(LOGS_DIRECTORY, F_OK)) {
-    if (0 != mkdir(LOGS_DIRECTORY, DIRECTORY_PERMISSIONS)) {
-      critical("main_server(): Failed to create the directory \"%s\".",
-        LOGS_DIRECTORY);
-    }
-  }
-
   /* Open the log file for appending, creating it if it does not exist. */
-  char log_path[MAX_SIZE_PATH_BUFFER];
-  safe_snprintf(log_path, MAX_SIZE_PATH_BUFFER,
-    "%s/rsa-simulate-tau.txt", LOGS_DIRECTORY);
-
-  FILE * log_file = fopen(log_path, "a+");
-  if (NULL == log_file) {
-    critical("main_server(): Failed to open \"%s\" for appending.", log_path);
-  }
+  FILE * log_file = log_open("rsa-simulate-tau");
 
   /* Write a header to the log file. */
   fprintf(log_file, "Modulus length: %u bits\n", modulus_length);

@@ -4,14 +4,15 @@
 ```console
 Synopsis: mpirun solve_linear_distribution_shor
    [ -t-bound <t-bound> ] [ -cofactor-bound <cofactor-bound> ]
-      <distribution> { <distribution> }
+      [ -instances <instances> ]
+         <distribution> { <distribution> }
 ```
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs for the order $r$ using Shor's original post-processing algorithm based on continued fraction expansion.
 
-In total $10^3$ problem instances are considered to gather statistics.
+In total $10^3$ problem instances are considered by default to gather statistics; this may be changed via the <code>-instances</code> flag.
 
-The results are written to the console and to <code>logs/solve-linear-shor.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-linear-shor-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -26,18 +27,23 @@ Flag specifying the search bound on $t$ (defaults to $2^8$):
 Flag specifying the search bound on the cofactor (defaults to $2^{16}$):
 - <code>-cofactor-bound \<cofactor-bound\></code> sets the bound on the cofactor between the order $r$ and the denominator to <code>\<cofactor-bound\></code>
 
+Flag specifying the number of problem instances to solve (defaults to $10^3$):
+- <code>-instances \<instances\></code> sets the number of problem instances to <code>\<instances\></code>
+
 ## Interpreting the output
-The log file <code>logs/solve-linear-shor.txt</code> is on the format
+The log file is on the format
 ```
+# Log file: solve-linear-shor-20240229-014632+0100-6c1b4d72.txt
+
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 256, cofactor: 65536)
 # Timestamp: 2024-02-29 01:46:32 CET
-m: 2048 s: 1 n: 1 -- success: 999 -- fail: 1 (0) -- prepare:    20.329 ms solve:    20.699 ms [    9.937,  5111.765] 
+m: 2048 s: 1 n: 1 -- success: 999 -- fail: 1 (0) -- prepare:    20.329 ms solve:    20.699 ms [    9.937,  5111.765]
 
 # Processing: linear-distribution-det-dim-2048-r-m-2048-s-1.txt
 # Bounds: (t: 0, cofactor: 1)
 # Timestamp: 2024-02-29 01:48:36 CET
-m: 2048 s: 1 n: 1 -- success: 220 -- fail: 780 (0) -- prepare:     0.949 ms solve:    11.039 ms [    9.886,    12.118] 
+m: 2048 s: 1 n: 1 -- success: 220 -- fail: 780 (0) -- prepare:     0.949 ms solve:    11.039 ms [    9.886,    12.118]
 ```
 where we find $m$, $s$ or $\ell$, $n$ — #success — #fail — prep-time — solve-time, and where
 - $m$ is the bit length of the order $r$,

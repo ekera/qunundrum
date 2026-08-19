@@ -5,16 +5,16 @@
 Synopsis: mpirun solve_distribution \
    [ -adaptive | -non-adaptive | -non-adaptive-early-abort ] \
       [ -closest | -enumerate ] [ -timeout <timeout> ] \
-         [ -detect-smooth-order ] \
+         [ -detect-smooth-order ] [ -instances <instances> ] \
             [ -lll | -lll-then-bkz | -bkz | -hkz ] \
                <distribution> <n> { <distribution> <n> }
 ```
 
 Simulates the quantum algorithm by sampling the distribution, and solves the simulated outputs of $n$ runs for the logarithm $d$ and order $r$.
 
-In total $10^3$ problem instances are considered to gather statistics.
+In total $10^3$ problem instances are considered by default to gather statistics; this may be changed via the <code>-instances</code> flag.
 
-The results are written to the console and to <code>logs/solve.txt</code>.
+The results are written to the console and to a log file <code>logs/solve-YYYYMMDD-HHmmss±ZZZZ-XXXXXXXX.txt</code> where <code>YYYYMMDD-HHmmss</code> is the date and time when the executable was started, <code>±ZZZZ</code> is the timezone offset from UTC in hours and minutes (HHmm), and <code>XXXXXXXX</code> is a random 32-bit integer in hexadecimal. This prevents concurrently running executables from writing to the same log file.
 
 > <b>Note:</b> This is an MPI program. The node with rank zero acts as server. All other nodes are clients, requesting jobs from and reporting back to the server node. A minimum of two nodes is hence required.
 
@@ -41,6 +41,11 @@ Flag specifying the enumeration timeout (defaults to 300 s):
 
    Once this timeout is elapsed the enumeration is aborted. This is reported as a failure to solve. There are separate timeouts when enumerating for $d$ and $r$ respectively.
 
+Flag specifying the number of problem instances to solve (defaults to $10^3$):
+- <code>-instances \<instances\></code> sets the number of problem instances to <code>\<instances\></code>
+
+   At least 99% of the problem instances must be solved for the current $n$ to count as a success.
+
 Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bkz</code>):
 - <code>-lll</code> use Lenstra-Lenstra-Lovász (LLL)
 - <code>-bkz</code> use block Korkin-Zolotarev (BKZ)
@@ -48,8 +53,10 @@ Flags specifying the lattice reduction algorithm (defaults to <code>-lll-then-bk
 - <code>-lll-then-bkz</code> use LLL and then BKZ if solving the LLL-reduced basis fails
 
 ## Interpreting the output
-The log file <code>logs/solve.txt</code> is on the format
+The log file is on the format
 ```
+# Log file: solve-20240229-013600+0100-1d6f8b23.txt
+
 # Processing: distribution-det-dim-heuristic-sigma-optimal-m-2048-s-30.txt
 # Search strategy: Adaptive
 # Solution method: Closest
